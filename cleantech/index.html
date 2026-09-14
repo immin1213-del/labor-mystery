@@ -153,6 +153,14 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outl
 .role-card .pick{margin-top:6px;}
 .role-card.taken{opacity:.5;}
 .role-card.taken .pick{background:none;border:none;color:var(--text-dim);font-size:12px;padding:0;}
+.role-card.npc{opacity:.7;border-style:dashed;}
+.role-card .pick.npc{background:none;border:none;color:var(--text-dim);font-size:12px;padding:0;font-weight:700;}
+.role-card .btn.npc-toggle{font-size:11px;padding:5px 8px;background:none;color:var(--text-dim);border-color:var(--ink-3);}
+.role-card .btn.npc-cancel{font-size:11px;padding:5px 8px;align-self:flex-start;}
+.casting-progress{
+  font-family:var(--mono);font-size:13px;color:var(--gold);font-weight:700;
+  margin-bottom:18px;padding:8px 12px;background:var(--ink-2);border-radius:4px;display:inline-block;
+}
 
 /* ---------- 탭 ---------- */
 .tabs{display:flex;gap:8px;margin:18px 0 14px;flex-wrap:wrap;}
@@ -434,8 +442,8 @@ const LOWER_RULING = {
 };
 
 // 게임 진행 단계 순서와 각 단계 기본 지속시간(초)
-const PHASES = ["briefing","intro","round2","round3","round4","discussion","vote","result"];
-const PHASE_LABEL = {briefing:"사건 개요·전후관계 파악", intro:"자기소개", round2:"1라운드 · 증거 공개", round3:"2라운드 · 증거 공개", round4:"3라운드 · 증거 공개", discussion:"교차검증 토론", vote:"최종 판정 투표", result:"판정 결과"};
+const PHASES = ["casting","briefing","intro","round2","round3","round4","discussion","vote","result"];
+const PHASE_LABEL = {casting:"배역 선택 대기", briefing:"사건 개요·전후관계 파악", intro:"자기소개", round2:"1라운드 · 증거 공개", round3:"2라운드 · 증거 공개", round4:"3라운드 · 증거 공개", discussion:"교차검증 토론", vote:"최종 판정 투표", result:"판정 결과"};
 
 // 단계가 바뀔 때마다 자동으로 뜨는 안내 팝업 — 별도 진행자 없이도 다음에 뭘 해야 할지 알 수 있게 함
 const PHASE_GUIDE = {
@@ -449,7 +457,9 @@ const PHASE_GUIDE = {
 };
 // 1라운드는 카드 공개 없이 타임라인·초심 판정 요지로 사건 흐름부터 파악하는 시간 — 그래서 더 길게 배정
 // intro는 인원수(최대 6명) × 대략 40초 정도의 자기소개 시간을 감안한 기본값
-const DURATIONS = {briefing:600, intro:240, round2:300, round3:300, round4:300, discussion:600, vote:120};
+// casting은 타이머로 넘어가는 단계가 아니라 "전원 배역 확정"으로 넘어가는 단계라 화면에 카운트다운을 보여주지 않음.
+// 그래도 상태 문서엔 phaseEndsAt이 필요해서(다른 단계와 동일한 형식 유지), 사실상 안 쓰일 넉넉한 안전장치 값만 넣어둠.
+const DURATIONS = {casting:1800, briefing:600, intro:240, round2:300, round3:300, round4:300, discussion:600, vote:120};
 
 // 6인 캐릭터 — 각자 배경/입장/비밀/목표/관계 + 개인 단서 3장(1·2·3라운드에 순차 공개)
 // background·account·relations는 실제 판정문의 사실관계를 각색해 살을 붙인 것으로,
@@ -697,9 +707,9 @@ const ENDINGS = {
    2. 저장소 어댑터 — db 캡차빌리티(있으면 실시간 동기화) / 없으면 로컬 단일기기 모드
    ============================================================ */
 function makeLocalStore(){
-  let state = {phase:"briefing", phaseEndsAt: Date.now()+DURATIONS.briefing*1000};
-  const players = new Map(); const votes = new Map(); const claims = new Map(); const ready = new Set(); const revealed = new Set();
-  const stateCbs=[], playerCbs=[], voteCbs=[], claimCbs=[], readyCbs=[], revealCbs=[];
+  let state = {phase:"casting", phaseEndsAt: Date.now()+DURATIONS.casting*1000};
+  const players = new Map(); const votes = new Map(); const claims = new Map(); const ready = new Set(); const revealed = new Set(); const npc = new Set();
+  const stateCbs=[], playerCbs=[], voteCbs=[], claimCbs=[], readyCbs=[], revealCbs=[], npcCbs=[];
   return {
     isLocal:true,
     onState(cb){stateCbs.push(cb); cb(state); return ()=>{};},
@@ -715,6 +725,8 @@ function makeLocalStore(){
     setReady(key,isReady){ if(isReady) ready.add(key); else ready.delete(key); readyCbs.forEach(cb=>cb(ready)); },
     onRevealed(cb){revealCbs.push(cb); cb(revealed); return ()=>{};},
     revealCard(cardId){ revealed.add(cardId); revealCbs.forEach(cb=>cb(revealed)); },
+    onNpc(cb){npcCbs.push(cb); cb(npc); return ()=>{};},
+    setNpc(roleId,isNpc){ if(isNpc) npc.add(roleId); else npc.delete(roleId); npcCbs.forEach(cb=>cb(npc)); },
   };
 }
 function makeDbStore(db, roomId){
@@ -725,12 +737,13 @@ function makeDbStore(db, roomId){
   const claimsCol = db.collection(`rooms/${roomId}/claims`);
   const readyCol = db.collection(`rooms/${roomId}/ready`);
   const revealedCol = db.collection(`rooms/${roomId}/revealed`);
+  const npcCol = db.collection(`rooms/${roomId}/npc`);
   return {
     isLocal:false,
     onState(cb){
       return stateRef.onSnapshot(async (snap)=>{
         if(!snap.exists){
-          try{ await stateRef.set({phase:"briefing", phaseEndsAt:new Date(Date.now()+DURATIONS.briefing*1000).toISOString()}); }catch(e){}
+          try{ await stateRef.set({phase:"casting", phaseEndsAt:new Date(Date.now()+DURATIONS.casting*1000).toISOString()}); }catch(e){}
           return;
         }
         cb(snap.data());
@@ -785,6 +798,17 @@ function makeDbStore(db, roomId){
       }, ()=>{});
     },
     async revealCard(cardId){ try{ await revealedCol.doc(cardId).set({at:new Date().toISOString()}); }catch(e){} },
+    onNpc(cb){
+      return npcCol.onSnapshot(qs=>{
+        const s=new Set(); qs.docs.forEach(d=>s.add(d.id)); cb(s);
+      }, ()=>{});
+    },
+    async setNpc(roleId, isNpc){
+      try{
+        if(isNpc) await npcCol.doc(roleId).set({at:new Date().toISOString()});
+        else await npcCol.doc(roleId).delete();
+      }catch(e){}
+    },
   };
 }
 
@@ -808,12 +832,14 @@ let store = null;      // 현재 조(room)에 연결된 스토어 — 방 선택
 let myRoom = localStorage.getItem("lm_room") || null;
 let myName = localStorage.getItem("lm_playername") || ""; // 참가자 실명 — 역할 로스터에 표시용
 let myRole = null; // 역할은 방(room)마다 따로 저장 — connectStore()에서 room-scoped 키로 읽어옴
-let sharedState = {phase:"briefing", phaseEndsAt: Date.now()+DURATIONS.briefing*1000};
+let sharedState = {phase:"casting", phaseEndsAt: Date.now()+DURATIONS.casting*1000};
 let players = new Map();
 let votes = new Map();
 let claims = new Map(); // 소유용 카드의 현재 소유자(roleId) — cardId -> {by}
 let readySet = new Set(); // "다음 단계 준비완료"를 누른 사람들 — 키는 `${phase}_${roleId}`
 let revealedSet = new Set(); // 소유자가 "공개하기"를 눌러 전원에게 드러난 소유용 카드 id들
+let npcSet = new Set(); // NPC로 돌리기로 한 역할 id들 — 인원이 6명이 안 될 때 남는 역할을 채움
+function castingFilled(){ return players.size + npcSet.size >= CHARACTERS.length; } // 6개 역할이 전부 "실제 참가자" 또는 "NPC"로 채워졌는지
 function readyKey(){ return sharedState.phase + "_" + myRole; }
 function readyCountForPhase(){
   let n=0; readySet.forEach(k=>{ if(k.startsWith(sharedState.phase+"_")) n++; }); return n;
@@ -856,11 +882,11 @@ function sanitizeRoomCode(raw){ return (raw||"").trim().toUpperCase().replace(/[
 // 조(room) 연결 — 코드 입력 시 그 조 전용 경로로 스토어를 새로 구성
 function connectStore(){
   unsubFns.forEach(u=>{ try{ u && u(); }catch(e){} }); unsubFns=[];
-  players = new Map(); votes = new Map(); claims = new Map(); readySet = new Set(); revealedSet = new Set(); myCardsOpen = false; rosterOpen = false;
+  players = new Map(); votes = new Map(); claims = new Map(); readySet = new Set(); revealedSet = new Set(); npcSet = new Set(); myCardsOpen = false; rosterOpen = false;
   phaseGuideOpen = false; lastSeenGuidePhase = null;
   myRole = localStorage.getItem("lm_role_"+myRoom) || null; // 이 방에서 예전에 고른 역할이 있으면 복원
   loadMyOpened();
-  sharedState = {phase:"briefing", phaseEndsAt: Date.now()+DURATIONS.briefing*1000};
+  sharedState = {phase:"casting", phaseEndsAt: Date.now()+DURATIONS.casting*1000};
   stateLoaded = false; // 서버의 진짜 현재 단계를 아직 못 받아온 상태 — 이 동안은 준비완료 체크로 단계를 넘기지 않는다
   updateConnBanner();
   setTimeout(()=>{ if(myRoom && !stateLoaded) updateConnBanner(); }, 5000); // 5초 지나도 연결 안 되면 경고 표시
@@ -876,7 +902,18 @@ function connectStore(){
     if(!wasLoaded) updateConnBanner();
     if(changed) render(); // render() 안에서 새 단계 안내 팝업 표시 여부를 알아서 체크함
   }));
-  unsubFns.push(store.onPlayers(p=>{ const changed = p.size!==players.size; players = p; if(changed && !myRole) render(); }));
+  unsubFns.push(store.onPlayers(p=>{
+    const changed = p.size!==players.size;
+    players = p;
+    if(stateLoaded && sharedState.phase==="casting" && castingFilled()) advancePhase();
+    if(changed && (!myRole || sharedState.phase==="casting")) render();
+  }));
+  unsubFns.push(store.onNpc(n=>{
+    const changed = n.size!==npcSet.size;
+    npcSet = n;
+    if(stateLoaded && sharedState.phase==="casting" && castingFilled()) advancePhase();
+    if(changed && (!myRole || sharedState.phase==="casting")) render();
+  }));
   unsubFns.push(store.onVotes(v=>{ const changed = v.size!==votes.size; votes = v; if(changed && (sharedState.phase==="vote"||sharedState.phase==="result")) render(); }));
   unsubFns.push(store.onClaims(c=>{ const changed = c.size!==claims.size; claims = c; if(changed && activeTab==="cards") render(); }));
   unsubFns.push(store.onRevealed(r=>{ const changed=r.size!==revealedSet.size; revealedSet=r; if(changed && activeTab==="cards") render(); }));
@@ -893,7 +930,7 @@ function leaveRoom(){
   unsubFns.forEach(u=>{ try{ u && u(); }catch(e){} }); unsubFns=[];
   localStorage.removeItem("lm_room");
   if(myRoom) localStorage.removeItem("lm_role_"+myRoom);
-  myRoom=null; myRole=null; store=null; players=new Map(); votes=new Map(); claims=new Map(); readySet=new Set(); revealedSet=new Set(); myCardsOpen=false; rosterOpen=false; myOpened=new Set();
+  myRoom=null; myRole=null; store=null; players=new Map(); votes=new Map(); claims=new Map(); readySet=new Set(); revealedSet=new Set(); npcSet=new Set(); myCardsOpen=false; rosterOpen=false; myOpened=new Set();
   phaseGuideOpen=false; lastSeenGuidePhase=null; stateLoaded=false;
   activeTab="id"; gateError=""; roomError="";
   updateConnBanner();
@@ -916,7 +953,7 @@ function fmtClock(ms){
 
 function render(){
   if(!myRoom){ renderRoomGate(); return; }
-  if(!myRole){ renderGate(); return; }
+  if(!myRole || sharedState.phase==="casting"){ renderGate(); return; } // 배역 미선택, 혹은 내 배역은 정했지만 다른 사람들이 아직 고르는 중
   showPhaseGuideIfNew(); // 이 단계 안내를 아직 못 봤다면 표시(중복 호출은 내부에서 걸러짐)
   const me = CHARACTERS.find(c=>c.id===myRole);
   // 토론/투표/결과 단계에서도 "내 신원·사건개요·증거카드" 탭은 항상 유지 —
@@ -987,7 +1024,7 @@ function renderRosterModal(){
         return `<div class="my-card">
           <div class="side-tag ${c.side==='사측'?'employer':'floor'}" style="margin-bottom:4px;">${c.side}</div>
           <div class="doc-title">${c.name} <span style="font-weight:400;color:var(--text-paper-dim);">· ${c.seat}</span></div>
-          <div class="doc-body">${p ? `👤 <b>${p.playerName || "이름 미입력"}</b>님이 맡았습니다` : "아직 아무도 고르지 않았습니다"}</div>
+          <div class="doc-body">${p ? `👤 <b>${p.playerName || "이름 미입력"}</b>님이 맡았습니다` : npcSet.has(c.id) ? "🤖 NPC로 진행" : "아직 아무도 고르지 않았습니다"}</div>
         </div>`;
       }).join("")}
     </div>
@@ -1128,23 +1165,41 @@ function renderRoleGrid(list){
   return `<div class="role-grid">
     ${list.map(c=>{
       const taken = players.has(c.id);
-      return `<div class="role-card ${taken?'taken':''}">
+      const isNpc = npcSet.has(c.id);
+      const isMe = myRole===c.id;
+      let bodyHtml;
+      if(taken){
+        bodyHtml = `<div class="pick">${isMe?"✔ 나":`✔ ${players.get(c.id)?.playerName || "선택됨"}`}</div>`;
+      } else if(isNpc){
+        bodyHtml = `<div class="pick npc">🤖 NPC로 진행</div><button class="btn npc-cancel" data-npcoff="${c.id}">되돌리기</button>`;
+      } else {
+        bodyHtml = `
+          ${myRole?"":`<button class="btn primary pick" data-role="${c.id}">이 역할 맡기</button>`}
+          <button class="btn npc-toggle" data-npcon="${c.id}">🤖 사람 없으면 NPC로</button>`;
+      }
+      return `<div class="role-card ${taken?'taken':''} ${isNpc?'npc':''}">
         <div class="side-tag ${c.side==='사측'?'employer':'floor'}">${c.side}</div>
         <div class="seat">${c.seat}</div>
         <div class="name">${c.name}</div>
         <div class="org">${c.org} · ${c.age}세</div>
-        ${taken ? `<div class="pick">✔ ${players.get(c.id)?.playerName || "선택됨"}</div>` : `<button class="btn primary pick" data-role="${c.id}">이 역할 맡기</button>`}
+        ${bodyHtml}
       </div>`;
     }).join("")}
   </div>`;
 }
 
 function renderGate(){
+  const filled = players.size + npcSet.size;
+  const waiting = myRole && sharedState.phase==="casting"; // 나는 이미 배역을 정했고, 다른 사람들을 기다리는 중
   app.innerHTML = `
     <div class="gate">
       <div class="case-no mono">사건번호 ${CASE_NO} · 방 코드 ${myRoom}</div>
       <h1>ER 미스터리 '(주)클린테크 갱신거절 사건'</h1>
-      <p class="lede">사측 경영진 3명 · 근로자측 3명, 총 6개의 역할이 각자 다른 증거를 쥐고 있습니다. 자신의 배역을 선택하세요 — 이미 다른 참가자가 고른 배역은 선택할 수 없습니다.</p>
+      ${waiting
+        ? `<p class="lede">당신은 <b>${CHARACTERS.find(c=>c.id===myRole).name}</b> 역할입니다. 다른 참가자들이 배역을 고르는 중이에요 — <b>모든 배역이 정해지면 자동으로 사건이 시작됩니다.</b></p>`
+        : `<p class="lede">사측 경영진 3명 · 근로자측 3명, 총 6개의 역할이 각자 다른 증거를 쥐고 있습니다. 자신의 배역을 선택하세요 — 이미 다른 참가자가 고른 배역은 선택할 수 없습니다. 6명이 다 모이지 않았다면, 남는 역할을 "NPC로" 돌려서 인원 수를 맞출 수 있습니다.</p>`
+      }
+      <div class="casting-progress">배역 확정 현황: <b>${filled} / ${CHARACTERS.length}</b>${npcSet.size?` (참가자 ${players.size}명 · NPC ${npcSet.size}명)`:""}</div>
       ${gateError?`<p style="color:var(--seal-bright);font-size:13px;margin-bottom:14px;">${gateError}</p>`:""}
       <button class="btn" id="leaveRoomBtn" style="margin-bottom:16px;">다른 조 코드로 나가기</button>
       <div class="side-block">
@@ -1171,6 +1226,20 @@ function renderGate(){
         gateError = "역할 선택 중 통신 오류가 발생했습니다. 다시 시도해 주세요.";
         render();
       }
+    });
+  });
+  app.querySelectorAll("[data-npcon]").forEach(b=>{
+    b.addEventListener("click", async ()=>{
+      b.disabled = true;
+      try{ await store.setNpc(b.dataset.npcon, true); }catch(e){}
+      render();
+    });
+  });
+  app.querySelectorAll("[data-npcoff]").forEach(b=>{
+    b.addEventListener("click", async ()=>{
+      b.disabled = true;
+      try{ await store.setNpc(b.dataset.npcoff, false); }catch(e){}
+      render();
     });
   });
 }
@@ -1352,7 +1421,7 @@ function renderVote(){
             </button>`).join("")}
         </div>
       </div>`).join("")}
-    <div class="vote-progress">두 쟁점 모두 투표 완료: ${votesDoneCount()} / ${CHARACTERS.length}명</div>
+    <div class="vote-progress">두 쟁점 모두 투표 완료: ${votesDoneCount()} / ${players.size}명${npcSet.size?` (NPC ${npcSet.size}명 제외)`:""}</div>
   `;
 }
 function bindVote(){
@@ -1362,7 +1431,7 @@ function bindVote(){
       const next = {...cur, [b.dataset.axis]: b.dataset.v};
       votes.set(myRole, next);
       await store.castVote(myRole, next);
-      if(votesDoneCount() >= CHARACTERS.length) advancePhase();
+      if(votesDoneCount() >= players.size) advancePhase();
       else render();
     });
   });
@@ -1395,7 +1464,7 @@ function renderResult(){
         const cardId = c.id+"-4";
         const wasRevealed = revealedSet.has(cardId);
         return `<div class="epilogue-row">
-          <span class="ep-name">${isTop?"👑 ":""}${c.name}</span><span class="ep-tag">${c.side} · ${c.seat}</span><span class="ep-score ${score<0?'neg':'pos'}">${score>0?'+':''}${score}점</span><span class="ep-tag">${wasRevealed?"🗣 비밀 공개됨":"🔒 비밀 지켜짐"}</span>
+          <span class="ep-name">${isTop?"👑 ":""}${c.name}</span><span class="ep-tag">${c.side} · ${c.seat}${npcSet.has(c.id)?" · 🤖 NPC":""}</span><span class="ep-score ${score<0?'neg':'pos'}">${score>0?'+':''}${score}점</span><span class="ep-tag">${wasRevealed?"🗣 비밀 공개됨":"🔒 비밀 지켜짐"}</span>
           <div>${wasRevealed ? c.epilogue.revealed : c.epilogue.hidden}</div>
         </div>`;
       }).join("")}
