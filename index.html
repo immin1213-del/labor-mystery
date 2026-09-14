@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ER미스터리 '(주)클린테크 갱신거절 사건'</title>
 <style>
 /* ============================================================
@@ -333,10 +338,23 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outl
 @media (prefers-reduced-motion:reduce){
   .flipcard-inner{transition:none;}
 }
+.conn-banner{
+  display:none; position:sticky; top:0; z-index:50;
+  padding:8px 16px; text-align:center; font-size:12.5px; font-weight:700;
+  font-family:var(--mono); letter-spacing:.02em;
+}
+.conn-banner.show{display:block;}
+.conn-banner.local{background:var(--seal); color:#fff;}
+.conn-banner.slow{background:var(--gold); color:#fff;}
 </style>
+</head>
+<body>
 
+<div id="connBanner" class="conn-banner"></div>
 <div id="app" class="wrap"></div>
 
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script>
 /* ============================================================
    1. 사건 데이터 — 캐릭터/단서/타임라인/판정 (모두 각색된 가상 인물)
@@ -772,7 +790,18 @@ function makeDbStore(db, roomId){
    3. 앱 상태 & 렌더
    ============================================================ */
 const app = document.getElementById("app");
-let dbHandle = null;   // window.claude.use("db") 결과(없으면 null)
+let dbHandle = null;   // Firebase Firestore 인스턴스(초기화 실패 시 null → 로컬 단독 모드로 폴백)
+
+// Firebase 프로젝트 설정 — 이 프로젝트는 "노동미스터리" 파티게임 전용, 접근 제한 없는 테스트 모드 DB.
+const firebaseConfig = {
+  apiKey: "AIzaSyB3Wmj8_Q1fBWJAlFBtH5jIJVxTNh4_Ydw",
+  authDomain: "gen-lang-client-0482079303.firebaseapp.com",
+  projectId: "gen-lang-client-0482079303",
+  storageBucket: "gen-lang-client-0482079303.firebasestorage.app",
+  messagingSenderId: "32922324860",
+  appId: "1:32922324860:web:4fd4d93dfa28f82b491ef9",
+  measurementId: "G-0J1F124650"
+};
 let store = null;      // 현재 조(room)에 연결된 스토어 — 방 선택 전엔 null
 let myRoom = localStorage.getItem("lm_room") || null;
 let myName = localStorage.getItem("lm_playername") || ""; // 참가자 실명 — 역할 로스터에 표시용
@@ -831,6 +860,8 @@ function connectStore(){
   loadMyOpened();
   sharedState = {phase:"briefing", phaseEndsAt: Date.now()+DURATIONS.briefing*1000};
   stateLoaded = false; // 서버의 진짜 현재 단계를 아직 못 받아온 상태 — 이 동안은 준비완료 체크로 단계를 넘기지 않는다
+  updateConnBanner();
+  setTimeout(()=>{ if(myRoom && !stateLoaded) updateConnBanner(); }, 5000); // 5초 지나도 연결 안 되면 경고 표시
   store = dbHandle ? makeDbStore(dbHandle, myRoom) : makeLocalStore();
   // 실시간 구독은 변경이 없어도 주기적으로 재전달될 수 있어(약 30초 폴백),
   // 값이 실제로 달라졌을 때만 다시 그린다 — 그렇지 않으면 그 타이밍에 겹친
@@ -838,7 +869,9 @@ function connectStore(){
   unsubFns.push(store.onState(s=>{
     const changed = s.phase !== sharedState.phase || s.phaseEndsAt !== sharedState.phaseEndsAt;
     sharedState = s;
+    const wasLoaded = stateLoaded;
     stateLoaded = true;
+    if(!wasLoaded) updateConnBanner();
     if(changed) render(); // render() 안에서 새 단계 안내 팝업 표시 여부를 알아서 체크함
   }));
   unsubFns.push(store.onPlayers(p=>{ const changed = p.size!==players.size; players = p; if(changed && !myRole) render(); }));
@@ -861,6 +894,7 @@ function leaveRoom(){
   myRoom=null; myRole=null; store=null; players=new Map(); votes=new Map(); claims=new Map(); readySet=new Set(); revealedSet=new Set(); myCardsOpen=false; rosterOpen=false; myOpened=new Set();
   phaseGuideOpen=false; lastSeenGuidePhase=null; stateLoaded=false;
   activeTab="id"; gateError=""; roomError="";
+  updateConnBanner();
   render();
 }
 
@@ -1388,10 +1422,28 @@ function renderResult(){
 }
 
 /* ============================================================
-   4. 부팅 — db 캡차빌리티 확인 후 스토어 연결
+   4. 부팅 — Firebase 초기화 후 스토어 연결
    ============================================================ */
+function updateConnBanner(){
+  const el = document.getElementById("connBanner");
+  if(!el) return;
+  if(!dbHandle){
+    el.className = "conn-banner show local";
+    el.textContent = "⚠️ 실시간 동기화 연결 실패 — 이 기기는 다른 참가자와 공유되지 않는 단독 모드로 실행 중입니다. 인터넷 연결을 확인하고 새로고침해 주세요.";
+  } else if(myRoom && !stateLoaded){
+    el.className = "conn-banner show slow";
+    el.textContent = "🔴 연결 확인 중... 계속 이 상태면 새로고침해 주세요.";
+  } else {
+    el.className = "conn-banner";
+    el.textContent = "";
+  }
+}
 async function boot(){
-  try{ dbHandle = window.claude ? await window.claude.use("db") : null; }catch(e){ dbHandle = null; }
+  try{
+    firebase.initializeApp(firebaseConfig);
+    dbHandle = firebase.firestore();
+  }catch(e){ dbHandle = null; }
+  updateConnBanner();
   if(myRoom) connectStore(); else render(); // 기존에 입장했던 방 코드가 있으면 바로 재연결
 
   setInterval(()=>{
@@ -1403,3 +1455,5 @@ async function boot(){
 }
 boot();
 </script>
+</body>
+</html>
