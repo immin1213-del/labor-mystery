@@ -717,6 +717,7 @@ function makeLocalStore(){
     getState(){return state;},
     onPlayers(cb){playerCbs.push(cb); cb(players); return ()=>{};},
     claimRole(roleId,name,playerName){ if(!players.has(roleId)){ players.set(roleId,{name,playerName:playerName||""}); playerCbs.forEach(cb=>cb(players)); return true;} return players.get(roleId).name===name;},
+    releaseRole(roleId){ players.delete(roleId); playerCbs.forEach(cb=>cb(players)); },
     onVotes(cb){voteCbs.push(cb); cb(votes); return ()=>{};},
     castVote(roleId,vote){votes.set(roleId,vote); voteCbs.forEach(cb=>cb(votes));},
     onClaims(cb){claimCbs.push(cb); cb(claims); return ()=>{};},
@@ -764,6 +765,7 @@ function makeDbStore(db, roomId){
       await ref.set({name, playerName:playerName||"", at:new Date().toISOString()});
       return true;
     },
+    async releaseRole(roleId){ try{ await playersCol.doc(roleId).delete(); }catch(e){} },
     onVotes(cb){
       return votesCol.onSnapshot(qs=>{
         const m=new Map(); qs.docs.forEach(d=>m.set(d.id,d.data())); cb(m);
@@ -1202,6 +1204,7 @@ function renderGate(){
       ${ready?`<button class="btn primary" id="startGameBtn" style="margin-bottom:16px;">🎬 사건 시작하기</button>`:""}
       ${gateError?`<p style="color:var(--seal-bright);font-size:13px;margin-bottom:14px;">${gateError}</p>`:""}
       <button class="btn" id="leaveRoomBtn" style="margin-bottom:16px;">다른 조 코드로 나가기</button>
+      ${waiting?`<button class="btn" id="switchRoleBtn" style="margin-bottom:16px;margin-left:8px;">↺ 다른 배역으로 바꾸기</button>`:""}
       <div class="side-block">
         <h3 class="side-heading employer">사측 진영</h3>
         ${renderRoleGrid(CHARACTERS.filter(c=>c.side==='사측'))}
@@ -1246,6 +1249,16 @@ function renderGate(){
   if(startBtn) startBtn.addEventListener("click", ()=>{
     startBtn.disabled = true; startBtn.textContent = "시작하는 중...";
     advancePhase();
+  });
+  const switchBtn = document.getElementById("switchRoleBtn");
+  if(switchBtn) switchBtn.addEventListener("click", async ()=>{
+    switchBtn.disabled = true;
+    const prevRole = myRole;
+    myRole = null;
+    localStorage.removeItem("lm_role_"+myRoom);
+    players.delete(prevRole); // 서버 응답을 기다리지 않고 화면부터 바로 갱신
+    render();
+    try{ await store.releaseRole(prevRole); }catch(e){}
   });
 }
 
