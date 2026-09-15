@@ -58,11 +58,8 @@ a{color:inherit;}
   background:var(--paper); border:2px solid var(--ink-3); border-radius:6px;
   box-shadow:3px 3px 0 var(--paper-shadow);
   padding:22px 22px 20px; display:flex; flex-direction:column; gap:12px;
-  text-decoration:none; color:var(--text);
-  transition:transform .12s ease, box-shadow .12s ease;
+  color:var(--text);
 }
-.case-card:hover{transform:translate(-2px,-2px); box-shadow:5px 5px 0 var(--paper-shadow);}
-.case-card:active{transform:translate(0,0); box-shadow:1px 1px 0 var(--paper-shadow);}
 
 .case-no{font-family:var(--mono);font-size:11px;color:var(--seal);letter-spacing:.05em;font-weight:700;text-transform:uppercase;}
 .case-title{font-family:var(--serif);font-weight:800;font-size:19px;line-height:1.35;}
@@ -74,18 +71,33 @@ a{color:inherit;}
   background:var(--ink-2);color:var(--text-dim);border:1px solid var(--ink-3);
 }
 
+/* 사건별 법리 미리보기 — case-card는 더 이상 통째로 링크가 아니므로(아래 .case-legal과
+   클릭 충돌을 피하기 위함) details를 안전하게 담을 수 있음 */
+.case-legal{background:var(--ink-2);border:1px solid var(--ink-3);border-radius:5px;margin-top:2px;}
+.case-legal summary{
+  cursor:pointer;list-style:none;padding:8px 12px;font-family:var(--serif);font-weight:700;
+  font-size:12px;color:var(--gold);display:flex;align-items:center;gap:5px;
+}
+.case-legal summary::-webkit-details-marker{display:none;}
+.case-legal summary::before{content:"▸";transition:transform .15s ease;}
+.case-legal[open] summary::before{transform:rotate(90deg);}
+.case-legal-body{padding:0 12px 12px;font-size:12px;color:var(--text-dim);line-height:1.6;}
+.case-legal-point{margin-top:8px;}
+.case-legal-point b{display:block;color:var(--text);font-size:12.5px;margin-bottom:2px;}
+
 .case-cta{
   margin-top:6px;align-self:flex-start;
   font-family:var(--serif);font-weight:700;font-size:13.5px;color:var(--seal);
+  text-decoration:none;
   display:flex;align-items:center;gap:5px;
+  transition:color .12s ease;
 }
-.case-card:hover .case-cta{color:var(--seal-bright);}
+.case-cta:hover{color:var(--seal-bright);}
 
 .case-card.soon{
   background:transparent; border-style:dashed; box-shadow:none; cursor:default;
   align-items:center; justify-content:center; text-align:center; gap:8px; min-height:140px;
 }
-.case-card.soon:hover{transform:none;box-shadow:none;}
 .case-card.soon .case-title{font-size:14px;color:var(--text-dim);font-weight:700;}
 .case-card.soon .case-desc{font-size:12px;flex:none;}
 
@@ -108,7 +120,7 @@ a{color:inherit;}
 .howto-body li{margin-bottom:3px;}
 
 @media (prefers-reduced-motion:reduce){
-  .case-card{transition:none;}
+  .case-legal summary::before{transition:none;}
 }
 </style>
 </head>
@@ -146,7 +158,7 @@ a{color:inherit;}
   </div>
 
   <div class="case-grid">
-    <a class="case-card" href="cleantech/">
+    <div class="case-card">
       <div class="case-no">사건번호 2025부해각색-08호</div>
       <div class="case-title">㈜클린테크 갱신거절 사건</div>
       <p class="case-desc">기간제 근로자 2명의 계약 갱신거절을 둘러싼 부당해고·부당노동행위 다툼. 초심 지방노동위 인용 → 재심 중앙노동위 취소, 실제로 결론이 뒤집힌 사건을 각색했습니다.</p>
@@ -158,10 +170,17 @@ a{color:inherit;}
         <span class="case-tag">#부당노동행위</span>
         <span class="case-tag">⚖ 난이도 보통</span>
       </div>
-      <div class="case-cta">사건 파일 열기 →</div>
-    </a>
+      <details class="case-legal">
+        <summary>📖 이 사건의 핵심 법리 미리보기</summary>
+        <div class="case-legal-body">
+          <div class="case-legal-point"><b>체크 포인트 1: "계약기간이 끝났으니 나가라"는 항상 정당할까요? (갱신기대권)</b>원칙적으로 기간제 계약은 만료되면 끝입니다. 하지만 계약서에 '자동 연장' 문구가 있거나 다른 직원들은 다 갱신해주었다면, 근로자에게는 "나도 갱신되겠지?"라는 정당한 기대권(갱신기대권)이 생깁니다. 이 기대권이 생겼다면 회사는 함부로 갱신을 거절할 수 없고, 반드시 '합리적이고 객관적인 이유(비위행위 등)'를 입증해야 합니다.</div>
+          <div class="case-legal-point"><b>체크 포인트 2: 미운털 박힌 노조원 쫓아내기? (부당노동행위)</b>근로자가 징계를 받을 만한 잘못을 했더라도, 회사가 그 징계를 구실 삼아 '노동조합 활동을 방해하거나 노조원을 쫓아낼 숨은 의도(반조합적 의사)'로 처분했다면 부당노동행위(불이익취급·지배개입)에 해당할 수 있습니다. 징계의 타이밍, 다른 직원과의 형평성, 사측의 배후 개입 여부가 핵심 쟁점입니다.</div>
+        </div>
+      </details>
+      <a class="case-cta" href="cleantech/">사건 파일 열기 →</a>
+    </div>
 
-    <a class="case-card" href="case2/">
+    <div class="case-card">
       <div class="case-no">사건번호 2026차별각색-03호</div>
       <div class="case-title">한국기금관리공사 성과급 차별 사건</div>
       <p class="case-desc">기간제검사역과 무기계약직 검사역의 업무가 실질적으로 같았는지, 경영평가성과급 미지급에 합리적 이유가 있었는지를 다투는 차별시정 사건. 초심 기각 → 재심 중앙노동위 일부취소, 실제로 결론이 뒤집힌 사건을 각색했습니다.</p>
@@ -173,8 +192,15 @@ a{color:inherit;}
         <span class="case-tag">#비정규직차별</span>
         <span class="case-tag">⚖ 난이도 약간 어려움</span>
       </div>
-      <div class="case-cta">사건 파일 열기 →</div>
-    </a>
+      <details class="case-legal">
+        <summary>📖 이 사건의 핵심 법리 미리보기</summary>
+        <div class="case-legal-body">
+          <div class="case-legal-point"><b>체크 포인트 1: 차별을 따지려면 '비교 대상'부터 찾아라 (비교대상근로자)</b>비정규직 차별을 주장하려면 가장 먼저 "나와 똑같거나 아주 비슷한 일을 하는 정규직(무기계약직)"이 있어야 합니다. 규정이나 직함이 아니라 '실제로 현장에서 수행한 업무'가 본질적으로 같았는지가 핵심입니다. 이 비교 대상이 인정되지 않으면 차별 논의는 시작조차 할 수 없습니다.</div>
+          <div class="case-legal-point"><b>체크 포인트 2: 다르게 대우한 '합당한 이유'가 있는가? (합리적 이유)</b>만약 똑같은 일을 했는데 성과급이나 처우가 달랐다면, 회사 측은 '그럴 수밖에 없었던 합리적 이유'를 증명해야 합니다. 단순히 "예산 지침에 비정규직 몫이 없어서", "우리는 원래 그렇게 해와서"라는 변명만으로는 차별을 정당화할 수 없습니다. 실제 예산의 흐름과 대체 가능성 등 객관적 근거가 필요합니다.</div>
+        </div>
+      </details>
+      <a class="case-cta" href="case2/">사건 파일 열기 →</a>
+    </div>
 
     <div class="case-card soon">
       <div class="case-title">다음 사건 접수 중</div>

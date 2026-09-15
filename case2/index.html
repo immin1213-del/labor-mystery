@@ -217,7 +217,15 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outl
 .goal-line{font-size:14px;line-height:1.6;}
 .goal-tag{display:block;font-family:var(--mono);font-size:10.5px;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
 
-/* ---------- 사건 개요(초심 판정 요지 + 타임라인) ---------- */
+/* ---------- 사건 개요(핵심 법리 가이드 + 초심 판정 요지 + 타임라인) ---------- */
+.legal-guide{
+  background:var(--ink-2);border:2px solid var(--seal);border-radius:6px;
+  padding:14px 18px;margin-bottom:20px;
+}
+.legal-guide-title{font-family:var(--serif);font-weight:800;font-size:14px;color:var(--seal);margin-bottom:8px;}
+.legal-point{font-size:13px;color:var(--text-dim);line-height:1.6;margin-top:10px;}
+.legal-point:first-of-type{margin-top:0;}
+.legal-point b{display:block;color:var(--text);font-size:13.5px;margin-bottom:3px;}
 .ruling-box{
   background:var(--paper);color:var(--text-paper);border-radius:6px;padding:18px 20px;
   border:3px double var(--ink-3);margin-bottom:20px;
@@ -465,6 +473,18 @@ const LOWER_RULING = {
       "이 사건 신청은 이유 없으므로 이를 기각한다.",
     ]},
   ],
+};
+
+// '사건 개요' 탭 최상단에 고정 노출되는, 어려운 법률 용어 대신 체크리스트 형태로 푼
+// 이 사건의 핵심 쟁점 두 가지 — ISSUE_MATRIX의 딱딱한 판례 인용과 짝을 이루는 쉬운 버전.
+const LEGAL_GUIDE = {
+  title: "⚖ 위원회 심리 가이드라인",
+  points: [
+    { q: "체크 포인트 1: 차별을 따지려면 '비교 대상'부터 찾아라 (비교대상근로자)",
+      a: "비정규직 차별을 주장하려면 가장 먼저 \"나와 똑같거나 아주 비슷한 일을 하는 정규직(무기계약직)\"이 있어야 합니다. 규정이나 직함이 아니라 '실제로 현장에서 수행한 업무'가 본질적으로 같았는지가 핵심입니다. 이 비교 대상이 인정되지 않으면 차별 논의는 시작조차 할 수 없습니다." },
+    { q: "체크 포인트 2: 다르게 대우한 '합당한 이유'가 있는가? (합리적 이유)",
+      a: "만약 똑같은 일을 했는데 성과급이나 처우가 달랐다면, 회사 측은 '그럴 수밖에 없었던 합리적 이유'를 증명해야 합니다. 단순히 \"예산 지침에 비정규직 몫이 없어서\", \"우리는 원래 그렇게 해와서\"라는 변명만으로는 차별을 정당화할 수 없습니다. 실제 예산의 흐름과 대체 가능성 등 객관적 근거가 필요합니다." },
+  ]
 };
 
 // 게임 진행 단계 순서와 각 단계 기본 지속시간(초)
@@ -1410,8 +1430,16 @@ function renderRulingSection(sec){
       ${(sec.sub||[]).map(renderRulingSection).join("")}
     </div>`;
 }
+function renderLegalGuide(){
+  return `
+    <div class="legal-guide">
+      <div class="legal-guide-title">${LEGAL_GUIDE.title}</div>
+      ${LEGAL_GUIDE.points.map(p=>`<div class="legal-point"><b>${p.q}</b>${p.a}</div>`).join("")}
+    </div>`;
+}
 function renderTimeline(){
   return `
+    ${renderLegalGuide()}
     <div class="ruling-box">
       <span class="stamp">${LOWER_RULING.caseNo}</span>
       <div class="ruling-title">${LOWER_RULING.title}</div>

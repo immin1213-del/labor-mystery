@@ -217,7 +217,15 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outl
 .goal-line{font-size:14px;line-height:1.6;}
 .goal-tag{display:block;font-family:var(--mono);font-size:10.5px;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
 
-/* ---------- 사건 개요(초심 판정 요지 + 타임라인) ---------- */
+/* ---------- 사건 개요(핵심 법리 가이드 + 초심 판정 요지 + 타임라인) ---------- */
+.legal-guide{
+  background:var(--ink-2);border:2px solid var(--seal);border-radius:6px;
+  padding:14px 18px;margin-bottom:20px;
+}
+.legal-guide-title{font-family:var(--serif);font-weight:800;font-size:14px;color:var(--seal);margin-bottom:8px;}
+.legal-point{font-size:13px;color:var(--text-dim);line-height:1.6;margin-top:10px;}
+.legal-point:first-of-type{margin-top:0;}
+.legal-point b{display:block;color:var(--text);font-size:13.5px;margin-bottom:3px;}
 .ruling-box{
   background:var(--paper);color:var(--text-paper);border-radius:6px;padding:18px 20px;
   border:3px double var(--ink-3);margin-bottom:20px;
@@ -483,6 +491,18 @@ const LOWER_RULING = {
       "또한 일련의 조치는 노동조합 활동을 위축시키려는 불이익취급 및 노동조합의 조직 존속을 침해하는 지배·개입의 부당노동행위에 해당하므로, 근로기준법 제30조 및 노동조합 및 노동관계조정법 제84조에 의거하여 주문과 같이 판정한다.",
     ]},
   ],
+};
+
+// '사건 개요' 탭 최상단에 고정 노출되는, 어려운 법률 용어 대신 체크리스트 형태로 푼
+// 이 사건의 핵심 쟁점 두 가지 — ISSUE_MATRIX의 딱딱한 판례 인용과 짝을 이루는 쉬운 버전.
+const LEGAL_GUIDE = {
+  title: "⚖ 위원회 심리 가이드라인",
+  points: [
+    { q: "체크 포인트 1: \"계약기간이 끝났으니 나가라\"는 항상 정당할까요? (갱신기대권)",
+      a: "원칙적으로 기간제 계약은 만료되면 끝입니다. 하지만 계약서에 '자동 연장' 문구가 있거나 다른 직원들은 다 갱신해주었다면, 근로자에게는 \"나도 갱신되겠지?\"라는 정당한 기대권(갱신기대권)이 생깁니다. 이 기대권이 생겼다면 회사는 함부로 갱신을 거절할 수 없고, 반드시 '합리적이고 객관적인 이유(비위행위 등)'를 입증해야 합니다." },
+    { q: "체크 포인트 2: 미운털 박힌 노조원 쫓아내기? (부당노동행위)",
+      a: "근로자가 징계를 받을 만한 잘못을 했더라도, 회사가 그 징계를 구실 삼아 '노동조합 활동을 방해하거나 노조원을 쫓아낼 숨은 의도(반조합적 의사)'로 처분했다면 부당노동행위(불이익취급·지배개입)에 해당할 수 있습니다. 징계의 타이밍, 다른 직원과의 형평성, 사측의 배후 개입 여부가 핵심 쟁점입니다." },
+  ]
 };
 
 // 게임 진행 단계 순서와 각 단계 기본 지속시간(초)
@@ -1443,8 +1463,16 @@ function renderRulingSection(sec){
       ${(sec.sub||[]).map(renderRulingSection).join("")}
     </div>`;
 }
+function renderLegalGuide(){
+  return `
+    <div class="legal-guide">
+      <div class="legal-guide-title">${LEGAL_GUIDE.title}</div>
+      ${LEGAL_GUIDE.points.map(p=>`<div class="legal-point"><b>${p.q}</b>${p.a}</div>`).join("")}
+    </div>`;
+}
 function renderTimeline(){
   return `
+    ${renderLegalGuide()}
     <div class="ruling-box">
       <span class="stamp">${LOWER_RULING.caseNo}</span>
       <div class="ruling-title">${LOWER_RULING.title}</div>
