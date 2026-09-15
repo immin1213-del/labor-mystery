@@ -457,9 +457,9 @@ const PHASE_LABEL = {casting:"배역 선택 대기", briefing:"사건 개요·�
 const PHASE_GUIDE = {
   briefing:{title:"📖 사건 개요·전후관계 파악", body:"진행자 없이 진행됩니다. 아직 증거카드는 공개되지 않으니, 이 시간 동안 아래를 확인하고 참가자들끼리 대화하며 사건의 흐름부터 맞춰보세요.\n\n1. '내 신원' 탭 — 내게 배정된 역할의 배경·입장·비밀·목표를 꼼꼼히 읽으세요.\n2. '사건 개요' 탭 — 초심 판정 요지와 사건 타임라인을 확인하며 누가 언제 무엇을 했는지 맞춰보세요."},
   intro:{title:"🎤 짧게 자기소개 해주세요", body:"본격적인 증거 공개 전에, 한 사람씩 30초~1분 정도로 자신의 역할(이름·소속·겉으로 내세우는 입장)만 짧게 소개하세요. 🔒 비밀은 아직 말하지 마세요!"},
-  round2:{title:"🔍 증거대가 열렸습니다", body:"'증거대' 탭에서 모든 증거가 한꺼번에 공개됩니다(라운드별로 나눠 열리지 않습니다).\n\n👁 열람용 카드는 누구나 바로 펼쳐볼 수 있어요.\n🔒 소유용 카드는 먼저 가져가는 사람만 볼 수 있으니 서둘러 확인하세요.\n\n어떤 카드든 '공개하기'를 누르면 전원에게 알림이 가고, 그 내용이 모두의 '내 증거함'에 추가됩니다 — 중요한 걸 찾았으면 공유해보세요."},
-  round3:{title:"🔍 계속 증거를 확인하세요", body:"아직 못 본 카드가 있다면 지금 확인하세요. 소유용 카드는 여전히 먼저 가져가는 사람이 임자입니다."},
-  round4:{title:"🔒 결정적 증거를 놓치지 마세요", body:"각 인물의 가장 결정적인 비밀이 소유용 카드로 걸려있습니다. 아직 못 가져간 카드가 있다면 지금 확보하세요. 확보한 카드를 '공개하기'로 전원에게 터뜨릴지, 조용히 숨길지에 따라 최종 결과 화면에서 그 인물의 결말이 달라집니다."},
+  round2:{title:"🔍 증거대가 열렸습니다", body:"'증거대' 탭에서 모든 증거가 한꺼번에 공개됩니다(라운드별로 나눠 열리지 않습니다).\n\n🔒 모든 카드는 먼저 '가져가기'를 눌러 확보한 사람만 볼 수 있습니다 — 한 카드는 한 명만 가져갈 수 있으니 서둘러 확인하세요.\n\n확보한 카드는 언제든 '공개하기'를 누르면 전원에게 알림이 가고, 그 내용이 모두의 '내 증거함'에 추가됩니다 — 중요한 걸 찾았으면 공유해보세요."},
+  round3:{title:"🔍 계속 증거를 확인하세요", body:"아직 못 가져간 카드가 있다면 지금 확인하세요. 카드는 여전히 먼저 가져가는 사람이 임자입니다."},
+  round4:{title:"🔒 결정적 증거를 놓치지 마세요", body:"각 인물의 가장 결정적인 비밀이 걸려있습니다. 아직 못 가져간 카드가 있다면 지금 확보하세요. 확보한 카드를 '공개하기'로 전원에게 터뜨릴지, 조용히 숨길지에 따라 최종 결과 화면에서 그 인물의 결말이 달라집니다."},
   discussion:{title:"💬 교차검증 토론", body:"모든 증거가 공개되었습니다. 각자 확보한 카드를 서로에게 설명하며, '증거대' 탭 위쪽의 쟁점 비교표를 하나씩 짚어보세요. 각 쟁점에는 법적 요건이 먼저 나와 있으니, 그 요건에 사실관계를 대입하는 방식으로 논의해보세요. 결론(진실)은 투표 후에 공개됩니다."},
   vote:{title:"🗳 최종 판정 투표", body:"토론 내용을 바탕으로 두 가지 쟁점(부당해고 여부 / 부당노동행위 여부)에 각각 투표하세요. 두 쟁점의 조합에 따라 결말이 4가지로 달라집니다. 다른 사람 표는 결과가 나오기 전까지 알 수 없는 익명 투표이며, 투표는 언제든 바꿀 수 있습니다."},
 };
@@ -620,8 +620,9 @@ const CHARACTERS = [
 ];
 
 // 가운데 공용 증거대 — 캐릭터별 3장을 하나의 풀로 펼침.
-// 라운드 2·3의 카드(공식 서류·기록)는 "열람용"(누구나 펼쳐볼 수 있고 다시 덮을 수 있음),
-// 라운드 4의 카드(개인 비밀 메모)는 "소유용"(가장 먼저 가져간 사람만 볼 수 있고, 다른 사람에겐 잠김)으로 구분.
+// 모든 카드는 동일하게 동작함: 가장 먼저 가져간 사람만 볼 수 있고(claim), 확보한 사람이 원하면
+// '공개하기'로 전원에게 공유할 수 있음(reveal). 라운드는 "언제부터 가져갈 수 있는지"만 정할 뿐,
+// 카드마다 접근 방식이 다르지는 않음.
 // NPC·출처불명 카드 — 6인 캐릭터 누구의 서사에도 안 걸려 있던 결정적 정보를 추가로 섞어
 // 증거대의 폭을 넓힌다. ownerId는 CHARACTERS의 role 아이디와 겹치지 않는 npc- 접두사를 씀.
 const NPC_CARDS = [
@@ -642,18 +643,20 @@ const NPC_CARDS = [
     note:"이 쪽지가 누구 손에 들어가느냐에 따라 조사 방향이 완전히 달라질 수 있다." },
 ];
 
+// 모든 카드는 동일하게 "먼저 가져가는(claim) 사람만 볼 수 있고, 확보한 사람이 원하면 공개하기로
+// 전원에게 공유"하는 단일 방식으로 동작한다(2026-09-15 이전엔 라운드4 카드만 이렇게 동작하고
+// 나머지는 제한 없이 누구나 볼 수 있었는데, 그러면 소유 개념이 무의미해지고 정보가 무제한으로
+// 새어나가 버린다는 피드백을 반영해 전부 통일함).
 const ALL_CARDS = [
   ...CHARACTERS.flatMap(c => c.cards.map(card => ({
     ...card,
     id: c.id + "-" + card.round,       // db 문서 id로 쓸 안전한 영문 id
     ownerId: c.id,
     ownerName: c.name,
-    kind: card.round === 4 ? "own" : "view",
   }))),
   ...NPC_CARDS.map(card => ({
     ...card,
     id: card.ownerId + "-" + card.round,
-    kind: card.round === 4 ? "own" : "view",
   })),
 ];
 
@@ -863,7 +866,7 @@ let myRole = null; // 역할은 방(room)마다 따로 저장 — connectStore()
 let sharedState = {phase:"casting", phaseEndsAt: Date.now()+DURATIONS.casting*1000};
 let players = new Map();
 let votes = new Map();
-let claims = new Map(); // 소유용 카드의 현재 소유자(roleId) — cardId -> {by}
+let claims = new Map(); // 각 카드를 먼저 가져간 사람(roleId) — cardId -> {by}
 let readySet = new Set(); // "다음 단계 준비완료"를 누른 사람들 — 키는 `${phase}_${roleId}`
 let revealedSet = new Map(); // "공개하기"를 눌러 전원에게 드러난 카드 — cardId -> {by, at}
 let revealNotifyReady = false; // 방 접속 후 첫 onRevealed 스냅샷(기존 공개 내역)은 조용히 반영, 그 이후의 변화만 푸시 알림
@@ -884,7 +887,7 @@ function showPhaseGuideIfNew(){
   lastSeenGuidePhase = sharedState.phase;
   phaseGuideOpen = true;
 }
-let myOpened = new Set(); // 내가 이번 판에 연 열람용 카드 id들 — 방+역할별로 localStorage에 보관
+let myOpened = new Set(); // 내가 이번 판에 펼쳐본(탭한) 카드 id들 — 다시 봐도 접힌 채로 안 보이게, 방+역할별로 localStorage에 보관
 
 function loadMyOpened(){
   try{ myOpened = new Set(JSON.parse(localStorage.getItem("lm_opened_"+myRoom+"_"+myRole) || "[]")); }
@@ -1097,14 +1100,10 @@ function renderPhaseGuideModal(){
     </div>
   </div>`;
 }
-// "내 증거함" = 내가 확보한 소유용 카드 + 누군가 공개해서 전원이 볼 수 있게 된 카드 + 내가 직접 열람한 카드.
+// "내 증거함" = 내가 확보한(가져간) 카드 + 누군가 공개해서 전원이 볼 수 있게 된 카드.
 // 전체 증거대를 다시 뒤지지 않아도 지금까지 확인한 증거를 한곳에서 모아볼 수 있게 함.
 function myAccessibleCards(){
-  return ALL_CARDS.filter(c=>
-    (c.kind==="own" && claims.get(c.id)?.by===myRole) ||
-    revealedSet.has(c.id) ||
-    (c.kind==="view" && myOpened.has(c.id))
-  );
+  return ALL_CARDS.filter(c => claims.get(c.id)?.by===myRole || revealedSet.has(c.id));
 }
 function renderMyCardsModal(){
   const mine = myAccessibleCards();
@@ -1116,14 +1115,14 @@ function renderMyCardsModal(){
         <button class="btn" id="myCardsClose">닫기</button>
       </div>
       ${mine.length===0
-        ? `<p style="color:var(--text-dim);font-size:13px;">아직 확인한 카드가 없습니다. 증거대에서 카드를 열람하거나 🔒 표시된 카드를 가져가세요.</p>`
+        ? `<p style="color:var(--text-dim);font-size:13px;">아직 확인한 카드가 없습니다. 증거대에서 🔒 표시된 카드를 가져가세요.</p>`
         : mine.map(card=>{
           const claim = claims.get(card.id);
           const revealedBy = revealedSet.get(card.id);
           const revealer = revealedBy && CHARACTERS.find(c=>c.id===revealedBy.by);
-          const mineTag = card.kind==="own" && claim?.by===myRole ? "📌 내가 확보"
+          const mineTag = claim?.by===myRole ? "📌 내가 확보"
             : revealedBy ? `🗣 ${revealer?revealer.name:"누군가"}님이 공개`
-            : "👁 내가 열람";
+            : "";
           return `
           <div class="my-card">
             <div class="doc-head"><span>${card.docNo}</span><span>${card.date}</span></div>
@@ -1404,35 +1403,30 @@ function renderBoard(){
   }
   return `
     <div class="board-legend">
-      <span><b>👁 열람용</b> — 누구나 바로 펼쳐볼 수 있음</span>
-      <span><b>🔒 소유용</b> — 가장 먼저 가져간 사람만 볼 수 있음</span>
-      <span>모든 카드는 언제든 '공개하기'로 전원에게 알리며 공유할 수 있음(공개된 카드는 '내 증거함'에서 다시 볼 수 있음)</span>
+      <span>모든 카드는 먼저 <b>🔒 가져가기</b>로 확보한 사람만 볼 수 있음 — 한 카드는 한 명만 가져갈 수 있음</span>
+      <span>확보한 카드는 언제든 <b>🗣 공개하기</b>로 전원에게 알리며 공유할 수 있음(공개된 카드는 모두의 '내 증거함'에서 다시 볼 수 있음)</span>
     </div>
     <div class="card-grid">
     ${cards.map(card=>{
-      let myClaim = null;
-      if(card.kind==="own"){
-        const claim = claims.get(card.id);
-        if(!claim){
-          return `<div class="ownable" data-card="${card.id}">
-            <div class="seal-icon">⚖</div>
-            <div class="exhibit-no">증거 ${card.exhibit}</div>
-            <div class="owner-tag">${card.ownerName}</div>
-            <button class="btn primary claim-btn" data-claim="${card.id}">🔒 가져가기</button>
-          </div>`;
-        }
-        if(claim.by !== myRole && !revealedSet.has(card.id)){
-          const claimant = CHARACTERS.find(c=>c.id===claim.by);
-          return `<div class="locked claimed"><div class="lock-icon">🔒</div><div>${claimant?claimant.name:"다른 참가자"}님이 확보함</div><div class="owner-tag">${card.ownerName}</div></div>`;
-        }
-        // 내가 확보한 카드이거나, 소유자가 이미 전체 공개한 카드 — 아래 view 카드와 동일하게 펼쳐볼 수 있음
-        myClaim = claim;
-      }
-      const alreadyOpen = card.kind==="view" && myOpened.has(card.id);
+      const claim = claims.get(card.id);
       const isRevealed = revealedSet.has(card.id);
-      // 소유용은 확보한 사람만, 열람용은 원래도 누구나 볼 수 있는 카드라 아무나 '공개하기'로 전원에게 알릴 수 있음
-      const canReveal = !isRevealed && (card.kind==="view" || (myClaim && myClaim.by===myRole));
-      const ownerTagExtra = isRevealed ? revealTag(card) : (card.kind==='own' && myClaim && myClaim.by===myRole ? ' · 📌 내가 확보' : '');
+      if(!claim){
+        return `<div class="ownable" data-card="${card.id}">
+          <div class="seal-icon">⚖</div>
+          <div class="exhibit-no">증거 ${card.exhibit}</div>
+          <div class="owner-tag">${card.ownerName}</div>
+          <button class="btn primary claim-btn" data-claim="${card.id}">🔒 가져가기</button>
+        </div>`;
+      }
+      if(claim.by !== myRole && !isRevealed){
+        const claimant = CHARACTERS.find(c=>c.id===claim.by);
+        return `<div class="locked claimed"><div class="lock-icon">🔒</div><div>${claimant?claimant.name:"다른 참가자"}님이 확보함</div><div class="owner-tag">${card.ownerName}</div></div>`;
+      }
+      // 내가 확보한 카드이거나, 확보한 사람이 이미 전체 공개한 카드
+      const isMine = claim.by === myRole;
+      const canReveal = !isRevealed && isMine;
+      const alreadyOpen = myOpened.has(card.id);
+      const ownerTagExtra = isRevealed ? revealTag(card) : (isMine ? ' · 📌 내가 확보' : '');
       return `<div class="flipcard ${alreadyOpen?'flipped':''}" data-idx="${card.id}"><div class="flipcard-inner">
         <div class="face front">
           <div class="seal-icon">⚖</div>
@@ -1455,8 +1449,8 @@ function bindBoard(){
   app.querySelectorAll(".flipcard").forEach(el=>{
     el.addEventListener("click", ()=>{
       const card = ALL_CARDS.find(c=>c.id===el.dataset.idx);
-      if(card && card.kind==="view" && !myOpened.has(card.id)){
-        // 처음 여는 열람용 카드 — "이미 본 카드" 표시를 남겨 다음에도 펼쳐진 채로 보이게 함
+      if(card && !myOpened.has(card.id)){
+        // 처음 여는 카드 — "이미 본 카드" 표시를 남겨 다음에도 펼쳐진 채로 보이게 함
         myOpened.add(card.id); saveMyOpened(); render(); return;
       }
       el.classList.toggle("flipped");
