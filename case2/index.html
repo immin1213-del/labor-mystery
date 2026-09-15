@@ -205,6 +205,14 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outl
 .id-field .label{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:.08em;margin-bottom:4px;text-transform:uppercase;}
 .id-field .val{font-size:14px;line-height:1.6;}
 .id-field.secret .val{color:var(--seal);font-weight:600;}
+.id-field.secret .val{
+  filter:blur(7px);transition:filter .12s ease;cursor:pointer;user-select:none;outline:none;
+}
+.id-field.secret .val:active, .id-field.secret .val:focus{filter:none;}
+.id-field.secret .hint{margin-top:5px;font-size:11px;color:var(--text-dim);font-style:italic;}
+@media (prefers-reduced-motion:reduce){
+  .id-field.secret .val{transition:none;}
+}
 .goal-list{display:grid;gap:10px;}
 .goal-line{font-size:14px;line-height:1.6;}
 .goal-tag{display:block;font-family:var(--mono);font-size:10.5px;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
@@ -294,6 +302,17 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outl
   gap:8px;color:var(--text-dim);font-size:12px;aspect-ratio:5/6;min-height:180px;
 }
 .locked .lock-icon{font-size:22px;}
+
+/* ---------- 최근 공개된 증거 피드 ---------- */
+.reveal-feed{
+  background:var(--paper);border:2px solid var(--seal);border-radius:6px;
+  padding:10px 14px;margin-bottom:16px;box-shadow:2px 2px 0 var(--paper-shadow);
+}
+.reveal-feed-label{font-family:var(--serif);font-weight:800;font-size:12.5px;color:var(--seal);margin-bottom:6px;}
+.reveal-feed-list{display:flex;flex-direction:column;gap:4px;}
+.reveal-chip{font-size:12.5px;color:var(--text-paper);}
+.reveal-chip .exhibit-no{font-family:var(--mono);color:var(--gold);font-weight:700;margin-right:4px;}
+.reveal-chip .reveal-by{color:var(--text-paper-dim);}
 
 /* ---------- 공개 알림 토스트 ---------- */
 .toast{
@@ -958,7 +977,8 @@ function connectStore(){
     }
     revealNotifyReady = true;
     revealedSet = r;
-    if(changed && (activeTab==="cards" || myCardsOpen)) render();
+    // 상단 "최근 공개된 증거" 피드가 이제 모든 탭에서 보이므로, 탭 제한 없이 다시 그린다.
+    if(changed) render();
   }));
   unsubFns.push(store.onReady(r=>{
     const changed = r.size!==readySet.size;
@@ -1022,6 +1042,7 @@ function render(){
 
   app.innerHTML = `
     ${renderCasebar()}
+    ${renderRecentReveals()}
     ${phasePanelHtml ? `<div id="phasePanel">${phasePanelHtml}</div><h3 style="margin:26px 0 4px;font-size:14px;color:var(--text-dim);">참고: 내 신원·증거대 다시 보기</h3>` : ""}
     <div class="tabs">
       <button class="tab ${activeTab==='id'?'active':''}" data-tab="id">내 신원</button>
@@ -1119,9 +1140,11 @@ function renderMyCardsModal(){
           const claim = claims.get(card.id);
           const revealedBy = revealedSet.get(card.id);
           const revealer = revealedBy && CHARACTERS.find(c=>c.id===revealedBy.by);
-          const mineTag = claim?.by===myRole ? "📌 내가 확보"
+          const isMine = claim?.by===myRole;
+          const mineTag = isMine ? "📌 내가 확보"
             : revealedBy ? `🗣 ${revealer?revealer.name:"누군가"}님이 공개`
             : "";
+          const canReveal = isMine && !revealedBy;
           return `
           <div class="my-card">
             <div class="doc-head"><span>${card.docNo}</span><span>${card.date}</span></div>
@@ -1129,6 +1152,7 @@ function renderMyCardsModal(){
             <div class="owner-tag" style="margin-bottom:8px;">출처: ${card.ownerName} · ${mineTag}</div>
             <div class="doc-body">${card.body}</div>
             ${card.note?`<div class="doc-note">${card.note}</div>`:""}
+            ${canReveal?`<button class="btn reveal-btn" data-reveal="${card.id}" style="margin-top:8px;">🗣 이 증거 공개하기</button>`:""}
           </div>`;
         }).join("")
       }
@@ -1158,6 +1182,16 @@ function bindCasebarButtons(){
   if(backdrop) backdrop.addEventListener("click", (e)=>{ if(e.target===backdrop){ myCardsOpen=false; render(); } });
   const closeBtn = document.getElementById("myCardsClose");
   if(closeBtn) closeBtn.addEventListener("click", ()=>{ myCardsOpen=false; render(); });
+  // "내 증거함" 모달 안에서 바로 공개하기 — 보드 탭에 있을 때만 동작하던 .reveal-btn을
+  // 여기서도 바인딩(bindCasebarButtons는 activeTab과 무관하게 매 렌더마다 실행됨).
+  app.querySelectorAll("#myCardsBackdrop .reveal-btn").forEach(btn=>{
+    btn.addEventListener("click", async (e)=>{
+      e.stopPropagation();
+      btn.disabled = true; btn.textContent = "공개 중...";
+      await store.revealCard(btn.dataset.reveal, myRole);
+      render();
+    });
+  });
   const guideBtn = document.getElementById("guideBtn");
   if(guideBtn) guideBtn.addEventListener("click", ()=>{ phaseGuideOpen = true; render(); });
   const guideBackdrop = document.getElementById("guideBackdrop");
@@ -1358,7 +1392,7 @@ function renderId(me){
       <div class="id-field"><div class="label">겉으로 내세우는 입장</div><div class="val">${me.stance}</div></div>
       <div class="id-field"><div class="label">그날의 기억</div><div class="val">${me.account}</div></div>
       <div class="id-field"><div class="label">다른 참가자와의 관계</div><div class="val">${nl2br(me.relations)}</div></div>
-      <div class="id-field secret"><div class="label">🔒 나만 아는 것</div><div class="val">${me.secret}</div></div>
+      <div class="id-field secret"><div class="label">🔒 나만 아는 것</div><div class="val" tabindex="0">${me.secret}</div><div class="hint">👆 누르고 있는 동안만 보여요 — 옆 사람 조심!</div></div>
       <div class="id-field"><div class="label">이 자리에서의 목표</div><div class="goal-list">
         <div class="goal-line"><span class="goal-tag">🎯 원하는 결과</span>${me.goal[0]}</div>
         <div class="goal-line"><span class="goal-tag">🤐 숨기고 싶은 것</span>${me.goal[1]}</div>
@@ -1402,6 +1436,22 @@ function revealTag(card){
   if(!info) return "";
   const r = CHARACTERS.find(c=>c.id===info.by);
   return ` · 🗣 ${r?r.name:"누군가"}님이 공개`;
+}
+// 공개된 증거를 최근 순으로 몇 장 상단에 띄워 "다같이 지켜보는" 느낌을 주는 실시간 피드.
+// 탭과 무관하게 항상 보이도록 casebar 바로 아래에서 호출한다(전체 내용은 여전히 증거대/내 증거함에서 확인).
+function renderRecentReveals(){
+  if(!myRole || !isCardUnlocked()) return "";
+  const items = [...revealedSet.entries()]
+    .sort((a,b)=> new Date(b[1].at) - new Date(a[1].at))
+    .slice(0,5)
+    .map(([cardId,info])=>{
+      const card = ALL_CARDS.find(c=>c.id===cardId);
+      if(!card) return "";
+      const revealer = CHARACTERS.find(c=>c.id===info.by);
+      return `<div class="reveal-chip"><span class="exhibit-no">증거 ${card.exhibit}</span> ${card.title} <span class="reveal-by">— ${revealer?revealer.name:"누군가"} 제출</span></div>`;
+    }).join("");
+  if(!items) return "";
+  return `<div class="reveal-feed"><div class="reveal-feed-label">🗞 최근 공개된 증거</div><div class="reveal-feed-list">${items}</div></div>`;
 }
 function renderBoard(){
   const cards = ALL_CARDS; // 공용 증거대 — 전원 동일한 풀을 봄
