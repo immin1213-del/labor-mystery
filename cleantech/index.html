@@ -231,9 +231,6 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outl
 .ownable .claim-btn{margin-top:4px;}
 .face.front .reveal-btn{margin-top:6px;font-size:11px;padding:5px 8px;}
 .locked.claimed{border-style:solid;}
-.locked.spent{border-color:var(--gold);}
-.picks-left{font-size:12.5px;color:var(--text);margin-bottom:14px;}
-.picks-left b{color:var(--seal);font-family:var(--mono);}
 .flipcard{
   perspective:1400px;aspect-ratio:5/6;min-height:180px;
 }
@@ -281,6 +278,15 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outl
 }
 .locked .lock-icon{font-size:22px;}
 
+/* ---------- 공개 알림 토스트 ---------- */
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);z-index:60;
+  background:var(--text);color:var(--paper);padding:10px 18px;border-radius:6px;
+  font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.28);opacity:0;
+  transition:opacity .25s,transform .25s;max-width:min(90vw,420px);text-align:center;
+}
+.toast.show{opacity:1;transform:translate(-50%,0);}
+
 /* ---------- 토론/투표 ---------- */
 .matrix{display:grid;gap:12px;}
 .matrix-card{background:var(--ink-2);border:2px solid var(--ink-3);border-radius:6px;padding:14px 16px;}
@@ -290,6 +296,8 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outl
   font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 6px;
   border-radius:3px;height:fit-content;white-space:nowrap;text-align:center;
 }
+.matrix-row.legal .tag{background:var(--text);color:var(--paper);}
+.matrix-row.legal{border-bottom:1px dashed var(--paper-shadow);margin-bottom:4px;padding-bottom:8px;}
 .matrix-row.employer .tag{background:var(--ink-3);color:var(--paper);}
 .matrix-row.union .tag{background:var(--gold);color:var(--paper);}
 .matrix-row.truth .tag{background:var(--seal);color:var(--paper);}
@@ -449,17 +457,18 @@ const PHASE_LABEL = {casting:"배역 선택 대기", briefing:"사건 개요·�
 const PHASE_GUIDE = {
   briefing:{title:"📖 사건 개요·전후관계 파악", body:"진행자 없이 진행됩니다. 아직 증거카드는 공개되지 않으니, 이 시간 동안 아래를 확인하고 참가자들끼리 대화하며 사건의 흐름부터 맞춰보세요.\n\n1. '내 신원' 탭 — 내게 배정된 역할의 배경·입장·비밀·목표를 꼼꼼히 읽으세요.\n2. '사건 개요' 탭 — 초심 판정 요지와 사건 타임라인을 확인하며 누가 언제 무엇을 했는지 맞춰보세요."},
   intro:{title:"🎤 짧게 자기소개 해주세요", body:"본격적인 증거 공개 전에, 한 사람씩 30초~1분 정도로 자신의 역할(이름·소속·겉으로 내세우는 입장)만 짧게 소개하세요. 🔒 비밀은 아직 말하지 마세요!"},
-  round2:{title:"🔍 증거대가 열렸습니다", body:"'증거대' 탭에서 첫 증거들이 공개됩니다.\n\n👁 열람용 카드는 이번 라운드에 2장까지만 골라 볼 수 있어요(한 번 본 카드는 계속 볼 수 있습니다).\n🔒 소유용 카드는 먼저 가져가는 사람만 볼 수 있으니 서둘러 확인하세요."},
-  round3:{title:"🔍 2차 증거가 공개됐습니다", body:"증거대에 새 카드가 추가됐습니다. 이번 라운드에도 열람용 카드는 2장까지 고를 수 있어요."},
-  round4:{title:"🔒 마지막 라운드 — 결정적 증거", body:"이번 라운드 카드는 대부분 소유용입니다. 각 인물의 가장 결정적인 비밀이 걸려있으니, 먼저 가져가서 확인해 보세요. 확보한 카드를 '공개하기'로 터뜨릴지, 조용히 숨길지에 따라 최종 결과 화면에서 그 인물의 결말이 달라집니다."},
-  discussion:{title:"💬 교차검증 토론", body:"모든 증거가 공개되었습니다. 각자 확보한 카드를 서로에게 설명하며, '증거대' 탭 위쪽의 쟁점 비교표를 하나씩 짚어보세요."},
+  round2:{title:"🔍 증거대가 열렸습니다", body:"'증거대' 탭에서 모든 증거가 한꺼번에 공개됩니다(라운드별로 나눠 열리지 않습니다).\n\n👁 열람용 카드는 누구나 바로 펼쳐볼 수 있어요.\n🔒 소유용 카드는 먼저 가져가는 사람만 볼 수 있으니 서둘러 확인하세요.\n\n어떤 카드든 '공개하기'를 누르면 전원에게 알림이 가고, 그 내용이 모두의 '내 증거함'에 추가됩니다 — 중요한 걸 찾았으면 공유해보세요."},
+  round3:{title:"🔍 계속 증거를 확인하세요", body:"아직 못 본 카드가 있다면 지금 확인하세요. 소유용 카드는 여전히 먼저 가져가는 사람이 임자입니다."},
+  round4:{title:"🔒 결정적 증거를 놓치지 마세요", body:"각 인물의 가장 결정적인 비밀이 소유용 카드로 걸려있습니다. 아직 못 가져간 카드가 있다면 지금 확보하세요. 확보한 카드를 '공개하기'로 전원에게 터뜨릴지, 조용히 숨길지에 따라 최종 결과 화면에서 그 인물의 결말이 달라집니다."},
+  discussion:{title:"💬 교차검증 토론", body:"모든 증거가 공개되었습니다. 각자 확보한 카드를 서로에게 설명하며, '증거대' 탭 위쪽의 쟁점 비교표를 하나씩 짚어보세요. 각 쟁점에는 법적 요건이 먼저 나와 있으니, 그 요건에 사실관계를 대입하는 방식으로 논의해보세요. 결론(진실)은 투표 후에 공개됩니다."},
   vote:{title:"🗳 최종 판정 투표", body:"토론 내용을 바탕으로 두 가지 쟁점(부당해고 여부 / 부당노동행위 여부)에 각각 투표하세요. 두 쟁점의 조합에 따라 결말이 4가지로 달라집니다. 다른 사람 표는 결과가 나오기 전까지 알 수 없는 익명 투표이며, 투표는 언제든 바꿀 수 있습니다."},
 };
 // 1라운드는 카드 공개 없이 타임라인·초심 판정 요지로 사건 흐름부터 파악하는 시간 — 그래서 더 길게 배정
 // intro는 인원수(최대 6명) × 대략 40초 정도의 자기소개 시간을 감안한 기본값
 // casting은 타이머로 넘어가는 단계가 아니라 "전원 배역 확정"으로 넘어가는 단계라 화면에 카운트다운을 보여주지 않음.
 // 그래도 상태 문서엔 phaseEndsAt이 필요해서(다른 단계와 동일한 형식 유지), 사실상 안 쓰일 넉넉한 안전장치 값만 넣어둠.
-const DURATIONS = {casting:1800, briefing:600, intro:240, round2:300, round3:300, round4:300, discussion:600, vote:120};
+// discussion: 쟁점 4개 × 법적요건까지 짚으며 교차검증하기엔 10분으로 부족하다는 피드백 반영해 15분으로 조정(2026-09-15)
+const DURATIONS = {casting:1800, briefing:600, intro:240, round2:300, round3:300, round4:300, discussion:900, vote:120};
 
 // 6인 캐릭터 — 각자 배경/입장/비밀/목표/관계 + 개인 단서 3장(1·2·3라운드에 순차 공개)
 // background·account·relations는 실제 판정문의 사실관계를 각색해 살을 붙인 것으로,
@@ -528,8 +537,8 @@ const CHARACTERS = [
     },
     cards:[
       {round:2, exhibit:"제7호", title:"노동조합 선전물 인쇄본", docNo:"클린테크지회 유인물", date:"2024.09 배포",
-        body:"'㈜클린테크, 시청 용역비 1억8천만원 어디로? 사측은 노조를 깨기 위해 조합원 표적 징계·불공정 평가를 자행하고 있습니다! — 클린테크지회 일동'",
-        note:"지회 결성 이후 가장 많이 뿌린 유인물이다."},
+        body:"'㈜클린테크, 시청 용역비 1억8천만원 어디로? 사측은 노조를 깨기 위해 조합원 표적 징계·불공정 평가를 자행하고 있습니다! — 클린테크지회 일동'\n배포 방법: 평일 출근 시간대(07:40~08:00) 사내 게시판에 부착하고, 회사 정문 앞을 지나는 인근 주민들에게도 낱장으로 배부.\n영향: 배포 이틀 뒤 ○○시청 청소행정과에 '용역비 집행 의혹을 확인해달라'는 민원 2건 접수. 사측은 '허위사실 유포로 인한 업무방해'라며 항의 공문을 보냈다.",
+        note:"지회 결성 이후 가장 많이 뿌린 유인물이다. 인용된 '1억8천만원' 수치의 근거는 제8호 카드에서 드러난다."},
       {round:3, exhibit:"제8호", title:"지자체 용역 과업지시서 발췌", docNo:"○○시 과업지시서 제17조", date:"2024.02.19 계약 체결분",
         body:"제17조(인건비 지급기준): 수집운반 대행업체는 낙찰가율에 따라 산정된 총 인건비 6억원을 상시근로자 10명에게 지급하며, 별도 항목의 관리비·차량유지비 등은 인건비와 구분하여 집행한다.\n백태우 메모: '처음엔 6억원 외 관리비·유지비까지 다 인건비인 줄 알고 계산했다. 다시 보니 그게 아니었다. 근데 이미 조합원들한테 다 말해버린 뒤였다.'",
         note:"이 메모는 아무에게도 보여준 적 없다."},
@@ -648,17 +657,20 @@ const ALL_CARDS = [
   })),
 ];
 
-// 라운드당 열람용 카드를 몇 장까지 "선택"해서 볼 수 있는지 — 정보 비대칭을 만들어
-// 토론을 유도하기 위한 제한. 한 번 연 카드는 그 이후로도 계속 볼 수 있고,
-// 해당 라운드가 지나가면(다음 라운드로 넘어가면) 제한 없이 누구나 볼 수 있게 풀린다.
-const VIEW_PICK_LIMIT = 2;
-
-// 토론 단계 참고자료 — 쟁점별 "사측 주장 / 노측 반박 / 숨겨진 진실" 비교표
+// 토론 단계 참고자료 — 쟁점별 "법적 요건 → 사측 주장 / 노측 반박(사실관계 적용) → (결과 화면에서만 공개되는) 숨겨진 진실" 비교표
 const ISSUE_MATRIX = [
-  {topic:"① 갱신기대권", employer:"계약만료로 근로관계가 종료되는 것이 원칙이다.", union:"자동연장 조항 및 장기 용역계약(~2026)이 존재해 기대권이 인정된다.", truth:"대상자를 제외한 비조합원 전원이 갱신되어, 갱신기대권 성립 자체는 다툼의 여지가 적다."},
-  {topic:"② 징계 사유", employer:"불법유턴 2회·중앙선침범 37회, 폭염 속 동료 방치 등 다수의 비위가 있었다.", union:"노조 활동에 대한 표적 감시 끝에 꼬투리를 잡아 만든 과잉 징계다.", truth:"DTG 운행기록과 피해자 진술로 확인되는 객관적 비위 사실 자체는 실제로 존재한다."},
-  {topic:"③ 인사고과", employer:"동료 간 상호평가 결과가 객관적으로 극도로 저조했다.", union:"조합원이 배제된 상태에서 치러진 불공정한 밀실 평가다.", truth:"절차적 하자는 인정되나, 평가 결과가 사측의 회유·뒷거래와도 얽혀 있어 순수한 저성과 평가로 보기는 어렵다."},
-  {topic:"④ 부당노동행위", employer:"노조와 6차례 단체교섭에 성실히 임했다.", union:"유독 조합원 2명만 골라 정직·갱신거절 처분을 내렸다.", truth:"갱신거절에 합리적 사유 자체는 인정되어, 부당노동행위 성립을 단정하기는 쉽지 않다."},
+  {topic:"① 갱신기대권",
+    legal:"근로계약의 내용, 갱신에 관한 기준·절차의 설정 여부, 근로자가 수행하는 업무의 계속성 등을 종합해 갱신에 대한 정당한 기대권이 형성되어 있는지로 판단(대법원 2011.4.14. 선고 2007두1729).",
+    employer:"계약만료로 근로관계가 종료되는 것이 원칙이다.", union:"자동연장 조항 및 장기 용역계약(~2026)이 존재해 기대권이 인정된다.", truth:"대상자를 제외한 비조합원 전원이 갱신되어, 갱신기대권 성립 자체는 다툼의 여지가 적다."},
+  {topic:"② 징계 사유",
+    legal:"기대권이 인정되는 이상 갱신거절에는 사회통념상 객관적·합리적 사유가 필요하고, 평가·징계 절차의 공정성과 유사 사례와의 형평성이 핵심 판단요소가 된다.",
+    employer:"불법유턴 2회·중앙선침범 37회, 폭염 속 동료 방치 등 다수의 비위가 있었다.", union:"노조 활동에 대한 표적 감시 끝에 꼬투리를 잡아 만든 과잉 징계다.", truth:"DTG 운행기록과 피해자 진술로 확인되는 객관적 비위 사실 자체는 실제로 존재한다."},
+  {topic:"③ 인사고과",
+    legal:"조합원 그룹과 비조합원 그룹의 평가결과를 전체적으로 비교해 통계적으로 유의미한 차이가 있는지로 반조합적 의사를 추정하는 '집단관찰법'(대법원 2007두25695). 제1호 카드의 백태우 41점·최진혁 38점(최하위 2인) vs 비조합원 평균 52점을 이 틀로 비교해볼 것.",
+    employer:"동료 간 상호평가 결과가 객관적으로 극도로 저조했다.", union:"조합원이 배제된 상태에서 치러진 불공정한 밀실 평가다.", truth:"절차적 하자는 인정되나, 평가 결과가 사측의 회유·뒷거래와도 얽혀 있어 순수한 저성과 평가로 보기는 어렵다."},
+  {topic:"④ 부당노동행위(불이익취급·지배개입)",
+    legal:"반조합적 의사의 존재, 처분 시기와 조합활동의 시간적 근접성, 조합원·비조합원 간 처우의 불균형을 종합 판단(대법원 1991.4.23. 선고 90누7685). 유인물 배포(제7호)가 '정당한 조합활동'의 범위 내였는지 — 배포 방법과 그로 인해 회사가 입은 영향, 내용의 사실관계(제8호와 대조)까지 함께 볼 것.",
+    employer:"노조와 6차례 단체교섭에 성실히 임했다.", union:"유독 조합원 2명만 골라 정직·갱신거절 처분을 내렸다.", truth:"갱신거절에 합리적 사유 자체는 인정되어, 부당노동행위 성립을 단정하기는 쉽지 않다."},
 ];
 
 // 최종 투표 — 두 개의 독립된 쟁점을 각각 인정/기각으로 투표(조합 4가지 결말)
@@ -708,7 +720,7 @@ const ENDINGS = {
    ============================================================ */
 function makeLocalStore(){
   let state = {phase:"casting", phaseEndsAt: Date.now()+DURATIONS.casting*1000};
-  const players = new Map(); const votes = new Map(); const claims = new Map(); const ready = new Set(); const revealed = new Set(); const npc = new Set();
+  const players = new Map(); const votes = new Map(); const claims = new Map(); const ready = new Set(); const revealed = new Map(); const npc = new Set();
   const stateCbs=[], playerCbs=[], voteCbs=[], claimCbs=[], readyCbs=[], revealCbs=[], npcCbs=[];
   return {
     isLocal:true,
@@ -725,7 +737,7 @@ function makeLocalStore(){
     onReady(cb){readyCbs.push(cb); cb(ready); return ()=>{};},
     setReady(key,isReady){ if(isReady) ready.add(key); else ready.delete(key); readyCbs.forEach(cb=>cb(ready)); },
     onRevealed(cb){revealCbs.push(cb); cb(revealed); return ()=>{};},
-    revealCard(cardId){ revealed.add(cardId); revealCbs.forEach(cb=>cb(revealed)); },
+    revealCard(cardId, roleId){ revealed.set(cardId,{by:roleId, at:new Date().toISOString()}); revealCbs.forEach(cb=>cb(revealed)); },
     onNpc(cb){npcCbs.push(cb); cb(npc); return ()=>{};},
     setNpc(roleId,isNpc){ if(isNpc) npc.add(roleId); else npc.delete(roleId); npcCbs.forEach(cb=>cb(npc)); },
   };
@@ -759,11 +771,18 @@ function makeDbStore(db, roomId){
       }, ()=>{});
     },
     async claimRole(roleId,name,playerName){
+      // get-then-set이 아니라 트랜잭션으로 — 두 사람이 같은 역할을 동시에 누르면 get-then-set은
+      // 둘 다 "비어있음"을 보고 둘 다 성공해버리는 경합이 생길 수 있어(그 결과 myRole이 같은 값으로
+      // 겹치는 게 이후 카드 공개 권한 오작동의 원인이 될 수 있음), 트랜잭션으로 원자적으로 처리한다.
       const ref = playersCol.doc(roleId);
-      const snap = await ref.get();
-      if(snap.exists){ return snap.data().name===name; }
-      await ref.set({name, playerName:playerName||"", at:new Date().toISOString()});
-      return true;
+      try{
+        return await db.runTransaction(async tx=>{
+          const snap = await tx.get(ref);
+          if(snap.exists) return snap.data().name===name;
+          tx.set(ref, {name, playerName:playerName||"", at:new Date().toISOString()});
+          return true;
+        });
+      }catch(e){ return false; }
     },
     async releaseRole(roleId){ try{ await playersCol.doc(roleId).delete(); }catch(e){} },
     onVotes(cb){
@@ -778,10 +797,17 @@ function makeDbStore(db, roomId){
       }, ()=>{});
     },
     async claimCard(cardId, roleId){
+      // 마찬가지로 트랜잭션 — get-then-set 경합이 있으면 동시 클릭 시 두 명이 모두
+      // "가져가기 성공"으로 응답받아 카드가 자신 것이라 착각하는 문제가 생긴다.
       const ref = claimsCol.doc(cardId);
-      const snap = await ref.get();
-      if(snap.exists) return false; // 이미 다른 사람이 가져감
-      try{ await ref.set({by:roleId, at:new Date().toISOString()}); return true; }catch(e){ return false; }
+      try{
+        return await db.runTransaction(async tx=>{
+          const snap = await tx.get(ref);
+          if(snap.exists) return false; // 이미 다른 사람이 가져감
+          tx.set(ref, {by:roleId, at:new Date().toISOString()});
+          return true;
+        });
+      }catch(e){ return false; }
     },
     onReady(cb){
       return readyCol.onSnapshot(qs=>{
@@ -796,10 +822,10 @@ function makeDbStore(db, roomId){
     },
     onRevealed(cb){
       return revealedCol.onSnapshot(qs=>{
-        const s=new Set(); qs.docs.forEach(d=>s.add(d.id)); cb(s);
+        const m=new Map(); qs.docs.forEach(d=>m.set(d.id, d.data())); cb(m);
       }, ()=>{});
     },
-    async revealCard(cardId){ try{ await revealedCol.doc(cardId).set({at:new Date().toISOString()}); }catch(e){} },
+    async revealCard(cardId, roleId){ try{ await revealedCol.doc(cardId).set({by:roleId, at:new Date().toISOString()}); }catch(e){} },
     onNpc(cb){
       return npcCol.onSnapshot(qs=>{
         const s=new Set(); qs.docs.forEach(d=>s.add(d.id)); cb(s);
@@ -839,7 +865,8 @@ let players = new Map();
 let votes = new Map();
 let claims = new Map(); // 소유용 카드의 현재 소유자(roleId) — cardId -> {by}
 let readySet = new Set(); // "다음 단계 준비완료"를 누른 사람들 — 키는 `${phase}_${roleId}`
-let revealedSet = new Set(); // 소유자가 "공개하기"를 눌러 전원에게 드러난 소유용 카드 id들
+let revealedSet = new Map(); // "공개하기"를 눌러 전원에게 드러난 카드 — cardId -> {by, at}
+let revealNotifyReady = false; // 방 접속 후 첫 onRevealed 스냅샷(기존 공개 내역)은 조용히 반영, 그 이후의 변화만 푸시 알림
 let npcSet = new Set(); // NPC로 돌리기로 한 역할 id들 — 인원이 6명이 안 될 때 남는 역할을 채움
 function castingFilled(){ return players.size + npcSet.size >= CHARACTERS.length; } // 6개 역할이 전부 "실제 참가자" 또는 "NPC"로 채워졌는지
 function readyKey(){ return sharedState.phase + "_" + myRole; }
@@ -866,11 +893,6 @@ function loadMyOpened(){
 function saveMyOpened(){
   try{ localStorage.setItem("lm_opened_"+myRoom+"_"+myRole, JSON.stringify([...myOpened])); }catch(e){}
 }
-function picksUsedInRound(roundNum){
-  let n = 0;
-  ALL_CARDS.forEach(c=>{ if(c.round===roundNum && myOpened.has(c.id)) n++; });
-  return n;
-}
 let activeTab = "id"; // id | timeline | cards
 let gateError = "";
 let roomError = "";
@@ -884,7 +906,7 @@ function sanitizeRoomCode(raw){ return (raw||"").trim().toUpperCase().replace(/[
 // 조(room) 연결 — 코드 입력 시 그 조 전용 경로로 스토어를 새로 구성
 function connectStore(){
   unsubFns.forEach(u=>{ try{ u && u(); }catch(e){} }); unsubFns=[];
-  players = new Map(); votes = new Map(); claims = new Map(); readySet = new Set(); revealedSet = new Set(); npcSet = new Set(); myCardsOpen = false; rosterOpen = false;
+  players = new Map(); votes = new Map(); claims = new Map(); readySet = new Set(); revealedSet = new Map(); revealNotifyReady = false; npcSet = new Set(); myCardsOpen = false; rosterOpen = false;
   phaseGuideOpen = false; lastSeenGuidePhase = null;
   myRole = localStorage.getItem("lm_role_"+myRoom) || null; // 이 방에서 예전에 고른 역할이 있으면 복원
   loadMyOpened();
@@ -916,7 +938,22 @@ function connectStore(){
   }));
   unsubFns.push(store.onVotes(v=>{ const changed = v.size!==votes.size; votes = v; if(changed && (sharedState.phase==="vote"||sharedState.phase==="result")) render(); }));
   unsubFns.push(store.onClaims(c=>{ const changed = c.size!==claims.size; claims = c; if(changed && activeTab==="cards") render(); }));
-  unsubFns.push(store.onRevealed(r=>{ const changed=r.size!==revealedSet.size; revealedSet=r; if(changed && activeTab==="cards") render(); }));
+  unsubFns.push(store.onRevealed(r=>{
+    const changed = r.size!==revealedSet.size;
+    // 방 접속 직후 첫 스냅샷은 기존에 이미 공개돼있던 카드 목록일 뿐이라 조용히 반영하고,
+    // 그 이후 새로 추가된 카드만 "누가 공개했다"는 푸시 토스트로 전원에게 알린다.
+    if(revealNotifyReady){
+      r.forEach((info,id)=>{
+        if(revealedSet.has(id)) return;
+        const card = ALL_CARDS.find(c=>c.id===id);
+        const revealer = CHARACTERS.find(c=>c.id===info.by);
+        if(card) showToast(`🗣 ${revealer?revealer.name:"누군가"}님이 증거 ${card.exhibit}를 공개했습니다`);
+      });
+    }
+    revealNotifyReady = true;
+    revealedSet = r;
+    if(changed && (activeTab==="cards" || myCardsOpen)) render();
+  }));
   unsubFns.push(store.onReady(r=>{
     const changed = r.size!==readySet.size;
     readySet = r;
@@ -930,7 +967,7 @@ function leaveRoom(){
   unsubFns.forEach(u=>{ try{ u && u(); }catch(e){} }); unsubFns=[];
   localStorage.removeItem("lm_room");
   if(myRoom) localStorage.removeItem("lm_role_"+myRoom);
-  myRoom=null; myRole=null; store=null; players=new Map(); votes=new Map(); claims=new Map(); readySet=new Set(); revealedSet=new Set(); npcSet=new Set(); myCardsOpen=false; rosterOpen=false; myOpened=new Set();
+  myRoom=null; myRole=null; store=null; players=new Map(); votes=new Map(); claims=new Map(); readySet=new Set(); revealedSet=new Map(); revealNotifyReady=false; npcSet=new Set(); myCardsOpen=false; rosterOpen=false; myOpened=new Set();
   phaseGuideOpen=false; lastSeenGuidePhase=null; stateLoaded=false;
   activeTab="id"; gateError=""; roomError="";
   updateConnBanner();
@@ -943,7 +980,19 @@ function phaseEndsAtMs(){
   return typeof v === "number" ? v : new Date(v).getTime();
 }
 function phaseIndex(p){ return PHASES.indexOf(p); }
-function isCardUnlocked(card){ return phaseIndex(sharedState.phase) >= phaseIndex("round"+card.round); }
+// 예전엔 카드마다 자기 라운드(card.round)가 돼야 열렸지만, 라운드별로 따로 여는 게
+// 오히려 막판(3라운드)에 밀린 카드들이 한꺼번에 제한 없이 풀리는 혼란을 만든다는 피드백에 따라
+// round2부터는 전체 증거(1·2·3라운드분)가 동시에 열람/소유 가능하도록 단순화(2026-09-15).
+function isCardUnlocked(){ return phaseIndex(sharedState.phase) >= phaseIndex("round2"); }
+
+function showToast(text){
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = text;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=> el.classList.add("show"));
+  setTimeout(()=>{ el.classList.remove("show"); setTimeout(()=>el.remove(), 300); }, 4000);
+}
 
 function fmtClock(ms){
   const s = Math.max(0, Math.round(ms/1000));
@@ -1002,8 +1051,12 @@ function renderCasebar(){
     ${showTimer?`<span class="timer" id="timerEl">${fmtClock(remain)}</span>`:""}
     ${PHASE_GUIDE[sharedState.phase]?`<button class="btn" id="guideBtn">❓ 지금 할 일</button>`:""}
     <button class="btn" id="rosterBtn">🗺 관계도 보기</button>
-    <button class="btn seal" id="myCardsBtn">🔒 내 소유 카드 (${myOwnedCards().length})</button>
-    ${sharedState.phase!=="result"?`<button class="btn ${readySet.has(readyKey())?'primary':''}" id="readyBtn">🙋 다음 단계 준비 (${readyCountForPhase()}/${players.size})</button>`:""}
+    <button class="btn seal" id="myCardsBtn">📁 내 증거함 (${myAccessibleCards().length})</button>
+    ${sharedState.phase==="result" ? "" :
+      sharedState.phase==="vote" && !hasMyVoteComplete()
+        ? `<button class="btn" id="readyBtn" disabled title="먼저 두 쟁점에 모두 투표해야 합니다">🙋 다음 단계 준비 (투표 후 가능)</button>`
+        : `<button class="btn ${readySet.has(readyKey())?'primary':''}" id="readyBtn">🙋 다음 단계 준비 (${readyCountForPhase()}/${players.size})</button>`
+    }
     <button class="btn" id="leaveRoomBtn2">세션 나가기</button>
     ${store && store.isLocal ? `<div class="sync-note">🔌 로컬 모드 — 이 기기에서만 진행됩니다 (실시간 동기화 미사용)</div>`:""}
   </div></div>
@@ -1044,28 +1097,42 @@ function renderPhaseGuideModal(){
     </div>
   </div>`;
 }
-function myOwnedCards(){
-  return ALL_CARDS.filter(c=>c.kind==="own" && claims.get(c.id)?.by===myRole);
+// "내 증거함" = 내가 확보한 소유용 카드 + 누군가 공개해서 전원이 볼 수 있게 된 카드 + 내가 직접 열람한 카드.
+// 전체 증거대를 다시 뒤지지 않아도 지금까지 확인한 증거를 한곳에서 모아볼 수 있게 함.
+function myAccessibleCards(){
+  return ALL_CARDS.filter(c=>
+    (c.kind==="own" && claims.get(c.id)?.by===myRole) ||
+    revealedSet.has(c.id) ||
+    (c.kind==="view" && myOpened.has(c.id))
+  );
 }
 function renderMyCardsModal(){
-  const mine = myOwnedCards();
+  const mine = myAccessibleCards();
   return `
   <div class="modal-backdrop" id="myCardsBackdrop">
     <div class="modal-panel">
       <div class="modal-head">
-        <h3>🔒 내가 확보한 카드</h3>
+        <h3>📁 내 증거함</h3>
         <button class="btn" id="myCardsClose">닫기</button>
       </div>
       ${mine.length===0
-        ? `<p style="color:var(--text-dim);font-size:13px;">아직 가져간 소유용 카드가 없습니다. 증거대에서 🔒 표시된 카드를 먼저 가져가세요.</p>`
-        : mine.map(card=>`
+        ? `<p style="color:var(--text-dim);font-size:13px;">아직 확인한 카드가 없습니다. 증거대에서 카드를 열람하거나 🔒 표시된 카드를 가져가세요.</p>`
+        : mine.map(card=>{
+          const claim = claims.get(card.id);
+          const revealedBy = revealedSet.get(card.id);
+          const revealer = revealedBy && CHARACTERS.find(c=>c.id===revealedBy.by);
+          const mineTag = card.kind==="own" && claim?.by===myRole ? "📌 내가 확보"
+            : revealedBy ? `🗣 ${revealer?revealer.name:"누군가"}님이 공개`
+            : "👁 내가 열람";
+          return `
           <div class="my-card">
             <div class="doc-head"><span>${card.docNo}</span><span>${card.date}</span></div>
             <div class="doc-title">증거 ${card.exhibit} · ${card.title}</div>
-            <div class="owner-tag" style="margin-bottom:8px;">출처: ${card.ownerName}</div>
+            <div class="owner-tag" style="margin-bottom:8px;">출처: ${card.ownerName} · ${mineTag}</div>
             <div class="doc-body">${card.body}</div>
             ${card.note?`<div class="doc-note">${card.note}</div>`:""}
-          </div>`).join("")
+          </div>`;
+        }).join("")
       }
     </div>
   </div>`;
@@ -1099,6 +1166,11 @@ function bindCasebarButtons(){
   if(rosterClose) rosterClose.addEventListener("click", ()=>{ rosterOpen=false; render(); });
 }
 function advancePhase(){
+  // 최종 투표(vote) 단계는 전원이 두 쟁점에 다 투표하기 전엔 시간이 다 되거나 누가 '다음 단계 준비'를
+  // 눌러도 결과로 안 넘어가게 막는다 — 안 그러면 0표/일부표인 채로 결과 화면에 진짜 판정처럼
+  // "재심 인용" 등이 떠버리는 문제가 있었다(과반 계산이 동수를 기각으로 처리하는데, 0표도 동수라
+  // 그대로 기각 결과가 나와버림, 2026-09-15).
+  if(sharedState.phase==="vote" && players.size>0 && votesDoneCount()<players.size) return;
   const idx = phaseIndex(sharedState.phase);
   const next = PHASES[Math.min(idx+1, PHASES.length-1)];
   if(next !== sharedState.phase) store.setPhase(next);
@@ -1317,21 +1389,27 @@ function bindTimeline(){
   if(btn) btn.addEventListener("click", ()=>{ rulingExpanded = !rulingExpanded; render(); });
 }
 
+function revealTag(card){
+  const info = revealedSet.get(card.id);
+  if(!info) return "";
+  const r = CHARACTERS.find(c=>c.id===info.by);
+  return ` · 🗣 ${r?r.name:"누군가"}님이 공개`;
+}
 function renderBoard(){
   const cards = ALL_CARDS; // 공용 증거대 — 전원 동일한 풀을 봄
-  const curRoundNum = Number((sharedState.phase.match(/^round(\d)$/)||[])[1]) || null;
-  const picksLeft = curRoundNum ? Math.max(0, VIEW_PICK_LIMIT - picksUsedInRound(curRoundNum)) : null;
+  if(!isCardUnlocked()){
+    return `
+      <div class="board-legend"><span>증거대는 1라운드가 시작되면 열립니다.</span></div>
+      <div class="card-grid">${cards.map(card=>`<div class="locked"><div class="lock-icon">🔒</div><div>아직 열리지 않았습니다</div><div class="owner-tag">${card.ownerName}</div></div>`).join("")}</div>`;
+  }
   return `
     <div class="board-legend">
-      <span><b>👁 열람용</b> — 라운드당 ${VIEW_PICK_LIMIT}장까지만 골라서 볼 수 있음(한 번 본 카드는 계속 볼 수 있음)</span>
-      <span><b>🔒 소유용</b> — 가장 먼저 가져간 사람만 볼 수 있음. 소유자가 '공개하기'를 누르기 전까진 다른 사람에겐 비공개</span>
+      <span><b>👁 열람용</b> — 누구나 바로 펼쳐볼 수 있음</span>
+      <span><b>🔒 소유용</b> — 가장 먼저 가져간 사람만 볼 수 있음</span>
+      <span>모든 카드는 언제든 '공개하기'로 전원에게 알리며 공유할 수 있음(공개된 카드는 '내 증거함'에서 다시 볼 수 있음)</span>
     </div>
-    ${curRoundNum ? `<div class="picks-left">이번 라운드 남은 열람 기회: <b>${picksLeft}</b> / ${VIEW_PICK_LIMIT}장</div>` : ""}
     <div class="card-grid">
     ${cards.map(card=>{
-      if(!isCardUnlocked(card)){
-        return `<div class="locked"><div class="lock-icon">🔒</div><div>${card.round}라운드에 공개</div><div class="owner-tag">${card.ownerName}</div></div>`;
-      }
       let myClaim = null;
       if(card.kind==="own"){
         const claim = claims.get(card.id);
@@ -1349,21 +1427,17 @@ function renderBoard(){
         }
         // 내가 확보한 카드이거나, 소유자가 이미 전체 공개한 카드 — 아래 view 카드와 동일하게 펼쳐볼 수 있음
         myClaim = claim;
-      } else {
-        // 열람용 — 이번이 그 카드의 라운드이고, 아직 안 열었고, 남은 기회도 없으면 선택지에서 제외
-        const inItsOwnRound = sharedState.phase === ("round"+card.round);
-        if(inItsOwnRound && !myOpened.has(card.id) && picksLeft<=0){
-          return `<div class="locked spent"><div class="lock-icon">🎯</div><div>이번 라운드 열람 기회 소진</div><div class="owner-tag">${card.ownerName}</div></div>`;
-        }
       }
       const alreadyOpen = card.kind==="view" && myOpened.has(card.id);
       const isRevealed = revealedSet.has(card.id);
-      const canReveal = card.kind==="own" && myClaim && myClaim.by===myRole && !isRevealed;
+      // 소유용은 확보한 사람만, 열람용은 원래도 누구나 볼 수 있는 카드라 아무나 '공개하기'로 전원에게 알릴 수 있음
+      const canReveal = !isRevealed && (card.kind==="view" || (myClaim && myClaim.by===myRole));
+      const ownerTagExtra = isRevealed ? revealTag(card) : (card.kind==='own' && myClaim && myClaim.by===myRole ? ' · 📌 내가 확보' : '');
       return `<div class="flipcard ${alreadyOpen?'flipped':''}" data-idx="${card.id}"><div class="flipcard-inner">
         <div class="face front">
           <div class="seal-icon">⚖</div>
           <div class="exhibit-no">증거 ${card.exhibit}</div>
-          <div class="owner-tag">${card.ownerName}${card.kind==='own'?(isRevealed?' · 🗣 공개됨':' · 📌 내가 확보'):''}</div>
+          <div class="owner-tag">${card.ownerName}${ownerTagExtra}</div>
           ${canReveal?`<button class="btn reveal-btn" data-reveal="${card.id}">🗣 이 증거 공개하기</button>`:""}
           <div class="tap-hint">탭하여 확인</div>
         </div>
@@ -1382,7 +1456,7 @@ function bindBoard(){
     el.addEventListener("click", ()=>{
       const card = ALL_CARDS.find(c=>c.id===el.dataset.idx);
       if(card && card.kind==="view" && !myOpened.has(card.id)){
-        // 처음 여는 열람용 카드 — 열람권 1장 소모, 잔여 개수·잠긴 카드 표시를 갱신하기 위해 다시 그림
+        // 처음 여는 열람용 카드 — "이미 본 카드" 표시를 남겨 다음에도 펼쳐진 채로 보이게 함
         myOpened.add(card.id); saveMyOpened(); render(); return;
       }
       el.classList.toggle("flipped");
@@ -1400,7 +1474,7 @@ function bindBoard(){
     btn.addEventListener("click", async (e)=>{
       e.stopPropagation();
       btn.disabled = true; btn.textContent = "공개 중...";
-      await store.revealCard(btn.dataset.reveal);
+      await store.revealCard(btn.dataset.reveal, myRole);
       render();
     });
   });
@@ -1408,14 +1482,14 @@ function bindBoard(){
 
 function renderDiscussion(){
   return `
-    <p style="margin-bottom:10px;color:var(--text-dim);font-size:13px;">모든 증거가 공개되었습니다. 각자의 카드를 서로에게 말로 설명하며 아래 쟁점을 교차검증하세요.</p>
+    <p style="margin-bottom:10px;color:var(--text-dim);font-size:13px;">모든 증거가 공개되었습니다. 각자의 카드를 서로에게 말로 설명하며, 법적 요건에 사실관계를 대입해 아래 쟁점을 교차검증하세요. 결론(숨겨진 진실)은 투표 후 결과 화면에서 공개됩니다.</p>
     <div class="matrix">
       ${ISSUE_MATRIX.map(m=>`
         <div class="matrix-card">
           <div class="topic">${m.topic}</div>
+          <div class="matrix-row legal"><span class="tag">⚖ 법적 요건</span><span>${m.legal}</span></div>
           <div class="matrix-row employer"><span class="tag">사측 주장</span><span>${m.employer}</span></div>
           <div class="matrix-row union"><span class="tag">노측 반박</span><span>${m.union}</span></div>
-          <div class="matrix-row truth"><span class="tag">숨겨진 진실</span><span>${m.truth}</span></div>
         </div>`).join("")}
     </div>
   `;
@@ -1423,6 +1497,10 @@ function renderDiscussion(){
 
 function votesDoneCount(){
   let n=0; votes.forEach(v=>{ if(v && v.dismissal && v.ulp) n++; }); return n;
+}
+function hasMyVoteComplete(){
+  const v = votes.get(myRole);
+  return !!(v && v.dismissal && v.ulp);
 }
 function renderVote(){
   const my = votes.get(myRole) || {};
@@ -1507,6 +1585,14 @@ function renderResult(){
       <p style="white-space:pre-wrap;">${ending.body}</p>
     </div>
     <div class="lesson"><div class="label">LESSON</div>${ending.lesson}</div>
+    <div class="matrix" style="margin-top:16px;">
+      <p style="color:var(--text-dim);font-size:13px;margin-bottom:4px;">🔎 쟁점별 해설 — 토론 중엔 숨겨져 있던 진실입니다.</p>
+      ${ISSUE_MATRIX.map(m=>`
+        <div class="matrix-card">
+          <div class="topic">${m.topic}</div>
+          <div class="matrix-row truth"><span class="tag">숨겨진 진실</span><span>${m.truth}</span></div>
+        </div>`).join("")}
+    </div>
     ${epilogueHtml}
   `;
 }
