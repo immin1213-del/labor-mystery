@@ -457,9 +457,9 @@ const PHASE_LABEL = {casting:"배역 선택 대기", briefing:"사건 개요·�
 const PHASE_GUIDE = {
   briefing:{title:"📖 사건 개요·전후관계 파악", body:"진행자 없이 진행됩니다. 아직 증거카드는 공개되지 않으니, 이 시간 동안 아래를 확인하고 참가자들끼리 대화하며 사건의 흐름부터 맞춰보세요.\n\n1. '내 신원' 탭 — 내게 배정된 역할의 배경·입장·비밀·목표를 꼼꼼히 읽으세요.\n2. '사건 개요' 탭 — 초심 판정 요지와 사건 타임라인을 확인하며 누가 언제 무엇을 했는지 맞춰보세요."},
   intro:{title:"🎤 짧게 자기소개 해주세요", body:"본격적인 증거 공개 전에, 한 사람씩 30초~1분 정도로 자신의 역할(이름·소속·겉으로 내세우는 입장)만 짧게 소개하세요. 🔒 비밀은 아직 말하지 마세요!"},
-  round2:{title:"🔍 증거대가 열렸습니다", body:"'증거대' 탭에서 모든 증거가 한꺼번에 공개됩니다(라운드별로 나눠 열리지 않습니다).\n\n🔒 모든 카드는 먼저 '가져가기'를 눌러 확보한 사람만 볼 수 있습니다 — 한 카드는 한 명만 가져갈 수 있으니 서둘러 확인하세요.\n\n확보한 카드는 언제든 '공개하기'를 누르면 전원에게 알림이 가고, 그 내용이 모두의 '내 증거함'에 추가됩니다 — 중요한 걸 찾았으면 공유해보세요."},
-  round3:{title:"🔍 계속 증거를 확인하세요", body:"아직 못 가져간 카드가 있다면 지금 확인하세요. 카드는 여전히 먼저 가져가는 사람이 임자입니다."},
-  round4:{title:"🔒 결정적 증거를 놓치지 마세요", body:"각 인물의 가장 결정적인 비밀이 걸려있습니다. 아직 못 가져간 카드가 있다면 지금 확보하세요. 확보한 카드를 '공개하기'로 전원에게 터뜨릴지, 조용히 숨길지에 따라 최종 결과 화면에서 그 인물의 결말이 달라집니다."},
+  round2:{title:"🔍 증거대가 열렸습니다", body:"'증거대' 탭에서 모든 증거가 한꺼번에 공개됩니다(라운드별로 나눠 열리지 않습니다).\n\n🔒 모든 카드는 먼저 '가져가기'를 눌러 확보한 사람만 볼 수 있습니다 — 한 카드는 한 명만 가져갈 수 있으니 서둘러 확인하세요.\n\n확보한 카드는 언제든 '공개하기'를 누르면 전원에게 알림이 가고, 그 내용이 모두의 '내 증거함'에 추가됩니다 — 중요한 걸 찾았으면 공유해보세요.\n\n⚠ 이번 라운드가 끝나기 전까지 최소 1장은 채택해야 다음 단계로 넘어갈 수 있습니다(전원 기준)."},
+  round3:{title:"🔍 계속 증거를 확인하세요", body:"아직 못 가져간 카드가 있다면 지금 확인하세요. 카드는 여전히 먼저 가져가는 사람이 임자입니다.\n\n⚠ 이번 라운드가 끝나기 전까지 누적 최소 2장을 채택해야 다음 단계로 넘어갈 수 있습니다(전원 기준)."},
+  round4:{title:"🔒 결정적 증거를 놓치지 마세요", body:"각 인물의 가장 결정적인 비밀이 걸려있습니다. 아직 못 가져간 카드가 있다면 지금 확보하세요. 확보한 카드를 '공개하기'로 전원에게 터뜨릴지, 조용히 숨길지에 따라 최종 결과 화면에서 그 인물의 결말이 달라집니다.\n\n⚠ 이번 라운드가 끝나기 전까지 누적 최소 3장을 채택해야 토론 단계로 넘어갈 수 있습니다(전원 기준)."},
   discussion:{title:"💬 교차검증 토론", body:"모든 증거가 공개되었습니다. 각자 확보한 카드를 서로에게 설명하며, '증거대' 탭 위쪽의 쟁점 비교표를 하나씩 짚어보세요. 각 쟁점에는 법적 요건이 먼저 나와 있으니, 그 요건에 사실관계를 대입하는 방식으로 논의해보세요. 결론(진실)은 투표 후에 공개됩니다."},
   vote:{title:"🗳 최종 판정 투표", body:"토론 내용을 바탕으로 두 가지 쟁점(부당해고 여부 / 부당노동행위 여부)에 각각 투표하세요. 두 쟁점의 조합에 따라 결말이 4가지로 달라집니다. 다른 사람 표는 결과가 나오기 전까지 알 수 없는 익명 투표이며, 투표는 언제든 바꿀 수 있습니다."},
 };
@@ -873,13 +873,21 @@ let revealNotifyReady = false; // 방 접속 후 첫 onRevealed 스냅샷(기존
 let oneMinWarned = false; // 이번 단계에서 "증거 1분 전" 경고 토스트를 이미 띄웠는지 — 단계가 바뀌면 초기화
 let npcSet = new Set(); // NPC로 돌리기로 한 역할 id들 — 인원이 6명이 안 될 때 남는 역할을 채움
 function castingFilled(){ return players.size + npcSet.size >= CHARACTERS.length; } // 6개 역할이 전부 "실제 참가자" 또는 "NPC"로 채워졌는지
-// 1~3라운드(증거 공개 단계)엔 다들 증거를 최소 한 장은 채택하도록 유도 — 아무것도 안 가져가고
-// 토론에 들어가는 사람이 없게 하기 위함.
-const EVIDENCE_PHASES = ["round2","round3","round4"];
-function hasClaimedAny(){ for(const c of claims.values()){ if(c.by===myRole) return true; } return false; }
-function allPlayersClaimedAtLeastOne(){
-  const claimants = new Set(); claims.forEach(c=>claimants.add(c.by));
-  for(const roleId of players.keys()){ if(!claimants.has(roleId)) return false; }
+// 라운드가 끝날 때까지 누적으로 최소 이만큼은 채택해야 함(1라운드=round2 끝까지 1장,
+// 2라운드=round3 끝까지 2장, 3라운드=round4 끝까지 3장) — 한 장만 일찍 채택하고 나머지
+// 라운드를 그냥 흘려보내면 토론 시점에 사람마다 정보 격차가 너무 벌어져 밸런스가 깨진다는
+// 피드백을 반영(2026-09-15). round마다 "그 라운드에서 새로 몇 장을 챙겼는지"가 아니라
+// "지금까지 누적으로 몇 장인지"를 보는 이유는, 카드가 더 이상 라운드별로 나뉘어 있지 않고
+// round2부터 전부 동시에 열려있기 때문.
+const EVIDENCE_MIN_CLAIMS = {round2:1, round3:2, round4:3};
+function claimCountFor(roleId){ let n=0; claims.forEach(c=>{ if(c.by===roleId) n++; }); return n; }
+function myClaimCount(){ return claimCountFor(myRole); }
+function evidenceMinForPhase(){ return EVIDENCE_MIN_CLAIMS[sharedState.phase]||0; }
+function hasClaimedEnough(){ return myClaimCount() >= evidenceMinForPhase(); }
+function allPlayersClaimedEnough(){
+  const need = evidenceMinForPhase();
+  if(!need) return true;
+  for(const roleId of players.keys()){ if(claimCountFor(roleId) < need) return false; }
   return true;
 }
 function readyKey(){ return sharedState.phase + "_" + myRole; }
@@ -1151,8 +1159,8 @@ function bindCasebarButtons(){
     if(sharedState.phase==="vote" && !hasMyVoteComplete()){
       showToast("🗳 먼저 두 쟁점에 모두 투표하세요"); return;
     }
-    if(EVIDENCE_PHASES.includes(sharedState.phase) && !hasClaimedAny()){
-      showToast("⚖ 증거를 채택하세요 — 아직 카드를 한 장도 가져가지 않았습니다"); return;
+    if(evidenceMinForPhase() && !hasClaimedEnough()){
+      showToast(`⚖ 증거를 채택하세요 — 이번 라운드까지 최소 ${evidenceMinForPhase()}장 필요(현재 ${myClaimCount()}장)`); return;
     }
     readyBtn.disabled = true;
     await store.setReady(readyKey(), !readySet.has(readyKey()));
@@ -1185,8 +1193,8 @@ function advancePhase(){
   // "재심 인용" 등이 떠버리는 문제가 있었다(과반 계산이 동수를 기각으로 처리하는데, 0표도 동수라
   // 그대로 기각 결과가 나와버림, 2026-09-15).
   if(sharedState.phase==="vote" && players.size>0 && votesDoneCount()<players.size) return;
-  // 증거 공개 단계(1~3라운드)도 마찬가지 — 전원이 카드를 최소 한 장 채택하기 전엔 안 넘어감.
-  if(EVIDENCE_PHASES.includes(sharedState.phase) && players.size>0 && !allPlayersClaimedAtLeastOne()) return;
+  // 증거 공개 단계(1~3라운드)도 마찬가지 — 전원이 그 라운드까지의 최소 채택 수를 채우기 전엔 안 넘어감.
+  if(evidenceMinForPhase() && players.size>0 && !allPlayersClaimedEnough()) return;
   const idx = phaseIndex(sharedState.phase);
   const next = PHASES[Math.min(idx+1, PHASES.length-1)];
   if(next !== sharedState.phase) store.setPhase(next);
@@ -1637,10 +1645,10 @@ async function boot(){
     if(!store || sharedState.phase==="result") return;
     if(Date.now() >= phaseEndsAtMs()){ advancePhase(); return; }
     const remain = phaseEndsAtMs() - Date.now();
-    // 증거 공개 단계, 종료 1분 전, 아직 한 장도 안 가져간 사람에게 한 번만 채택 독촉 토스트
-    if(!oneMinWarned && remain<=60000 && myRole && EVIDENCE_PHASES.includes(sharedState.phase) && !hasClaimedAny()){
+    // 증거 공개 단계, 종료 1분 전, 이번 라운드까지의 최소 채택 수를 못 채운 사람에게 한 번만 독촉 토스트
+    if(!oneMinWarned && remain<=60000 && myRole && evidenceMinForPhase() && !hasClaimedEnough()){
       oneMinWarned = true;
-      showToast("⏰ 증거를 채택하세요 — 아직 한 장도 가져가지 않았습니다!");
+      showToast(`⏰ 증거를 채택하세요 — 이번 라운드까지 최소 ${evidenceMinForPhase()}장 필요(현재 ${myClaimCount()}장)`);
     }
     const t = document.getElementById("timerEl"); // 전체 재렌더 없이 초시계만 갱신(클릭 타이밍 충돌 방지)
     if(t) t.textContent = fmtClock(remain);
