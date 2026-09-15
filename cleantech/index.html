@@ -870,8 +870,18 @@ let claims = new Map(); // 각 카드를 먼저 가져간 사람(roleId) — car
 let readySet = new Set(); // "다음 단계 준비완료"를 누른 사람들 — 키는 `${phase}_${roleId}`
 let revealedSet = new Map(); // "공개하기"를 눌러 전원에게 드러난 카드 — cardId -> {by, at}
 let revealNotifyReady = false; // 방 접속 후 첫 onRevealed 스냅샷(기존 공개 내역)은 조용히 반영, 그 이후의 변화만 푸시 알림
+let oneMinWarned = false; // 이번 단계에서 "증거 1분 전" 경고 토스트를 이미 띄웠는지 — 단계가 바뀌면 초기화
 let npcSet = new Set(); // NPC로 돌리기로 한 역할 id들 — 인원이 6명이 안 될 때 남는 역할을 채움
 function castingFilled(){ return players.size + npcSet.size >= CHARACTERS.length; } // 6개 역할이 전부 "실제 참가자" 또는 "NPC"로 채워졌는지
+// 1~3라운드(증거 공개 단계)엔 다들 증거를 최소 한 장은 채택하도록 유도 — 아무것도 안 가져가고
+// 토론에 들어가는 사람이 없게 하기 위함.
+const EVIDENCE_PHASES = ["round2","round3","round4"];
+function hasClaimedAny(){ for(const c of claims.values()){ if(c.by===myRole) return true; } return false; }
+function allPlayersClaimedAtLeastOne(){
+  const claimants = new Set(); claims.forEach(c=>claimants.add(c.by));
+  for(const roleId of players.keys()){ if(!claimants.has(roleId)) return false; }
+  return true;
+}
 function readyKey(){ return sharedState.phase + "_" + myRole; }
 function readyCountForPhase(){
   let n=0; readySet.forEach(k=>{ if(k.startsWith(sharedState.phase+"_")) n++; }); return n;
@@ -909,7 +919,7 @@ function sanitizeRoomCode(raw){ return (raw||"").trim().toUpperCase().replace(/[
 // 조(room) 연결 — 코드 입력 시 그 조 전용 경로로 스토어를 새로 구성
 function connectStore(){
   unsubFns.forEach(u=>{ try{ u && u(); }catch(e){} }); unsubFns=[];
-  players = new Map(); votes = new Map(); claims = new Map(); readySet = new Set(); revealedSet = new Map(); revealNotifyReady = false; npcSet = new Set(); myCardsOpen = false; rosterOpen = false;
+  players = new Map(); votes = new Map(); claims = new Map(); readySet = new Set(); revealedSet = new Map(); revealNotifyReady = false; oneMinWarned = false; npcSet = new Set(); myCardsOpen = false; rosterOpen = false;
   phaseGuideOpen = false; lastSeenGuidePhase = null;
   myRole = localStorage.getItem("lm_role_"+myRoom) || null; // 이 방에서 예전에 고른 역할이 있으면 복원
   loadMyOpened();
@@ -923,6 +933,7 @@ function connectStore(){
   // 사용자 클릭(예: 카드 가져가기)이 화면 재구성 때문에 씹힐 수 있다.
   unsubFns.push(store.onState(s=>{
     const changed = s.phase !== sharedState.phase || s.phaseEndsAt !== sharedState.phaseEndsAt;
+    if(changed) oneMinWarned = false; // 새 단계로 넘어가면 "1분 전 증거 채택 경고"를 다시 띄울 수 있게 초기화
     sharedState = s;
     const wasLoaded = stateLoaded;
     stateLoaded = true;
@@ -970,7 +981,7 @@ function leaveRoom(){
   unsubFns.forEach(u=>{ try{ u && u(); }catch(e){} }); unsubFns=[];
   localStorage.removeItem("lm_room");
   if(myRoom) localStorage.removeItem("lm_role_"+myRoom);
-  myRoom=null; myRole=null; store=null; players=new Map(); votes=new Map(); claims=new Map(); readySet=new Set(); revealedSet=new Map(); revealNotifyReady=false; npcSet=new Set(); myCardsOpen=false; rosterOpen=false; myOpened=new Set();
+  myRoom=null; myRole=null; store=null; players=new Map(); votes=new Map(); claims=new Map(); readySet=new Set(); revealedSet=new Map(); revealNotifyReady=false; oneMinWarned=false; npcSet=new Set(); myCardsOpen=false; rosterOpen=false; myOpened=new Set();
   phaseGuideOpen=false; lastSeenGuidePhase=null; stateLoaded=false;
   activeTab="id"; gateError=""; roomError="";
   updateConnBanner();
@@ -1055,11 +1066,7 @@ function renderCasebar(){
     ${PHASE_GUIDE[sharedState.phase]?`<button class="btn" id="guideBtn">❓ 지금 할 일</button>`:""}
     <button class="btn" id="rosterBtn">🗺 관계도 보기</button>
     <button class="btn seal" id="myCardsBtn">📁 내 증거함 (${myAccessibleCards().length})</button>
-    ${sharedState.phase==="result" ? "" :
-      sharedState.phase==="vote" && !hasMyVoteComplete()
-        ? `<button class="btn" id="readyBtn" disabled title="먼저 두 쟁점에 모두 투표해야 합니다">🙋 다음 단계 준비 (투표 후 가능)</button>`
-        : `<button class="btn ${readySet.has(readyKey())?'primary':''}" id="readyBtn">🙋 다음 단계 준비 (${readyCountForPhase()}/${players.size})</button>`
-    }
+    ${sharedState.phase!=="result"?`<button class="btn ${readySet.has(readyKey())?'primary':''}" id="readyBtn">🙋 다음 단계 준비 (${readyCountForPhase()}/${players.size})</button>`:""}
     <button class="btn" id="leaveRoomBtn2">세션 나가기</button>
     ${store && store.isLocal ? `<div class="sync-note">🔌 로컬 모드 — 이 기기에서만 진행됩니다 (실시간 동기화 미사용)</div>`:""}
   </div></div>
@@ -1139,6 +1146,14 @@ function renderMyCardsModal(){
 function bindCasebarButtons(){
   const readyBtn = document.getElementById("readyBtn");
   if(readyBtn) readyBtn.addEventListener("click", async ()=>{
+    // 아직 안 한 게 있으면(투표/증거 채택) 준비 자체를 막고 뭘 해야 하는지 토스트로 알려줌 —
+    // disabled+title 방식은 모바일(호버 없음)에선 안 보여서 클릭 시점에 메시지를 띄우는 쪽으로.
+    if(sharedState.phase==="vote" && !hasMyVoteComplete()){
+      showToast("🗳 먼저 두 쟁점에 모두 투표하세요"); return;
+    }
+    if(EVIDENCE_PHASES.includes(sharedState.phase) && !hasClaimedAny()){
+      showToast("⚖ 증거를 채택하세요 — 아직 카드를 한 장도 가져가지 않았습니다"); return;
+    }
     readyBtn.disabled = true;
     await store.setReady(readyKey(), !readySet.has(readyKey()));
     render();
@@ -1170,6 +1185,8 @@ function advancePhase(){
   // "재심 인용" 등이 떠버리는 문제가 있었다(과반 계산이 동수를 기각으로 처리하는데, 0표도 동수라
   // 그대로 기각 결과가 나와버림, 2026-09-15).
   if(sharedState.phase==="vote" && players.size>0 && votesDoneCount()<players.size) return;
+  // 증거 공개 단계(1~3라운드)도 마찬가지 — 전원이 카드를 최소 한 장 채택하기 전엔 안 넘어감.
+  if(EVIDENCE_PHASES.includes(sharedState.phase) && players.size>0 && !allPlayersClaimedAtLeastOne()) return;
   const idx = phaseIndex(sharedState.phase);
   const next = PHASES[Math.min(idx+1, PHASES.length-1)];
   if(next !== sharedState.phase) store.setPhase(next);
@@ -1619,8 +1636,14 @@ async function boot(){
   setInterval(()=>{
     if(!store || sharedState.phase==="result") return;
     if(Date.now() >= phaseEndsAtMs()){ advancePhase(); return; }
+    const remain = phaseEndsAtMs() - Date.now();
+    // 증거 공개 단계, 종료 1분 전, 아직 한 장도 안 가져간 사람에게 한 번만 채택 독촉 토스트
+    if(!oneMinWarned && remain<=60000 && myRole && EVIDENCE_PHASES.includes(sharedState.phase) && !hasClaimedAny()){
+      oneMinWarned = true;
+      showToast("⏰ 증거를 채택하세요 — 아직 한 장도 가져가지 않았습니다!");
+    }
     const t = document.getElementById("timerEl"); // 전체 재렌더 없이 초시계만 갱신(클릭 타이밍 충돌 방지)
-    if(t) t.textContent = fmtClock(phaseEndsAtMs() - Date.now());
+    if(t) t.textContent = fmtClock(remain);
   }, 1000);
 }
 boot();
