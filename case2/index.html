@@ -137,6 +137,7 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outl
 .side-heading.floor{color:var(--gold);}
 .role-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
 .role-card{
+  position:relative;overflow:hidden;
   background:var(--ink-2);border:2px solid var(--ink-3);border-radius:5px;
   box-shadow:2px 2px 0 var(--paper-shadow);
   padding:16px;display:flex;flex-direction:column;gap:8px;text-align:left;
@@ -151,8 +152,24 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outl
 .role-card .name{font-family:var(--serif);font-weight:800;font-size:18px;}
 .role-card .org{font-size:12px;color:var(--text-dim);}
 .role-card .pick{margin-top:6px;}
-.role-card.taken{opacity:.5;}
+.role-card.taken{background:var(--ink);}
+.role-card.taken .seat,.role-card.taken .org{opacity:.55;}
 .role-card.taken .pick{background:none;border:none;color:var(--text-dim);font-size:12px;padding:0;}
+.role-card .stamp-badge{
+  position:absolute;top:8px;right:8px;width:50px;height:50px;border-radius:50%;
+  border:3px solid var(--seal);color:var(--seal);background:rgba(255,255,255,.4);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:var(--serif);font-weight:800;font-size:10px;line-height:1.15;
+  transform:rotate(-16deg);animation:stampIn .35s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes stampIn{
+  0%{transform:rotate(-16deg) scale(1.8);opacity:0;}
+  60%{transform:rotate(-16deg) scale(.9);opacity:1;}
+  100%{transform:rotate(-16deg) scale(1);opacity:1;}
+}
+@media (prefers-reduced-motion:reduce){
+  .role-card .stamp-badge{animation:none;}
+}
 .role-card.npc{opacity:.7;border-style:dashed;}
 .role-card .pick.npc{background:none;border:none;color:var(--text-dim);font-size:12px;padding:0;font-weight:700;}
 .role-card .btn.npc-toggle{font-size:11px;padding:5px 8px;background:none;color:var(--text-dim);border-color:var(--ink-3);}
@@ -1232,7 +1249,7 @@ function renderRoleGrid(list){
       const isMe = myRole===c.id;
       let bodyHtml;
       if(taken){
-        bodyHtml = `<div class="pick">${isMe?"✔ 나":`✔ ${players.get(c.id)?.playerName || "선택됨"}`}</div>`;
+        bodyHtml = `<div class="stamp-badge">배정<br>완료</div><div class="pick">${isMe?"✔ 나":`✔ ${players.get(c.id)?.playerName || "선택됨"}`}</div>`;
       } else if(isNpc){
         bodyHtml = `<div class="pick npc">🤖 NPC로 진행</div><button class="btn npc-cancel" data-npcoff="${c.id}">되돌리기</button>`;
       } else {
