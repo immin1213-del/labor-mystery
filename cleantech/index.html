@@ -226,6 +226,16 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outl
 .legal-point{font-size:13px;color:var(--text-dim);line-height:1.6;margin-top:10px;}
 .legal-point:first-of-type{margin-top:0;}
 .legal-point b{display:block;color:var(--text);font-size:13.5px;margin-bottom:3px;}
+.legal-detail{margin-top:6px;}
+.legal-detail summary{
+  cursor:pointer;list-style:none;font-size:12px;color:var(--gold);font-weight:700;
+  display:flex;align-items:center;gap:5px;
+}
+.legal-detail summary::-webkit-details-marker{display:none;}
+.legal-detail summary::before{content:"▸";transition:transform .15s ease;}
+.legal-detail[open] summary::before{transform:rotate(90deg);}
+.legal-detail-body{margin-top:6px;padding:8px 10px;background:var(--paper);border-left:2px solid var(--gold);font-size:12.5px;color:var(--text-dim);line-height:1.6;}
+@media (prefers-reduced-motion:reduce){.legal-detail summary::before{transition:none;}}
 .ruling-box{
   background:var(--paper);color:var(--text-paper);border-radius:6px;padding:18px 20px;
   border:3px double var(--ink-3);margin-bottom:20px;
@@ -499,9 +509,23 @@ const LEGAL_GUIDE = {
   title: "⚖ 위원회 심리 가이드라인",
   points: [
     { q: "체크 포인트 1: \"계약기간이 끝났으니 나가라\"는 항상 정당할까요? (갱신기대권)",
-      a: "원칙적으로 기간제 계약은 만료되면 끝입니다. 하지만 계약서에 '자동 연장' 문구가 있거나 다른 직원들은 다 갱신해주었다면, 근로자에게는 \"나도 갱신되겠지?\"라는 정당한 기대권(갱신기대권)이 생깁니다. 이 기대권이 생겼다면 회사는 함부로 갱신을 거절할 수 없고, 반드시 '합리적이고 객관적인 이유(비위행위 등)'를 입증해야 합니다." },
+      a: "원칙적으로 기간제 계약은 만료되면 끝입니다. 하지만 계약서에 '자동 연장' 문구가 있거나 다른 직원들은 다 갱신해주었다면, 근로자에게는 \"나도 갱신되겠지?\"라는 정당한 기대권(갱신기대권)이 생깁니다. 이 기대권이 생겼다면 회사는 함부로 갱신을 거절할 수 없고, 반드시 '합리적이고 객관적인 이유(비위행위 등)'를 입증해야 합니다.",
+      detail: "근로계약의 내용, 갱신에 관한 기준·절차의 설정 여부, 근로자가 수행하는 업무의 계속성 등을 종합해 갱신에 대한 정당한 기대권이 형성되어 있는지로 판단(대법원 2011.4.14. 선고 2007두1729)." },
     { q: "체크 포인트 2: 미운털 박힌 노조원 쫓아내기? (부당노동행위)",
-      a: "근로자가 징계를 받을 만한 잘못을 했더라도, 회사가 그 징계를 구실 삼아 '노동조합 활동을 방해하거나 노조원을 쫓아낼 숨은 의도(반조합적 의사)'로 처분했다면 부당노동행위(불이익취급·지배개입)에 해당할 수 있습니다. 징계의 타이밍, 다른 직원과의 형평성, 사측의 배후 개입 여부가 핵심 쟁점입니다." },
+      a: "근로자가 징계를 받을 만한 잘못을 했더라도, 회사가 그 징계를 구실 삼아 '노동조합 활동을 방해하거나 노조원을 쫓아낼 숨은 의도(반조합적 의사)'로 처분했다면 부당노동행위(불이익취급·지배개입)에 해당할 수 있습니다. 징계의 타이밍, 다른 직원과의 형평성, 사측의 배후 개입 여부가 핵심 쟁점입니다.",
+      detail: "반조합적 의사의 존재, 처분 시기와 조합활동의 시간적 근접성, 조합원·비조합원 간 처우의 불균형을 종합 판단(대법원 1991.4.23. 선고 90누7685). 평가 결과의 집단적 편차를 보는 '집단관찰법'(대법원 2007두25695)도 함께 참고할 것." },
+  ]
+};
+
+// 배역 선택 대기실(Gate)에서, 아직 사건 개요를 안 읽었어도 도덕적 판단이 아니라
+// 실무적 딜레마로 사건을 바라보게 유도하는 짧은 화두 — 답은 주지 않고 질문만 던짐
+const LEARNING_POINTS = {
+  title: "💡 이 사건의 HR 러닝 포인트",
+  points: [
+    { q: "딜레마 1: 비위행위 vs 절차적 정당성",
+      a: "직원이 명백한 잘못(난폭운전, 동료 방치 등)을 저질렀다면, 회사가 그를 내보내는 '과정'(밀실 평가 등)에 하자가 있어도 정당성을 인정받을 수 있을까요?" },
+    { q: "딜레마 2: 정당한 인사권 vs 부당노동행위",
+      a: "회사의 정당한 징계 처분과 노동조합 활동을 위축시키려는 '노조 탄압'의 경계선은 어디일까요? 처분의 타이밍과 형평성이 결론을 어떻게 뒤집는지 토론하며 확인해 보세요." },
   ]
 };
 
@@ -1363,6 +1387,7 @@ function renderGate(){
     <div class="gate">
       <div class="case-no mono">사건번호 ${CASE_NO} · 방 코드 ${myRoom}</div>
       <h1>ER 미스터리 '(주)클린테크 갱신거절 사건'</h1>
+      ${renderGuideBox(LEARNING_POINTS)}
       ${waiting
         ? `<p class="lede">당신은 <b>${CHARACTERS.find(c=>c.id===myRole).name}</b> 역할입니다. ${ready?"모든 배역이 정해졌습니다 — 준비됐으면 아래 버튼으로 사건을 시작하세요.":"다른 참가자들이 배역을 고르는 중이에요."}</p>`
         : `<p class="lede">사측 경영진 3명 · 근로자측 3명, 총 6개의 역할이 각자 다른 증거를 쥐고 있습니다. 자신의 배역을 선택하세요 — 이미 다른 참가자가 고른 배역은 선택할 수 없습니다. 6명이 다 모이지 않았다면, 남는 역할을 "NPC로" 돌려서 인원 수를 맞출 수 있습니다.</p>`
@@ -1463,13 +1488,18 @@ function renderRulingSection(sec){
       ${(sec.sub||[]).map(renderRulingSection).join("")}
     </div>`;
 }
-function renderLegalGuide(){
+function renderGuideBox(guide){
   return `
     <div class="legal-guide">
-      <div class="legal-guide-title">${LEGAL_GUIDE.title}</div>
-      ${LEGAL_GUIDE.points.map(p=>`<div class="legal-point"><b>${p.q}</b>${p.a}</div>`).join("")}
+      <div class="legal-guide-title">${guide.title}</div>
+      ${guide.points.map(p=>`
+        <div class="legal-point">
+          <b>${p.q}</b>${p.a}
+          ${p.detail?`<details class="legal-detail"><summary>🔎 관련 법리·판례 자세히 보기</summary><div class="legal-detail-body">${p.detail}</div></details>`:""}
+        </div>`).join("")}
     </div>`;
 }
+function renderLegalGuide(){ return renderGuideBox(LEGAL_GUIDE); }
 function renderTimeline(){
   return `
     ${renderLegalGuide()}
