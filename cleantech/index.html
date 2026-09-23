@@ -549,9 +549,9 @@ const PHASE_LABEL = {casting:"배역 선택 대기", briefing:"사건 개요·�
 const PHASE_GUIDE = {
   briefing:{title:"📖 사건 개요·전후관계 파악", body:"진행자 없이 진행됩니다. 아직 증거카드는 공개되지 않으니, 이 시간 동안 아래를 확인하고 참가자들끼리 대화하며 사건의 흐름부터 맞춰보세요.\n\n1. '내 신원' 탭 — 내게 배정된 역할의 배경·입장·비밀·목표를 꼼꼼히 읽으세요.\n2. '사건 개요' 탭 — 초심 판정 요지와 사건 타임라인을 확인하며 누가 언제 무엇을 했는지 맞춰보세요."},
   intro:{title:"🎤 짧게 자기소개 해주세요", body:"본격적인 증거 공개 전에, 한 사람씩 30초~1분 정도로 자신의 역할(이름·소속·겉으로 내세우는 입장)만 짧게 소개하세요. 🔒 비밀은 아직 말하지 마세요!"},
-  round2:{title:"🔍 증거대가 열렸습니다", body:"'증거대' 탭에서 모든 증거가 한꺼번에 공개됩니다(라운드별로 나눠 열리지 않습니다).\n\n📖 표시된 카드는 누구나 확보 없이 바로 열람할 수 있는 공용 자료입니다.\n\n🔒 나머지 카드는 먼저 '가져가기'를 눌러 확보한 사람만 볼 수 있습니다 — 한 카드는 한 명만 가져갈 수 있으니 서둘러 확인하세요.\n\n확보한 카드는 언제든 '공개하기'를 누르면 전원에게 알림이 가고, 그 내용이 모두의 '내 증거함'에 추가됩니다 — 중요한 걸 찾았으면 공유해보세요.\n\n⚠ 이번 라운드가 끝나기 전까지 최소 1장은 채택해야 다음 단계로 넘어갈 수 있습니다(전원 기준)."},
-  round3:{title:"🔍 계속 증거를 확인하세요", body:"아직 못 가져간 카드가 있다면 지금 확인하세요. 카드는 여전히 먼저 가져가는 사람이 임자입니다.\n\n⚠ 이번 라운드가 끝나기 전까지 누적 최소 1장을 채택해야 다음 단계로 넘어갈 수 있습니다(전원 기준)."},
-  round4:{title:"🔒 결정적 증거를 놓치지 마세요", body:"각 인물의 가장 결정적인 비밀이 걸려있습니다. 아직 못 가져간 카드가 있다면 지금 확보하세요. 확보한 카드를 '공개하기'로 전원에게 터뜨릴지, 조용히 숨길지에 따라 최종 결과 화면에서 그 인물의 결말이 달라집니다.\n\n⚠ 이번 라운드가 끝나기 전까지 누적 최소 2장을 채택해야 토론 단계로 넘어갈 수 있습니다(전원 기준)."},
+  round2:{title:"🔍 증거대가 열렸습니다", body:"'증거대' 탭에서 모든 증거가 한꺼번에 공개됩니다(라운드별로 나눠 열리지 않습니다).\n\n🎫 이번 라운드엔 토큰이 2개 있습니다 — 카드를 '가져가기'로 확보하거나, 📖 공용 카드·남이 공개한 카드를 열람할 때마다 1개씩 듭니다. 다 안 써도 상관없지만, 한 라운드에 최대 2번까지만 할 수 있습니다.\n\n🔒 확보(가져가기)한 카드는 그 뒤로 나만 영구 무료로 다시 볼 수 있습니다 — 한 카드는 한 명만 가져갈 수 있으니 서둘러 확인하세요.\n\n확보한 카드는 언제든 '공개하기'를 누르면 전원에게 알림이 가고, 다른 사람은 그걸 토큰 내고 열람할 수 있습니다."},
+  round3:{title:"🔍 계속 증거를 확인하세요", body:"아직 못 가져간 카드가 있다면 지금 확인하세요. 카드는 여전히 먼저 가져가는 사람이 임자입니다.\n\n🎫 토큰이 다시 2개로 채워졌습니다 — 이번 라운드에도 확보·열람 합쳐 최대 2번까지 쓸 수 있습니다."},
+  round4:{title:"🔒 결정적 증거를 놓치지 마세요", body:"각 인물의 가장 결정적인 비밀이 걸려있습니다. 아직 못 가져간 카드가 있다면 지금 확보하세요. 확보한 카드를 '공개하기'로 전원에게 터뜨릴지, 조용히 숨길지에 따라 최종 결과 화면에서 그 인물의 결말이 달라집니다.\n\n🎫 토큰도 다시 2개로 채워졌습니다."},
   discussion:{title:"💬 교차검증 토론", body:"모든 증거가 공개되었습니다. 각자 확보한 카드를 서로에게 설명하며, '증거대' 탭 위쪽의 쟁점 비교표를 하나씩 짚어보세요. 각 쟁점에는 법적 요건이 먼저 나와 있으니, 그 요건에 사실관계를 대입하는 방식으로 논의해보세요. 결론(진실)은 투표 후에 공개됩니다."},
   vote:{title:"🗳 최종 판정 투표", body:"토론 내용을 바탕으로 두 가지 쟁점(부당해고 여부 / 부당노동행위 여부)에 각각 투표하세요. 두 쟁점의 조합에 따라 결말이 4가지로 달라집니다. 다른 사람 표는 결과가 나오기 전까지 알 수 없는 익명 투표이며, 투표는 언제든 바꿀 수 있습니다."},
 };
@@ -815,8 +815,8 @@ const ENDINGS = {
    ============================================================ */
 function makeLocalStore(){
   let state = {phase:"casting", phaseEndsAt: Date.now()+DURATIONS.casting*1000};
-  const players = new Map(); const votes = new Map(); const claims = new Map(); const ready = new Set(); const revealed = new Map(); const npc = new Set();
-  const stateCbs=[], playerCbs=[], voteCbs=[], claimCbs=[], readyCbs=[], revealCbs=[], npcCbs=[];
+  const players = new Map(); const votes = new Map(); const claims = new Map(); const tokenUse = new Map(); const ready = new Set(); const revealed = new Map(); const npc = new Set();
+  const stateCbs=[], playerCbs=[], voteCbs=[], claimCbs=[], tokenCbs=[], readyCbs=[], revealCbs=[], npcCbs=[];
   return {
     isLocal:true,
     onState(cb){stateCbs.push(cb); cb(state); return ()=>{};},
@@ -828,7 +828,21 @@ function makeLocalStore(){
     onVotes(cb){voteCbs.push(cb); cb(votes); return ()=>{};},
     castVote(roleId,vote){votes.set(roleId,vote); voteCbs.forEach(cb=>cb(votes));},
     onClaims(cb){claimCbs.push(cb); cb(claims); return ()=>{};},
-    claimCard(cardId,roleId){ if(claims.has(cardId)) return false; claims.set(cardId,{by:roleId}); claimCbs.forEach(cb=>cb(claims)); return true;},
+    claimCard(cardId,roleId,phase){
+      if(claims.has(cardId)) return false;
+      const key = phase+"_"+roleId; const used = tokenUse.get(key)?.count||0;
+      if(used >= TOKENS_PER_ROUND) return false;
+      claims.set(cardId,{by:roleId}); claimCbs.forEach(cb=>cb(claims));
+      tokenUse.set(key,{count:used+1}); tokenCbs.forEach(cb=>cb(tokenUse));
+      return true;
+    },
+    onTokenUse(cb){tokenCbs.push(cb); cb(tokenUse); return ()=>{};},
+    spendToken(phase,roleId){
+      const key = phase+"_"+roleId; const used = tokenUse.get(key)?.count||0;
+      if(used >= TOKENS_PER_ROUND) return false;
+      tokenUse.set(key,{count:used+1}); tokenCbs.forEach(cb=>cb(tokenUse));
+      return true;
+    },
     onReady(cb){readyCbs.push(cb); cb(ready); return ()=>{};},
     setReady(key,isReady){ if(isReady) ready.add(key); else ready.delete(key); readyCbs.forEach(cb=>cb(ready)); },
     onRevealed(cb){revealCbs.push(cb); cb(revealed); return ()=>{};},
@@ -846,6 +860,7 @@ function makeDbStore(db, roomId){
   const readyCol = db.collection(`rooms/${roomId}/ready`);
   const revealedCol = db.collection(`rooms/${roomId}/revealed`);
   const npcCol = db.collection(`rooms/${roomId}/npc`);
+  const tokenCol = db.collection(`rooms/${roomId}/tokenUse`);
   return {
     isLocal:false,
     onState(cb){
@@ -891,15 +906,39 @@ function makeDbStore(db, roomId){
         const m=new Map(); qs.docs.forEach(d=>m.set(d.id,d.data())); cb(m);
       }, ()=>{});
     },
-    async claimCard(cardId, roleId){
+    async claimCard(cardId, roleId, phase){
       // 마찬가지로 트랜잭션 — get-then-set 경합이 있으면 동시 클릭 시 두 명이 모두
       // "가져가기 성공"으로 응답받아 카드가 자신 것이라 착각하는 문제가 생긴다.
+      // 확보도 토큰을 쓰는 행동이라, 같은 트랜잭션 안에서 토큰 잔여량도 함께 체크·차감한다.
       const ref = claimsCol.doc(cardId);
+      const tokenRef = tokenCol.doc(tokenKey(phase, roleId));
       try{
         return await db.runTransaction(async tx=>{
           const snap = await tx.get(ref);
           if(snap.exists) return false; // 이미 다른 사람이 가져감
+          const tokenSnap = await tx.get(tokenRef);
+          const used = tokenSnap.exists ? (tokenSnap.data().count||0) : 0;
+          if(used >= TOKENS_PER_ROUND) return false; // 이번 라운드 토큰 소진
           tx.set(ref, {by:roleId, at:new Date().toISOString()});
+          tx.set(tokenRef, {count: used+1}, {merge:true});
+          return true;
+        });
+      }catch(e){ return false; }
+    },
+    onTokenUse(cb){
+      return tokenCol.onSnapshot(qs=>{
+        const m=new Map(); qs.docs.forEach(d=>m.set(d.id, d.data())); cb(m);
+      }, ()=>{});
+    },
+    async spendToken(phase, roleId){
+      // view형/타인 공개 카드를 열람할 때 쓰는 순수 토큰 소모(소유권 없음) — claimCard와 동일한 트랜잭션 패턴
+      const tokenRef = tokenCol.doc(tokenKey(phase, roleId));
+      try{
+        return await db.runTransaction(async tx=>{
+          const snap = await tx.get(tokenRef);
+          const used = snap.exists ? (snap.data().count||0) : 0;
+          if(used >= TOKENS_PER_ROUND) return false;
+          tx.set(tokenRef, {count: used+1}, {merge:true});
           return true;
         });
       }catch(e){ return false; }
@@ -959,28 +998,24 @@ let sharedState = {phase:"casting", phaseEndsAt: Date.now()+DURATIONS.casting*10
 let players = new Map();
 let votes = new Map();
 let claims = new Map(); // 각 카드를 먼저 가져간 사람(roleId) — cardId -> {by}
+let tokenUse = new Map(); // 라운드별 토큰 사용량 — `${phase}_${roleId}` -> {count}
+let lastTokenSig = ""; // tokenUse 변경 감지용 — claims/votes와 달리 같은 문서의 count 필드만 바뀌므로 size 비교로는 안 잡힘
 let readySet = new Set(); // "다음 단계 준비완료"를 누른 사람들 — 키는 `${phase}_${roleId}`
 let revealedSet = new Map(); // "공개하기"를 눌러 전원에게 드러난 카드 — cardId -> {by, at}
 let revealNotifyReady = false; // 방 접속 후 첫 onRevealed 스냅샷(기존 공개 내역)은 조용히 반영, 그 이후의 변화만 푸시 알림
-let oneMinWarned = false; // 이번 단계에서 "증거 1분 전" 경고 토스트를 이미 띄웠는지 — 단계가 바뀌면 초기화
 let npcSet = new Set(); // NPC로 돌리기로 한 역할 id들 — 인원이 6명이 안 될 때 남는 역할을 채움
 function castingFilled(){ return players.size + npcSet.size >= CHARACTERS.length; } // 6개 역할이 전부 "실제 참가자" 또는 "NPC"로 채워졌는지
-// 라운드가 끝날 때까지 누적으로 최소 이만큼은 채택해야 함 — 한 장만 일찍 채택하고 나머지
-// 라운드를 그냥 흘려보내면 토론 시점에 사람마다 정보 격차가 너무 벌어져 밸런스가 깨진다는
-// 피드백을 반영(2026-09-15). round마다 "그 라운드에서 새로 몇 장을 챙겼는지"가 아니라
-// "지금까지 누적으로 몇 장인지"를 보는 이유는, 카드가 더 이상 라운드별로 나뉘어 있지 않고
-// round2부터 전부 동시에 열려있기 때문.
-// 2026-09-22: 캐릭터별 round2 카드 6장을 kind:"view"(공용 열람, 확보 불필요)로 돌려 확보 경쟁
-// 대상(own) 풀이 23장→17장으로 줄었음 — 전원(6인)이 항상 채울 수 있도록 round3도 1로 낮춤.
-const EVIDENCE_MIN_CLAIMS = {round2:1, round3:1, round4:2};
-const EVIDENCE_SKIP_AT = 2; // 증거 공개 단계 중 전원이 이만큼 채택하면 남은 라운드를 건너뛰고 바로 토론으로
-function claimCountFor(roleId){ let n=0; claims.forEach(c=>{ if(c.by===roleId) n++; }); return n; }
-function myClaimCount(){ return claimCountFor(myRole); }
-function evidenceMinForPhase(){ return EVIDENCE_MIN_CLAIMS[sharedState.phase]||0; }
-function hasClaimedEnough(){ return myClaimCount() >= evidenceMinForPhase(); }
-function allPlayersClaimedEnough(need = evidenceMinForPhase()){
-  if(!need) return true;
-  for(const roleId of players.keys()){ if(claimCountFor(roleId) < need) return false; }
+// 2026-09-23: 라운드별 최소 채택 요구(구 EVIDENCE_MIN_CLAIMS)는 폐지 — 다 안 써도 페널티 없음.
+// 대신 확보(가져가기)·열람 행동 자체를 라운드당 토큰 2개로 제한하는 상한선만 둔다(요청 반영).
+const TOKENS_PER_ROUND = 2;
+const EVIDENCE_PHASES = ["round2","round3","round4"];
+function tokenKey(phase, roleId){ return phase+"_"+roleId; }
+function tokensSpent(roleId, phase = sharedState.phase){ return tokenUse.get(tokenKey(phase, roleId))?.count || 0; }
+function myTokensSpent(){ return tokensSpent(myRole); }
+function remainingTokens(roleId = myRole){ return TOKENS_PER_ROUND - tokensSpent(roleId); }
+// 전원이 이번 라운드 토큰을 다 쓰면(더 볼 것도 없다는 뜻) 남은 시간을 기다리지 않고 조기 진행
+function allPlayersUsedAllTokens(){
+  for(const roleId of players.keys()){ if(tokensSpent(roleId) < TOKENS_PER_ROUND) return false; }
   return true;
 }
 function readyKey(){ return sharedState.phase + "_" + myRole; }
@@ -999,6 +1034,7 @@ function showPhaseGuideIfNew(){
   phaseGuideOpen = true;
 }
 let myOpened = new Set(); // 내가 이번 판에 펼쳐본(탭한) 카드 id들 — 다시 봐도 접힌 채로 안 보이게, 방+역할별로 localStorage에 보관
+let paidOpenSet = new Set(); // 토큰 내고 지금 펼쳐둔 공용/타인 공개 카드 id들 — 세션 메모리에만 유지(새로고침하면 초기화, 다시 보려면 재결제)
 
 function loadMyOpened(){
   try{ myOpened = new Set(JSON.parse(localStorage.getItem("lm_opened_"+myRoom+"_"+myRole) || "[]")); }
@@ -1020,8 +1056,8 @@ function sanitizeRoomCode(raw){ return (raw||"").trim().toUpperCase().replace(/[
 // 조(room) 연결 — 코드 입력 시 그 조 전용 경로로 스토어를 새로 구성
 function connectStore(){
   unsubFns.forEach(u=>{ try{ u && u(); }catch(e){} }); unsubFns=[];
-  players = new Map(); votes = new Map(); claims = new Map(); readySet = new Set(); revealedSet = new Map(); revealNotifyReady = false; oneMinWarned = false; npcSet = new Set(); myCardsOpen = false; rosterOpen = false;
-  phaseGuideOpen = false; lastSeenGuidePhase = null;
+  players = new Map(); votes = new Map(); claims = new Map(); tokenUse = new Map(); readySet = new Set(); revealedSet = new Map(); revealNotifyReady = false; npcSet = new Set(); myCardsOpen = false; rosterOpen = false;
+  phaseGuideOpen = false; lastSeenGuidePhase = null; paidOpenSet = new Set(); lastTokenSig = "";
   myRole = localStorage.getItem("lm_role_"+myRoom) || null; // 이 방에서 예전에 고른 역할이 있으면 복원
   loadMyOpened();
   sharedState = {phase:"casting", phaseEndsAt: Date.now()+DURATIONS.casting*1000};
@@ -1034,7 +1070,7 @@ function connectStore(){
   // 사용자 클릭(예: 카드 가져가기)이 화면 재구성 때문에 씹힐 수 있다.
   unsubFns.push(store.onState(s=>{
     const changed = s.phase !== sharedState.phase || s.phaseEndsAt !== sharedState.phaseEndsAt;
-    if(changed) oneMinWarned = false; // 새 단계로 넘어가면 "1분 전 증거 채택 경고"를 다시 띄울 수 있게 초기화
+    if(changed) paidOpenSet = new Set(); // 새 단계로 넘어가면 토큰도 리셋되므로, 펼쳐둔 유료 카드 표시도 같이 접어둠
     sharedState = s;
     const wasLoaded = stateLoaded;
     stateLoaded = true;
@@ -1054,8 +1090,18 @@ function connectStore(){
   unsubFns.push(store.onVotes(v=>{ const changed = v.size!==votes.size; votes = v; if(changed && (sharedState.phase==="vote"||sharedState.phase==="result")) render(); }));
   unsubFns.push(store.onClaims(c=>{
     const changed = c.size!==claims.size; claims = c;
-    if(changed && stateLoaded && players.size>0 && evidenceMinForPhase() && allPlayersClaimedEnough(EVIDENCE_SKIP_AT)) store.setPhase("discussion");
     if(changed && activeTab==="cards") render();
+  }));
+  unsubFns.push(store.onTokenUse(t=>{
+    // claims/votes는 새 문서가 추가되는 구조라 size 비교로 변경을 감지했지만, tokenUse는
+    // 같은 `${phase}_${roleId}` 문서의 count 필드만 증가하므로 size가 그대로라 그 방식이 안 통함 —
+    // 내용을 문자열로 직렬화해 비교한다.
+    const sig = JSON.stringify([...t.entries()].sort());
+    const changed = sig !== lastTokenSig; lastTokenSig = sig;
+    tokenUse = t;
+    // 전원이 이번 라운드 토큰을 다 쓰면 더 볼 게 없다는 뜻 — 시간이 남아도 바로 토론으로
+    if(changed && stateLoaded && players.size>0 && EVIDENCE_PHASES.includes(sharedState.phase) && allPlayersUsedAllTokens()) store.setPhase("discussion");
+    if(changed) render(); // 토큰 배지가 상단 케이스바에도 상시 표시되므로 탭 제한 없이 다시 그린다
   }));
   unsubFns.push(store.onRevealed(r=>{
     const changed = r.size!==revealedSet.size;
@@ -1087,7 +1133,7 @@ function leaveRoom(){
   unsubFns.forEach(u=>{ try{ u && u(); }catch(e){} }); unsubFns=[];
   localStorage.removeItem("lm_room");
   if(myRoom) localStorage.removeItem("lm_role_"+myRoom);
-  myRoom=null; myRole=null; store=null; players=new Map(); votes=new Map(); claims=new Map(); readySet=new Set(); revealedSet=new Map(); revealNotifyReady=false; oneMinWarned=false; npcSet=new Set(); myCardsOpen=false; rosterOpen=false; myOpened=new Set();
+  myRoom=null; myRole=null; store=null; players=new Map(); votes=new Map(); claims=new Map(); tokenUse=new Map(); readySet=new Set(); revealedSet=new Map(); revealNotifyReady=false; npcSet=new Set(); myCardsOpen=false; rosterOpen=false; myOpened=new Set(); paidOpenSet=new Set(); lastTokenSig="";
   phaseGuideOpen=false; lastSeenGuidePhase=null; stateLoaded=false;
   activeTab="id"; gateError=""; roomError="";
   updateConnBanner();
@@ -1170,6 +1216,7 @@ function renderCasebar(){
       ${PHASES.map((p,i)=>`<span class="phase-dot ${i===idx?'active':(i<idx?'done':'')}">${PHASE_LABEL[p]}</span>`).join("")}
     </div>
     ${showTimer?`<span class="timer" id="timerEl">${fmtClock(remain)}</span>`:""}
+    ${isCardUnlocked() && myRole ? `<span class="btn" style="cursor:default;">🎫 토큰 ${remainingTokens()}/${TOKENS_PER_ROUND}</span>` : ""}
     ${PHASE_GUIDE[sharedState.phase]?`<button class="btn" id="guideBtn">❓ 지금 할 일</button>`:""}
     <button class="btn" id="rosterBtn">🗺 관계도 보기</button>
     <button class="btn seal" id="myCardsBtn">📁 내 증거함 (${myAccessibleCards().length})</button>
@@ -1214,10 +1261,11 @@ function renderPhaseGuideModal(){
     </div>
   </div>`;
 }
-// "내 증거함" = 내가 확보한(가져간) 카드 + 누군가 공개해서 전원이 볼 수 있게 된 카드 + 누구나 확보 없이
-// 볼 수 있는 kind:"view" 공용 카드. 전체 증거대를 다시 뒤지지 않아도 지금까지 확인한 증거를 한곳에서 모아볼 수 있게 함.
+// "내 증거함" = 내가 확보한(가져간) 카드 — 언제나 무료로 다시 볼 수 있는 것들만 모아봄.
+// 공용 view 카드·타인이 공개한 카드는 볼 때마다 토큰이 들어서(2026-09-23) 여기엔 포함하지 않음 —
+// 증거대에서 매번 토큰을 내고 열람해야 함.
 function myAccessibleCards(){
-  return ALL_CARDS.filter(c => c.kind==="view" || claims.get(c.id)?.by===myRole || revealedSet.has(c.id));
+  return ALL_CARDS.filter(c => claims.get(c.id)?.by===myRole);
 }
 function renderMyCardsModal(){
   const mine = myAccessibleCards();
@@ -1231,15 +1279,9 @@ function renderMyCardsModal(){
       ${mine.length===0
         ? `<p style="color:var(--text-dim);font-size:13px;">아직 확인한 카드가 없습니다. 증거대에서 🔒 표시된 카드를 가져가세요.</p>`
         : mine.map(card=>{
-          const claim = claims.get(card.id);
           const revealedBy = revealedSet.get(card.id);
-          const revealer = revealedBy && CHARACTERS.find(c=>c.id===revealedBy.by);
-          const isMine = claim?.by===myRole;
-          const mineTag = isMine ? "📌 내가 확보"
-            : revealedBy ? `🗣 ${revealer?revealer.name:"누군가"}님이 공개`
-            : card.kind==="view" ? "📖 공용 열람"
-            : "";
-          const canReveal = isMine && !revealedBy;
+          const mineTag = revealedBy ? "📌 내가 확보 · 🗣 공개함" : "📌 내가 확보";
+          const canReveal = !revealedBy;
           return `
           <div class="my-card">
             <div class="doc-head"><span>${card.docNo}</span><span>${card.date}</span></div>
@@ -1261,9 +1303,6 @@ function bindCasebarButtons(){
     // disabled+title 방식은 모바일(호버 없음)에선 안 보여서 클릭 시점에 메시지를 띄우는 쪽으로.
     if(sharedState.phase==="vote" && !hasMyVoteComplete()){
       showToast("🗳 먼저 두 쟁점에 모두 투표하세요"); return;
-    }
-    if(evidenceMinForPhase() && !hasClaimedEnough()){
-      showToast(`⚖ 증거를 채택하세요 — 이번 라운드까지 최소 ${evidenceMinForPhase()}장 필요(현재 ${myClaimCount()}장)`); return;
     }
     readyBtn.disabled = true;
     await store.setReady(readyKey(), !readySet.has(readyKey()));
@@ -1306,8 +1345,6 @@ function advancePhase(){
   // "재심 인용" 등이 떠버리는 문제가 있었다(과반 계산이 동수를 기각으로 처리하는데, 0표도 동수라
   // 그대로 기각 결과가 나와버림, 2026-09-15).
   if(sharedState.phase==="vote" && players.size>0 && votesDoneCount()<players.size) return;
-  // 증거 공개 단계(1~3라운드)도 마찬가지 — 전원이 그 라운드까지의 최소 채택 수를 채우기 전엔 안 넘어감.
-  if(evidenceMinForPhase() && players.size>0 && !allPlayersClaimedEnough()) return;
   const idx = phaseIndex(sharedState.phase);
   const next = PHASES[Math.min(idx+1, PHASES.length-1)];
   if(next !== sharedState.phase) store.setPhase(next);
@@ -1572,20 +1609,20 @@ function renderBoard(){
   }
   return `
     <div class="board-legend">
-      <span><b>📖</b> 표시된 카드는 누구나 확보 없이 바로 열람 가능(전원 공용 자료)</span>
-      <span>나머지 카드는 먼저 <b>🔒 가져가기</b>로 확보한 사람만 볼 수 있음 — 한 카드는 한 명만 가져갈 수 있음</span>
-      <span>확보한 카드는 언제든 <b>🗣 공개하기</b>로 전원에게 알리며 공유할 수 있음(공개된 카드는 모두의 '내 증거함'에서 다시 볼 수 있음)</span>
+      <span><b>🎫 가져가기</b>와 <b>📖 공용 카드·남이 공개한 카드 열람</b>은 각각 토큰 1개가 듭니다 — 라운드당 최대 2번까지만(다 안 써도 무방)</span>
+      <span>확보(가져가기)한 카드는 그 뒤로 나만 영구 무료로 다시 볼 수 있음 — 한 카드는 한 명만 가져갈 수 있음</span>
+      <span>확보한 카드는 언제든 <b>🗣 공개하기</b>로 전원에게 알릴 수 있음(공개해도 남이 보려면 그 사람 토큰이 듦)</span>
     </div>
     <div class="card-grid">
     ${cards.map(card=>{
       if(card.kind==="view"){
-        const alreadyOpen = myOpened.has(card.id);
-        return `<div class="flipcard ${alreadyOpen?'flipped':''}" data-idx="${card.id}"><div class="flipcard-inner">
+        const isOpen = paidOpenSet.has(card.id);
+        return `<div class="flipcard ${isOpen?'flipped':''}" data-idx="${card.id}" data-paid="1"><div class="flipcard-inner">
           <div class="face front">
             <div class="seal-icon">📖</div>
             <div class="exhibit-no">증거 ${card.exhibit}</div>
             <div class="owner-tag">${card.ownerName} · 공용 열람</div>
-            <div class="tap-hint">탭하여 확인</div>
+            <div class="tap-hint">🎫 탭하여 열람(1개)</div>
           </div>
           <div class="face back">
             <div class="doc-head"><span>${card.docNo}</span><span>${card.date}</span></div>
@@ -1602,25 +1639,43 @@ function renderBoard(){
           <div class="seal-icon">⚖</div>
           <div class="exhibit-no">증거 ${card.exhibit}</div>
           <div class="owner-tag">${card.ownerName}</div>
-          <button class="btn primary claim-btn" data-claim="${card.id}">🔒 가져가기</button>
+          <button class="btn primary claim-btn" data-claim="${card.id}">🔒 가져가기(🎫1개)</button>
         </div>`;
       }
       if(claim.by !== myRole && !isRevealed){
         const claimant = CHARACTERS.find(c=>c.id===claim.by);
         return `<div class="locked claimed"><div class="lock-icon">🔒</div><div>${claimant?claimant.name:"다른 참가자"}님이 확보함</div><div class="owner-tag">${card.ownerName}</div></div>`;
       }
-      // 내가 확보한 카드이거나, 확보한 사람이 이미 전체 공개한 카드
       const isMine = claim.by === myRole;
-      const canReveal = !isRevealed && isMine;
-      const alreadyOpen = myOpened.has(card.id);
-      const ownerTagExtra = isRevealed ? revealTag(card) : (isMine ? ' · 📌 내가 확보' : '');
-      return `<div class="flipcard ${alreadyOpen?'flipped':''}" data-idx="${card.id}"><div class="flipcard-inner">
+      if(isMine){
+        // 내가 확보한 카드 — 언제나 무료, 로컬에 영구히 펼쳐본 상태로 기억
+        const canReveal = !isRevealed;
+        const alreadyOpen = myOpened.has(card.id);
+        const ownerTagExtra = isRevealed ? revealTag(card) : ' · 📌 내가 확보';
+        return `<div class="flipcard ${alreadyOpen?'flipped':''}" data-idx="${card.id}"><div class="flipcard-inner">
+          <div class="face front">
+            <div class="seal-icon">⚖</div>
+            <div class="exhibit-no">증거 ${card.exhibit}</div>
+            <div class="owner-tag">${card.ownerName}${ownerTagExtra}</div>
+            ${canReveal?`<button class="btn reveal-btn" data-reveal="${card.id}">🗣 이 증거 공개하기</button>`:""}
+            <div class="tap-hint">탭하여 확인</div>
+          </div>
+          <div class="face back">
+            <div class="doc-head"><span>${card.docNo}</span><span>${card.date}</span></div>
+            <div class="doc-title">${card.title}</div>
+            <div class="doc-body">${card.body}</div>
+            ${card.note?`<div class="doc-note">${card.note}</div>`:""}
+          </div>
+        </div></div>`;
+      }
+      // 남이 확보해서 공개한 카드 — 나에겐 유료 열람 대상
+      const isOpen = paidOpenSet.has(card.id);
+      return `<div class="flipcard ${isOpen?'flipped':''}" data-idx="${card.id}" data-paid="1"><div class="flipcard-inner">
         <div class="face front">
           <div class="seal-icon">⚖</div>
           <div class="exhibit-no">증거 ${card.exhibit}</div>
-          <div class="owner-tag">${card.ownerName}${ownerTagExtra}</div>
-          ${canReveal?`<button class="btn reveal-btn" data-reveal="${card.id}">🗣 이 증거 공개하기</button>`:""}
-          <div class="tap-hint">탭하여 확인</div>
+          <div class="owner-tag">${card.ownerName}${revealTag(card)}</div>
+          <div class="tap-hint">🎫 탭하여 열람(1개)</div>
         </div>
         <div class="face back">
           <div class="doc-head"><span>${card.docNo}</span><span>${card.date}</span></div>
@@ -1634,20 +1689,34 @@ function renderBoard(){
 }
 function bindBoard(){
   app.querySelectorAll(".flipcard").forEach(el=>{
-    el.addEventListener("click", ()=>{
+    const isPaid = el.dataset.paid === "1";
+    el.addEventListener("click", async ()=>{
       const card = ALL_CARDS.find(c=>c.id===el.dataset.idx);
-      if(card && !myOpened.has(card.id)){
-        // 처음 여는 카드 — "이미 본 카드" 표시를 남겨 다음에도 펼쳐진 채로 보이게 함
-        myOpened.add(card.id); saveMyOpened(); render(); return;
+      if(!card) return;
+      if(!isPaid){
+        if(!myOpened.has(card.id)){
+          // 처음 여는 카드 — "이미 본 카드" 표시를 남겨 다음에도 펼쳐진 채로 보이게 함
+          myOpened.add(card.id); saveMyOpened(); render(); return;
+        }
+        el.classList.toggle("flipped");
+        return;
       }
-      el.classList.toggle("flipped");
+      // 유료 카드(공용 열람·타인 공개) — 접는 건 무료, 다시 펼치려면 토큰을 또 낸다
+      if(paidOpenSet.has(card.id)){ paidOpenSet.delete(card.id); render(); return; }
+      if(remainingTokens() <= 0){ showToast("🎫 이번 라운드 토큰을 모두 사용했습니다"); return; }
+      const ok = await store.spendToken(sharedState.phase, myRole);
+      if(!ok){ showToast("🎫 이번 라운드 토큰을 모두 사용했습니다"); return; }
+      paidOpenSet.add(card.id);
+      render();
     });
   });
   app.querySelectorAll(".claim-btn").forEach(btn=>{
     btn.addEventListener("click", async (e)=>{
       e.stopPropagation();
+      if(remainingTokens() <= 0){ showToast("🎫 이번 라운드 토큰을 모두 사용했습니다"); return; }
       btn.disabled = true; btn.textContent = "확인 중...";
-      await store.claimCard(btn.dataset.claim, myRole);
+      const ok = await store.claimCard(btn.dataset.claim, myRole, sharedState.phase);
+      if(!ok) showToast("이미 다른 사람이 가져갔거나 토큰이 부족합니다");
       render();
     });
   });
@@ -1805,11 +1874,6 @@ async function boot(){
     if(!store || sharedState.phase==="result") return;
     if(Date.now() >= phaseEndsAtMs()){ advancePhase(); return; }
     const remain = phaseEndsAtMs() - Date.now();
-    // 증거 공개 단계, 종료 1분 전, 이번 라운드까지의 최소 채택 수를 못 채운 사람에게 한 번만 독촉 토스트
-    if(!oneMinWarned && remain<=60000 && myRole && evidenceMinForPhase() && !hasClaimedEnough()){
-      oneMinWarned = true;
-      showToast(`⏰ 증거를 채택하세요 — 이번 라운드까지 최소 ${evidenceMinForPhase()}장 필요(현재 ${myClaimCount()}장)`);
-    }
     const t = document.getElementById("timerEl"); // 전체 재렌더 없이 초시계만 갱신(클릭 타이밍 충돌 방지)
     if(t) t.textContent = fmtClock(remain);
   }, 1000);
