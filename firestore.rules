@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 게임은 rooms/{조 코드} 아래만 사용 (로그인 없음). 그 외 경로는 전부 차단.
+    match /rooms/{roomId} {
+      allow read: if roomId.size() <= 20;
+      allow create, update: if roomId.size() <= 20
+        && request.resource.data.keys().hasOnly(['phase', 'phaseEndsAt']);
+
+      match /{sub}/{docId} {
+        allow read, delete: if sub in ['players','votes','claims','ready','revealed','npc','tokenUse'];
+        allow create, update: if sub in ['players','votes','claims','ready','revealed','npc','tokenUse']
+          && request.resource.data.size() <= 20;
+      }
+    }
+  }
+}
