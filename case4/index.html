@@ -1,0 +1,1981 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ER미스터리 '(주)클린테크 갱신거절 사건'</title>
+<style>
+/* ============================================================
+   DESIGN TOKENS — 빈티지·레트로 사건기록철(색바랜 서류/도장) 단일 테마
+   다크 심문실 콘셉트에서 "오래된 종이 서류함" 콘셉트로 재도색.
+   폰트는 프리텐다드(가변 폰트, 별도 파일로 게시)만 사용.
+   ============================================================ */
+@font-face{
+  font-family:'Pretendard';
+  src:url("../pretendard.woff2") format('woff2');
+  font-weight:45 920;
+  font-style:normal;
+  font-display:swap;
+}
+:root{
+  --ink:#f1e7cd;          /* 페이지 배경(바랜 종이) */
+  --ink-2:#e4d3a3;         /* 카드·패널 표면(더 짙은 종이) */
+  --ink-3:#b3945a;         /* 테두리·구분선(갈색 잉크) */
+  --ink-4:#cfb87e;         /* 호버 표면 */
+  --paper:#f8f1dc;         /* 증거서류 종이(약간 더 밝음) */
+  --paper-shadow:#d6bf8d;  /* 종이 그림자·테두리 */
+  --seal:#a1402a;          /* 고무도장 붉은색(강조) */
+  --seal-bright:#bf5539;   /* 도장 강조 hover */
+  --gold:#8a6a2b;          /* 놋쇠 라벨 색 */
+  --text:#2b2314;          /* 기본 본문(짙은 잉크) */
+  --text-dim:#79693f;      /* 보조텍스트(바랜 잉크) */
+  --text-paper:#2b2314;    /* 서류 위 본문 */
+  --text-paper-dim:#6c5b38; /* 서류 위 보조텍스트 */
+  --mono:var(--sans);
+  --serif:var(--sans);
+  --sans:'Pretendard','Pretendard Variable',-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;background:var(--ink);color:var(--text);
+  font-family:var(--sans);
+  padding-inline:16px;
+  word-break:keep-all; /* 한글 어절이 중간에서 끊기지 않도록 */
+  background-image:radial-gradient(rgba(43,35,19,.07) 1px, transparent 1.2px);
+  background-size:6px 6px;
+}
+h1,h2,h3{font-family:var(--serif);font-weight:800;text-wrap:balance;margin:0;}
+p{line-height:1.65;margin:0;}
+button{font-family:var(--sans);cursor:pointer;}
+button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+.wrap{max-width:920px;margin:0 auto;padding-block:20px 60px;}
+.mono{font-family:var(--mono);}
+.hidden{display:none!important;}
+
+/* ---------- 상단 사건 상태바 ---------- */
+.casebar{
+  position:sticky;top:0;z-index:20;
+  background:linear-gradient(180deg,var(--ink) 70%, transparent);
+  padding-block:14px 10px;margin-bottom:8px;
+}
+.casebar-inner{
+  background:var(--ink-2);border:2px solid var(--ink-3);border-radius:5px;
+  padding:14px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;
+}
+.case-no{font-family:var(--mono);font-size:12px;color:var(--seal);letter-spacing:.05em;font-weight:700;text-transform:uppercase;}
+.case-title{font-family:var(--serif);font-weight:900;font-size:17px;}
+.phase-track{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto;}
+.phase-dot{
+  font-size:11px;font-family:var(--mono);padding:3px 9px;border-radius:99px;
+  border:1px solid var(--ink-4);color:var(--text-dim);white-space:nowrap;
+}
+.phase-dot.active{background:var(--seal);border-color:var(--seal);color:#fff;}
+.phase-dot.done{border-color:var(--gold);color:var(--gold);}
+.timer{
+  font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:20px;
+  color:var(--text);padding:2px 10px;border-left:1px solid var(--ink-3);
+}
+.btn{
+  border:2px solid var(--text);background:var(--paper);color:var(--text);
+  border-radius:4px;padding:9px 14px;font-size:13px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.03em;
+  box-shadow:2px 2px 0 var(--text);
+  transition:transform .1s,box-shadow .1s;
+}
+.btn:hover{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--text);}
+.btn.primary{background:var(--seal);border-color:var(--seal);color:var(--paper);box-shadow:2px 2px 0 var(--text);}
+.btn.primary:hover{background:var(--seal-bright);}
+.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;transform:none;}
+.btn.seal{background:var(--seal);border-color:var(--seal);color:var(--paper);}
+.btn.seal:hover{background:var(--seal-bright);}
+.sync-note{font-size:11px;color:var(--text-dim);width:100%;}
+
+/* ---------- 내 소유 카드 팝업 ---------- */
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(43,35,19,.55);z-index:50;
+  display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;
+}
+.modal-panel{
+  background:var(--paper);color:var(--text-paper);border:3px double var(--seal);border-radius:8px;
+  max-width:560px;width:100%;padding:22px;box-shadow:6px 6px 0 rgba(43,35,19,.3);
+}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.modal-head h3{font-family:var(--serif);font-size:17px;font-weight:800;}
+.my-card{border-top:1px dashed var(--paper-shadow);padding-top:14px;margin-top:14px;}
+.my-card:first-of-type{border-top:none;margin-top:0;padding-top:0;}
+.my-card .doc-title{font-family:var(--serif);font-weight:700;font-size:14px;margin-bottom:4px;}
+.my-card .doc-body{font-size:12.5px;line-height:1.6;white-space:pre-wrap;}
+.my-card .doc-note{margin-top:8px;padding-top:6px;border-top:1px dashed var(--paper-shadow);font-size:12px;font-style:italic;color:var(--seal);}
+
+/* ---------- 역할 선택 게이트 ---------- */
+.gate h1{font-size:clamp(24px,5vw,32px);margin-bottom:6px;}
+.gate .lede{color:var(--text-dim);margin-bottom:22px;max-width:60ch;}
+
+/* ---------- 표지(입장) 화면 — 보드게임 박스 커버 느낌 ---------- */
+.cover{
+  max-width:520px;margin:48px auto 0;text-align:center;
+  background:var(--paper);border:4px double var(--seal);border-radius:10px;
+  padding:40px 32px 34px;box-shadow:7px 7px 0 var(--paper-shadow);
+}
+.cover-emblem{width:140px;height:140px;margin:0 auto 14px;}
+.cover-eyebrow{
+  font-family:var(--mono);font-size:12px;color:var(--seal);letter-spacing:.1em;
+  font-weight:700;text-transform:uppercase;margin-bottom:4px;
+}
+.cover-title{font-size:clamp(22px,5.2vw,30px);font-weight:900;letter-spacing:-.01em;line-height:1.25;}
+.cover-tagline{margin-top:8px;color:var(--text-dim);font-size:13.5px;letter-spacing:.03em;}
+.cover-divider{width:56px;height:3px;background:var(--gold);margin:20px auto;border-radius:2px;}
+.cover-lede{color:var(--text-dim);margin:0 auto 18px;max-width:40ch;font-size:13.5px;}
+.cover-form{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;}
+.cover-footnote{margin-top:22px;font-size:11px;color:var(--text-dim);opacity:.85;}
+.cover-back{display:inline-block;margin-top:14px;font-size:12.5px;color:var(--gold);text-decoration:none;}
+.cover-back:hover{text-decoration:underline;}
+@media (max-width:480px){ .cover{padding:32px 20px 28px;} }
+.side-block{margin-bottom:22px;}
+.side-heading{font-size:14px;font-weight:800;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--ink-3);}
+.side-heading.employer{color:var(--ink-3);}
+.side-heading.floor{color:var(--gold);}
+.role-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+.role-card{
+  position:relative;overflow:hidden;
+  background:var(--ink-2);border:2px solid var(--ink-3);border-radius:5px;
+  box-shadow:2px 2px 0 var(--paper-shadow);
+  padding:16px;display:flex;flex-direction:column;gap:8px;text-align:left;
+}
+.side-tag{
+  align-self:flex-start;font-family:var(--mono);font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:3px;text-transform:uppercase;letter-spacing:.04em;
+}
+.side-tag.employer{background:var(--ink-3);color:var(--paper);}
+.side-tag.floor{background:var(--gold);color:var(--paper);}
+.role-card .seat{font-family:var(--mono);font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;font-weight:700;}
+.role-card .name{font-family:var(--serif);font-weight:800;font-size:18px;}
+.role-card .org{font-size:12px;color:var(--text-dim);}
+.role-card .pick{margin-top:6px;}
+.role-card.taken{background:var(--ink);}
+.role-card.taken .seat,.role-card.taken .org{opacity:.55;}
+.role-card.taken .pick{background:none;border:none;color:var(--text-dim);font-size:12px;padding:0;}
+.role-card .stamp-badge{
+  position:absolute;top:8px;right:8px;width:50px;height:50px;border-radius:50%;
+  border:3px solid var(--seal);color:var(--seal);background:rgba(255,255,255,.4);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:var(--serif);font-weight:800;font-size:10px;line-height:1.15;
+  transform:rotate(-16deg);animation:stampIn .35s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes stampIn{
+  0%{transform:rotate(-16deg) scale(1.8);opacity:0;}
+  60%{transform:rotate(-16deg) scale(.9);opacity:1;}
+  100%{transform:rotate(-16deg) scale(1);opacity:1;}
+}
+@media (prefers-reduced-motion:reduce){
+  .role-card .stamp-badge{animation:none;}
+}
+.role-card.npc{opacity:.7;border-style:dashed;}
+.role-card .pick.npc{background:none;border:none;color:var(--text-dim);font-size:12px;padding:0;font-weight:700;}
+.role-card .btn.npc-toggle{font-size:11px;padding:5px 8px;background:none;color:var(--text-dim);border-color:var(--ink-3);}
+.role-card .btn.npc-cancel{font-size:11px;padding:5px 8px;align-self:flex-start;}
+.casting-progress{
+  font-family:var(--mono);font-size:13px;color:var(--gold);font-weight:700;
+  margin-bottom:18px;padding:8px 12px;background:var(--ink-2);border-radius:4px;display:inline-block;
+}
+
+/* ---------- 탭 ---------- */
+.tabs{display:flex;gap:8px;margin:18px 0 14px;flex-wrap:wrap;}
+.tab{
+  background:var(--paper);border:2px solid var(--ink-3);color:var(--text-dim);
+  border-radius:3px;padding:7px 14px;font-size:13px;font-weight:600;
+}
+.tab.active{background:var(--ink-3);color:var(--paper);border-color:var(--ink-3);}
+
+/* ---------- 내 신원 카드 ---------- */
+.id-card{
+  background:var(--ink-2);border:2px solid var(--ink-3);border-radius:6px;
+  box-shadow:3px 3px 0 var(--paper-shadow);
+  padding:20px;display:grid;gap:14px;
+}
+.id-head{display:flex;gap:14px;align-items:center;}
+.id-badge{
+  width:52px;height:52px;border-radius:4px;background:var(--seal);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-weight:900;font-size:22px;color:var(--paper);flex-shrink:0;
+}
+.id-name{font-family:var(--serif);font-weight:900;font-size:20px;}
+.id-org{font-size:13px;color:var(--text-dim);}
+.id-field{border-top:1px dashed var(--ink-3);padding-top:12px;}
+.id-field .label{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:.08em;margin-bottom:4px;text-transform:uppercase;}
+.id-field .val{font-size:14px;line-height:1.6;}
+.id-field.secret .val{color:var(--seal);font-weight:600;}
+.id-field.secret .val{
+  filter:blur(7px);transition:filter .12s ease;cursor:pointer;user-select:none;outline:none;
+}
+.id-field.secret .val:active, .id-field.secret .val:focus{filter:none;}
+.id-field.secret .hint{margin-top:5px;font-size:11px;color:var(--text-dim);font-style:italic;}
+@media (prefers-reduced-motion:reduce){
+  .id-field.secret .val{transition:none;}
+}
+.goal-list{display:grid;gap:10px;}
+.tl-list{display:grid;gap:8px;}
+.tl-row{display:grid;grid-template-columns:96px 1fr;gap:10px;font-size:13.5px;line-height:1.55;}
+.tl-date{font-family:var(--mono);font-size:11.5px;color:var(--text-dim);padding-top:2px;}
+.qa-item{font-size:13.5px;line-height:1.6;}
+.qa-item + .qa-item{margin-top:10px;}
+.qa-q{font-weight:700;}
+.sv{color:var(--seal);font-weight:600;filter:blur(7px);transition:filter .12s ease;cursor:pointer;user-select:none;outline:none;}
+.sv:active, .sv:focus{filter:none;}
+@media (prefers-reduced-motion:reduce){ .sv{transition:none;} }
+.goal-line{font-size:14px;line-height:1.6;}
+.goal-tag{display:block;font-family:var(--mono);font-size:10.5px;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
+
+/* ---------- 사건 개요(핵심 법리 가이드 + 초심 판정 요지 + 타임라인) ---------- */
+.legal-guide{
+  background:var(--ink-2);border:2px solid var(--seal);border-radius:6px;
+  padding:14px 18px;margin-bottom:20px;
+}
+.legal-guide-title{font-family:var(--serif);font-weight:800;font-size:14px;color:var(--seal);margin-bottom:8px;}
+.legal-point{font-size:13px;color:var(--text-dim);line-height:1.6;margin-top:10px;}
+.legal-point:first-of-type{margin-top:0;}
+.legal-point b{display:block;color:var(--text);font-size:13.5px;margin-bottom:3px;}
+.legal-detail{margin-top:6px;}
+.legal-detail summary{
+  cursor:pointer;list-style:none;font-size:12px;color:var(--gold);font-weight:700;
+  display:flex;align-items:center;gap:5px;
+}
+.legal-detail summary::-webkit-details-marker{display:none;}
+.legal-detail summary::before{content:"▸";transition:transform .15s ease;}
+.legal-detail[open] summary::before{transform:rotate(90deg);}
+.legal-detail-body{margin-top:6px;padding:8px 10px;background:var(--paper);border-left:2px solid var(--gold);font-size:12.5px;color:var(--text-dim);line-height:1.6;}
+@media (prefers-reduced-motion:reduce){.legal-detail summary::before{transition:none;}}
+.ruling-box{
+  background:var(--paper);color:var(--text-paper);border-radius:6px;padding:18px 20px;
+  border:3px double var(--ink-3);margin-bottom:20px;
+}
+.ruling-title{font-family:var(--serif);font-weight:800;font-size:14px;margin-top:4px;}
+.ruling-subtitle{font-size:11.5px;color:var(--text-paper-dim);margin:2px 0 10px;}
+.ruling-headline{font-family:var(--serif);font-weight:800;font-size:16px;margin:0 0 12px;padding-bottom:10px;border-bottom:1px dashed var(--paper-shadow);}
+.ruling-box p{font-size:13px;line-height:1.6;}
+.ruling-box h4{font-family:var(--serif);font-weight:800;font-size:13px;letter-spacing:.04em;margin:4px 0 8px;}
+.ruling-order{margin:0 0 14px;padding-left:20px;display:grid;gap:8px;}
+.ruling-order li{font-size:13px;line-height:1.6;}
+.ruling-reasons{margin-top:16px;padding-top:14px;border-top:1px dashed var(--paper-shadow);}
+.ruling-section{margin-bottom:16px;}
+.ruling-section .ruling-section{margin-left:14px;margin-top:10px;margin-bottom:10px;}
+.ruling-section p{margin-bottom:8px;}
+.timeline{display:grid;gap:0;border-left:2px solid var(--ink-3);margin-left:6px;}
+.tl-item{position:relative;padding:0 0 18px 20px;}
+.tl-item::before{
+  content:'';position:absolute;left:-6.5px;top:3px;width:11px;height:11px;
+  border-radius:50%;background:var(--gold);border:2px solid var(--ink);
+}
+.tl-date{font-family:var(--mono);font-size:12px;color:var(--gold);}
+.tl-text{font-size:14px;margin-top:3px;}
+.tl-text b{color:var(--text);}
+
+/* ---------- 증거카드(플립) ---------- */
+.board-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--text-dim);margin-bottom:14px;}
+.board-legend b{color:var(--text);}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;}
+.owner-tag{font-size:10.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.03em;}
+.ownable{
+  background:var(--ink-2);border:2px solid var(--seal);border-radius:5px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  padding:16px;aspect-ratio:5/6;min-height:180px;text-align:center;
+}
+.ownable .claim-btn{margin-top:4px;}
+.face.front .reveal-btn{margin-top:6px;font-size:11px;padding:5px 8px;}
+.locked.claimed{border-style:solid;}
+.flipcard{
+  perspective:1400px;aspect-ratio:5/6;min-height:180px;
+}
+.flipcard-inner{
+  position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.4,.2,.2,1);
+  transform-style:preserve-3d;
+}
+.flipcard.flipped .flipcard-inner{transform:rotateY(180deg);}
+.face{
+  position:absolute;inset:0;backface-visibility:hidden;border-radius:5px;
+  padding:16px;display:flex;flex-direction:column;
+}
+.face.front{
+  background:
+    repeating-linear-gradient(135deg, rgba(43,35,19,.06) 0 2px, transparent 2px 14px),
+    var(--ink-2);
+  border:2px dashed var(--ink-3);align-items:center;justify-content:center;
+  text-align:center;gap:10px;cursor:pointer;
+}
+.face.front .seal-icon{
+  width:44px;height:44px;border-radius:50%;border:2px solid var(--seal);color:var(--seal);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+.face.front .exhibit-no{font-family:var(--mono);font-size:12px;color:var(--gold);text-transform:uppercase;font-weight:700;}
+.face.front .tap-hint{font-size:11px;color:var(--text-dim);}
+.face.back{
+  background:var(--paper);color:var(--text-paper);transform:rotateY(180deg);
+  border:2px solid var(--paper-shadow);box-shadow:3px 3px 0 var(--paper-shadow);cursor:pointer;overflow-y:auto;
+}
+.face.back .doc-head{
+  display:flex;justify-content:space-between;font-family:var(--mono);
+  font-size:10px;color:var(--text-paper-dim);border-bottom:1px solid var(--paper-shadow);
+  padding-bottom:6px;margin-bottom:8px;
+}
+.face.back .doc-title{font-family:var(--serif);font-weight:700;font-size:14px;margin-bottom:8px;}
+.face.back .doc-body{font-size:12.5px;line-height:1.6;white-space:pre-wrap;}
+.face.back .doc-note{
+  margin-top:10px;padding-top:8px;border-top:1px dashed var(--paper-shadow);
+  font-size:12px;font-style:italic;color:var(--seal);
+}
+.locked{
+  background:var(--ink-2);border:2px dashed var(--ink-3);border-radius:5px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;color:var(--text-dim);font-size:12px;aspect-ratio:5/6;min-height:180px;
+}
+.locked .lock-icon{font-size:22px;}
+
+/* ---------- 최근 공개된 증거 피드 ---------- */
+.reveal-feed{
+  background:var(--paper);border:2px solid var(--seal);border-radius:6px;
+  padding:10px 14px;margin-bottom:16px;box-shadow:2px 2px 0 var(--paper-shadow);
+}
+.reveal-feed-label{font-family:var(--serif);font-weight:800;font-size:12.5px;color:var(--seal);margin-bottom:6px;}
+.reveal-feed-list{display:flex;flex-direction:column;gap:4px;}
+.reveal-chip{font-size:12.5px;color:var(--text-paper);}
+.reveal-chip .exhibit-no{font-family:var(--mono);color:var(--gold);font-weight:700;margin-right:4px;}
+.reveal-chip .reveal-by{color:var(--text-paper-dim);}
+
+/* ---------- 공개 알림 토스트 ---------- */
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);z-index:60;
+  background:var(--text);color:var(--paper);padding:10px 18px;border-radius:6px;
+  font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.28);opacity:0;
+  transition:opacity .25s,transform .25s;max-width:min(90vw,420px);text-align:center;
+}
+.toast.show{opacity:1;transform:translate(-50%,0);}
+
+/* ---------- 토론/투표 ---------- */
+.matrix{display:grid;gap:12px;}
+.matrix-card{background:var(--ink-2);border:2px solid var(--ink-3);border-radius:6px;padding:14px 16px;}
+.matrix-card .topic{font-family:var(--serif);font-weight:800;font-size:14px;margin-bottom:8px;}
+.matrix-row{display:grid;grid-template-columns:76px 1fr;gap:8px;font-size:12.5px;line-height:1.55;padding:4px 0;}
+.matrix-row .tag{
+  font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 6px;
+  border-radius:3px;height:fit-content;white-space:nowrap;text-align:center;
+}
+.matrix-row.legal .tag{background:var(--text);color:var(--paper);}
+.matrix-row.legal{border-bottom:1px dashed var(--paper-shadow);margin-bottom:4px;padding-bottom:8px;}
+.matrix-row.employer .tag{background:var(--ink-3);color:var(--paper);}
+.matrix-row.union .tag{background:var(--gold);color:var(--paper);}
+.matrix-row.truth .tag{background:var(--seal);color:var(--paper);}
+.matrix-row.truth{border-top:1px dashed var(--paper-shadow);margin-top:4px;padding-top:8px;font-style:italic;}
+.vote-axis{margin-top:20px;}
+.vote-axis:first-of-type{margin-top:8px;}
+.axis-h{font-family:var(--serif);font-weight:700;font-size:15px;margin-bottom:6px;}
+.axis-label{font-family:var(--mono);color:var(--gold);font-size:12px;margin-right:6px;}
+.vote-grid{display:grid;gap:12px;margin-top:14px;}
+.vote-opt{
+  text-align:left;background:var(--ink-2);border:2px solid var(--ink-3);border-radius:6px;
+  box-shadow:2px 2px 0 var(--paper-shadow);
+  padding:16px;color:var(--text);
+}
+.vote-opt:hover{border-color:var(--gold);}
+.vote-opt.selected{border-color:var(--seal);background:var(--ink-4);}
+.vote-opt .n{font-family:var(--mono);color:var(--gold);font-size:12px;}
+.vote-opt .t{font-family:var(--serif);font-weight:700;font-size:15px;margin:4px 0;}
+.vote-opt .d{font-size:12.5px;color:var(--text-dim);}
+.vote-progress{margin-top:16px;font-size:13px;color:var(--text-dim);}
+
+/* ---------- 결과 ---------- */
+.tally{display:grid;gap:10px;margin:16px 0 24px;}
+.tally-row{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;}
+.tally-bar-track{grid-column:1/3;height:10px;border-radius:99px;background:var(--ink-3);overflow:hidden;}
+.tally-bar-fill{height:100%;background:var(--gold);}
+.tally-row.match .tally-bar-fill{background:var(--seal);}
+.verdict-box{
+  background:var(--paper);color:var(--text-paper);border-radius:6px;padding:22px;
+  border:4px double var(--seal);
+}
+.verdict-box h2{font-size:20px;margin-bottom:10px;}
+.verdict-box .stamp{
+  display:inline-block;border:2px solid var(--seal);color:var(--seal);
+  font-family:var(--serif);font-weight:900;padding:3px 10px;border-radius:4px;
+  font-size:13px;margin-bottom:10px;transform:rotate(-2deg);text-transform:uppercase;letter-spacing:.03em;
+}
+.lesson{
+  margin-top:16px;background:var(--ink-2);border-left:4px solid var(--gold);border-radius:3px;
+  padding:16px;font-size:13.5px;line-height:1.65;
+}
+.lesson .label{font-family:var(--mono);font-size:11px;color:var(--gold);margin-bottom:6px;}
+.epilogue-box{
+  margin-top:16px;background:var(--ink-2);border-left:4px solid var(--gold);border-radius:3px;
+  padding:16px;font-size:13.5px;line-height:1.65;
+}
+.epilogue-box .label{font-family:var(--mono);font-size:11px;color:var(--gold);margin-bottom:10px;}
+.epilogue-row{margin-top:12px;}
+.epilogue-row:first-of-type{margin-top:0;}
+.epilogue-row .ep-name{font-family:var(--serif);font-weight:700;}
+.epilogue-row .ep-tag{font-size:10.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.03em;margin-left:6px;}
+.epilogue-row .ep-score{font-family:var(--mono);font-weight:700;margin-left:8px;}
+.epilogue-row .ep-score.pos{color:var(--gold);}
+.epilogue-row .ep-score.neg{color:var(--seal);}
+
+@media (prefers-reduced-motion:reduce){
+  .flipcard-inner{transition:none;}
+}
+.conn-banner{
+  display:none; position:sticky; top:0; z-index:50;
+  padding:8px 16px; text-align:center; font-size:12.5px; font-weight:700;
+  font-family:var(--mono); letter-spacing:.02em;
+}
+.conn-banner.show{display:block;}
+.conn-banner.local{background:var(--seal); color:#fff;}
+.conn-banner.slow{background:var(--gold); color:#fff;}
+</style>
+</head>
+<body>
+
+<div id="connBanner" class="conn-banner"></div>
+<div id="app" class="wrap"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script>
+/* ============================================================
+   1. 사건 데이터 (각색된 가상 인물)
+   ============================================================ */
+const CASE_NO = "2026부해각색-05호";
+const CASE_TITLE = "○○아파트 경비원 갱신거절 사건 — 재심 심문회의";
+
+const TIMELINE = [
+  ["2016.03.01", "이기철, ○○아파트 경비원 입사 (첫 번째 2년 계약)"],
+  ["2018.03.01", "1차 계약 갱신"],
+  ["2020.03.01", "2차 계약 갱신"],
+  ["2022.03.01", "3차 계약 갱신"],
+  ["2022.11.10", "이기철, 박동수 회장에게 관리비 의혹 서면 제출 — 조경 공사 대금 1,400만 원 견적서 없이 지급 지적"],
+  ["2022.12.01", "박동수, 입주자대표회의 회장 취임"],
+  ["2023.01", "박동수, 강인호 감사에게 경비원 업무평가 제도 설계 지시"],
+  ["2023.11.20", "박동수-강인호 식사 (평가 방향 협의 정황)"],
+  ["2023.11.28", "박동수, 최명희 소장에게 이기철 비갱신 방침 전달"],
+  ["2023.12.05", "강인호, 경비원 업무평가 시행 — 이기철 42점, 타 3명 66~74점"],
+  ["2024.01.10", "입주자대표회의, 이기철 갱신 불가 결의"],
+  ["2024.01.15", "최명희 소장, 이기철에게 구두 갱신 불가 통보"],
+  ["2024.01.20", "이기철, 갱신 불가 내용증명 수령"],
+  ["2024.03.01", "계약 만료, 이기철 경비초소 퇴거"],
+  ["2024.04.10", "지방노동위원회 부당해고 구제 신청"],
+  ["2024.07.20", "초심 기각 판정 — 갱신기대권 불인정"],
+  ["2024.09.15", "중앙노동위원회 재심 신청"],
+  ["오늘", "중앙노동위원회 재심 심문회의 — 당신들이 이 자리에 있습니다"],
+];
+
+const LOWER_RULING = {
+  caseNo: "2024부해-각색-0720",
+  title: "○○지방노동위원회 판정서 (가상 사건 각색본)",
+  subtitle: "○○아파트 경비원 부당해고 구제신청 사건",
+  date: "판정일자: 2024년 7월 20일",
+  headline: "기각 — 갱신기대권 불인정",
+  order: [
+    "신청인(이기철)의 근로계약은 기간의 정함이 있는 계약으로, 반복 갱신이 3~4회 이루어졌다 하더라도 명시적 갱신 약정이 없는 이상 갱신기대권이 성립한다고 보기 어렵다.",
+    "피신청인(입주자대표회의)이 제시한 업무평가 기준 및 절차는 관리규약에 근거하며, 평가 결과(42점)가 합격선(60점)에 미달하는 이상 갱신거절에 합리적 이유가 인정된다.",
+    "신청인의 청구를 기각한다.",
+  ],
+  reasonSections: [
+    { h: "1. 당사자 관계 및 사건의 개요", body: [
+      "신청인(이기철)은 2016년 3월 1일 ○○아파트 경비원으로 입사하여 2022년 3월까지 3차례 계약을 갱신한 근로자이다.",
+      "피신청인(입주자대표회의)은 2024년 1월 15일 신청인에게 2024년 3월 1일 계약 만료를 이유로 갱신거절을 통보하였고, 신청인은 이에 불복하여 구제신청을 제기하였다.",
+    ]},
+    { h: "2. 쟁점사항", body: [
+      "쟁점 1: 신청인에게 근로계약의 갱신기대권이 인정되는지 여부",
+      "쟁점 2: 피신청인의 갱신거절에 합리적이고 객관적인 사유가 존재하는지 여부",
+    ]},
+    { h: "3. 위원회의 판단", sub: [
+      { h: "가. 갱신기대권의 존재 여부", body: [
+        "기간제 근로계약은 그 기간이 만료되면 원칙적으로 근로관계가 종료된다. 갱신기대권이 인정되려면 계약서·취업규칙에 갱신 기준이 있거나, 관행적으로 갱신이 반복되어 갱신에 대한 정당한 기대가 형성되어 있어야 한다.",
+        "이 사건에서 근로계약서에 자동연장 조항이 없고, 관리규약 제14조가 '평가 결과에 따라 갱신 여부를 결정할 수 있다'고 규정하고 있으므로, 반복 갱신의 관행만으로는 갱신기대권이 성립하기 어렵다.",
+      ]},
+      { h: "나. 갱신거절의 합리적 이유 유무", body: [
+        "설령 갱신기대권이 인정된다 하더라도, 관리규약에 근거한 공식 평가 절차를 거쳐 합격선에 미달한 점수(42점)가 나왔다면 이를 갱신거절의 합리적 이유로 볼 여지가 있다.",
+        "신청인의 주장대로 평가 절차에 일부 문제가 있다 하더라도, 이는 부당해고의 증거가 되기에 부족하다.",
+      ]},
+    ]},
+    { h: "4. 결론", body: [
+      "갱신기대권이 성립하기 어렵고, 설령 성립하더라도 갱신거절에 합리적 이유가 인정되므로 신청인의 청구를 기각한다.",
+    ]},
+  ],
+};
+
+const LEGAL_GUIDE = {
+  title: "⚖ 위원회 심리 가이드라인",
+  points: [
+    { q: "체크 포인트 1: 8년간 4차례 갱신되면 '당연히 갱신된다'는 기대가 생길까요? (갱신기대권)",
+      a: "기간제 계약은 기간 만료로 종료되는 것이 원칙입니다. 하지만 계약서에 자동 연장 문구가 있거나, 다른 경비원들이 별다른 심사 없이 모두 갱신되어 왔다면 근로자에게 '나도 갱신되겠지'라는 정당한 기대권이 생길 수 있습니다. 전임 회장의 구두 약속, 갱신 시 별도 심사 절차의 부재 등이 고려 요소입니다.",
+      detail: "기간제 근로계약이 반복 갱신되어 그 정한 기간이 단순한 형식에 불과한 경우, 또는 근로자에게 갱신에 대한 정당한 기대권이 인정되는 경우에는 갱신 거절이 부당해고에 해당한다(대법원 2011다4282)." },
+    { q: "체크 포인트 2: 평가 점수가 낮으면 갱신을 거절해도 될까요? (거절 사유의 정당성)",
+      a: "갱신기대권이 인정되는 경우, 사용자는 단순히 점수가 낮다는 것만으로 갱신을 거절할 수 없습니다. 평가 항목 설계, 채점자, 사전 고지 여부, 소명 기회 부여 여부 등 '절차적 공정성'이 담보되어야 합니다. 관리비 의혹 제기 이후 갑자기 평가가 도입된 경위, 보복성 동기 여부도 함께 살펴봐야 합니다.",
+      detail: "관리규약 제15조는 '평가는 공정한 절차에 따라 시행하여야 하며, 피평가자에게 사전 고지하여야 한다'고 규정하고 있다." },
+  ]
+};
+
+const CORE_CONCEPTS = {
+  title: "📚 시작 전에 알아두면 좋은 기초 개념",
+  points: [
+    { q: "개념 1: 갱신기대권 (기간제 근로자의 계약 갱신에 대한 정당한 기대)",
+      a: "기간제 계약은 기간이 끝나면 자동으로 종료되는 것이 원칙입니다. 다만 계약서·취업규칙에 갱신 기준이 있거나, 같은 처지의 다른 직원들이 관행적으로 계속 갱신되어 왔다면 근로자에게 '이번에도 갱신되겠지'라는 정당한 기대권이 인정될 수 있습니다. 기대권이 인정되면 사용자는 해고에 준하는 '합리적이고 객관적인 사유' 없이는 갱신을 거절할 수 없습니다." },
+    { q: "개념 2: 보복성 비갱신 (불이익취급)",
+      a: "근로자가 정당한 권리(관리비 이의제기, 민원 신청 등)를 행사한 이후 갑자기 불이익을 받는 경우, 사용자의 비갱신 결정이 해당 권리 행사에 대한 보복이라는 정황이 인정되면 갱신기대권 침해의 부당성이 더욱 강화됩니다." },
+  ]
+};
+
+const LEARNING_POINTS = {
+  title: "💡 돌아보기 — 이 사건의 HR 러닝 포인트",
+  points: [
+    { q: "딜레마 1: 평가 점수가 낮으면 갱신을 거절해도 될까요?",
+      a: "점수 자체보다 '그 점수가 어떻게 나왔는가'가 더 중요합니다. 평가자 선정, 항목 설계, 사전 고지, 소명 기회 — 이 네 가지가 갖춰져 있지 않으면 점수는 숫자에 불과합니다." },
+    { q: "딜레마 2: 관리비를 문제 삼은 직원을 내보내는 것은 정당한 인사권일까요, 보복일까요?",
+      a: "의혹 제기와 비갱신 결정의 시간적 근접성, 평가 제도의 갑작스러운 도입, 평가자와 의사결정자 간의 사전 접촉 — 이 세 가지가 겹칠 때 '보복'이라는 심증이 굳어집니다." },
+  ]
+};
+
+const PHASES = ["casting","briefing","intro","round2","round3","round4","discussion","vote","result"];
+const PHASE_LABEL = {casting:"배역 선택 대기", briefing:"사건 개요·전후관계 파악", intro:"자기소개", round2:"1라운드 · 증거 공개", round3:"2라운드 · 증거 공개", round4:"3라운드 · 증거 공개", discussion:"교차검증 토론", vote:"최종 판정 투표", result:"판정 결과"};
+
+const PHASE_GUIDE = {
+  briefing:{title:"📖 사건 개요·전후관계 파악", body:"진행자 없이 진행됩니다. 아직 증거카드는 공개되지 않으니, 이 시간 동안 아래를 확인하고 참가자들끼리 대화하며 사건의 흐름부터 맞춰보세요.\n\n1. '내 신원' 탭 — 내게 배정된 역할의 배경·입장·비밀·목표를 꼼꼼히 읽으세요.\n2. '사건 개요' 탭 — 초심 판정 요지와 사건 타임라인을 확인하며 누가 언제 무엇을 했는지 맞춰보세요."},
+  intro:{title:"🎤 짧게 자기소개 해주세요", body:"본격적인 증거 공개 전에, 한 사람씩 30초~1분 정도로 자신의 역할(이름·소속·겉으로 내세우는 입장)만 짧게 소개하세요. 🔒 비밀은 아직 말하지 마세요!"},
+  round2:{title:"🔍 증거대가 열렸습니다", body:"'증거대' 탭에서 모든 증거가 한꺼번에 공개됩니다.\n\n🎫 이번 라운드엔 토큰이 2개 있습니다 — 카드를 '가져가기'로 확보하거나, 남이 공개한 카드를 열람할 때마다 1개씩 듭니다.\n\n🔒 확보한 카드는 나만 영구 무료로 다시 볼 수 있습니다. 한 카드는 한 명만 가져갈 수 있으니 서둘러 확인하세요."},
+  round3:{title:"🔍 계속 증거를 확인하세요", body:"아직 못 가져간 카드가 있다면 지금 확인하세요.\n\n🎫 토큰이 다시 2개로 채워졌습니다."},
+  round4:{title:"🔒 결정적 증거를 놓치지 마세요", body:"각 인물의 가장 결정적인 비밀이 걸려있습니다. 확보한 카드를 '공개하기'로 전원에게 터뜨릴지, 조용히 숨길지에 따라 최종 결과 화면에서 그 인물의 결말이 달라집니다.\n\n🎫 토큰도 다시 2개로 채워졌습니다."},
+  discussion:{title:"💬 교차검증 토론", body:"모든 증거가 공개되었습니다. 각자 확보한 카드를 서로에게 설명하며, '증거대' 탭 위쪽의 쟁점 비교표를 하나씩 짚어보세요."},
+  vote:{title:"🗳 최종 판정 투표", body:"토론 내용을 바탕으로 두 가지 쟁점(갱신기대권 인정 여부 / 거절 사유 정당성)에 각각 투표하세요. 두 쟁점의 조합에 따라 결말이 4가지로 달라집니다. 다른 사람 표는 결과가 나오기 전까지 알 수 없는 익명 투표이며, 투표는 언제든 바꿀 수 있습니다."},
+};
+
+const DURATIONS = {casting:1800, briefing:600, intro:240, round2:300, round3:300, round4:300, discussion:900, vote:120};
+
+const NPC_CARDS = [
+  { id:"npc-ruling", ownerId:"npc-ruling", round:2, kind:"view",
+    exhibit:"참고자료 1", title:"지방노동위원회 초심 결정문", docNo:"2024부해-각색-0720", date:"2024.07.20",
+    body:"초심 결정 요지: '이 사건 근로계약은 기간의 정함이 있는 계약으로, 반복 갱신이 3~4회 이루어졌다 하더라도 명시적 갱신 약정이 없는 이상 갱신기대권이 성립한다고 보기 어렵다. 피신청인이 제시한 업무평가(42점)는 관리규약에 근거한 것으로 갱신거절에 합리적 이유가 인정된다. 신청인의 청구를 기각한다.'",
+    note:"초심은 두 쟁점 모두에서 사측 손을 들어줬다. 재심에서 어느 쪽 판단이 달라질지가 오늘의 핵심이다." },
+  { id:"npc-precedent", ownerId:"npc-precedent", round:3, kind:"view",
+    exhibit:"참고자료 2", title:"갱신기대권 관련 대법원 판례", docNo:"대법원 2011다4282", date:"2011.07.14",
+    body:"'기간제 근로계약이 반복 갱신되어 그 정한 기간이 단순한 형식에 불과한 경우, 또는 근로자에게 갱신에 대한 정당한 기대권이 인정되는 경우에는 사용자가 이를 갱신 거절하는 것이 부당해고에 해당한다.' — 대법원 2011다4282 판결",
+    note:"이 판례가 이기철 사건에 어떻게 적용되는지가 쟁점이다. 4차례 갱신이 '단순한 형식'을 넘어선 것인지 논의해볼 것." },
+  { id:"npc-regulation", ownerId:"npc-regulation", round:2, kind:"view",
+    exhibit:"참고자료 3", title:"아파트 관리규약 (경비원 관련 조항)", docNo:"관리규약-2019", date:"2019.03",
+    body:"제14조(경비원 채용): '경비원은 2년 단위로 계약하며, 업무 실적 평가 결과에 따라 갱신 여부를 결정할 수 있다.'\n제15조: '평가는 공정한 절차에 따라 시행하여야 하며, 피평가자에게 사전 고지하여야 한다.'",
+    note:"'사전 고지' 의무 위반 여부가 절차적 정당성 판단의 핵심이다. 이기철은 평가를 사전에 통보받았는가?" },
+];
+
+const CHARACTERS = [
+  { id:"lkc", side:"근로자측", seat:"근로자측 신청인", name:"이기철", org:"전 ○○아파트 경비원", age:63,
+    stance:"8년을 일했습니다. 갑자기 낮은 평가 점수를 이유로 내쫓는 것은 부당해고입니다.",
+    background:"1961년생. 2016년 이 아파트에 경비원으로 입사하기 전까지 40대에 다니던 중소기업이 부도나고, 50대 초반엔 건설 현장 일용직으로 버텼다. 아파트 경비 자리를 얻었을 때 '이제 좀 안정되겠다'고 생각했다. 4차례 계약을 갱신하며 8년을 이 자리에서 일했다. 입주민 이름을 외우고, 야간 순찰을 빠진 적 없고, 노인 주민의 짐을 들어줬다. 2022년 가을, 관리비 집행 내역이 이상하다는 걸 발견하고 박동수 회장에게 서면으로 문제를 제기했다. 그로부터 1년 뒤 갑자기 계약 갱신 불가 통보를 받았다.",
+    account:"저는 이 아파트에서 8년을 일했습니다. 갱신은 당연한 줄 알았어요. 전임 회장님도 '계속 일해달라'고 하셨고요. 그런데 갑자기 평가 점수가 42점이라며 계약 갱신이 불가하다는 통보를 받았습니다. 제가 평가받는다는 사실도, 어떤 항목으로 평가받는지도 몰랐습니다. 제가 관리비 문제를 제기한 게 이 사태의 진짜 원인이라고 생각합니다.",
+    relations:"김동현 — 같은 경비초소를 쓰는 동료. 진술을 부탁했지만 두려워하고 있다.\n정미선 — 퇴거 전 민원을 자주 가져오던 입주민. 진심으로 내 편이 되어줬다.\n박동수 — 내가 관리비 의혹을 제기한 상대. 그 이후 태도가 달라졌다.\n최명희 — 갱신 불가 통보를 직접 전달한 관리소장. 뭔가를 숨기는 것 같다.\n강인호 — 나를 평가했다는 사람. 한 번도 제대로 얘기해본 적이 없다.",
+    secret:"관리비 의혹 내용을 실제로 지방자치단체에 신고하려고 준비하고 있었다. 신고가 접수되면 박동수의 위원장직이 위태로울 수 있었다.",
+    goal:["갱신기대권이 인정되고 이번 비갱신이 부당해고임을 밝혀 원직복직 또는 금전보상을 받는 것.", "관리비 의혹 진상도 함께 밝혀지길 바란다."],
+    timeline:[
+      ["2016.03.01", "○○아파트 경비원 입사 (첫 번째 2년 계약)"],
+      ["2018.03.01~2022.03.01", "1·2·3차 계약 갱신. 갱신 시마다 별도 심사 없이 새 계약서에 서명만 했다."],
+      ["2022.11.10", "박동수 회장에게 관리비 의혹 서면 제출.", true],
+      ["2023.12", "경비원 업무평가 실시 — 인지하지 못했다.", true],
+      ["2024.01.15", "최명희 소장으로부터 구두 갱신 불가 통보.", true],
+      ["2024.03.01", "계약 만료, 경비초소 퇴거"],
+      ["2024.04.10", "지방노동위원회 부당해고 구제 신청"],
+      ["2024.07.20", "초심 기각"],
+      ["2024.09.15", "중앙노동위원회 재심 신청"],
+    ],
+    qa:[
+      {q:"4차례 갱신이 당연하다고 생각한 근거는?", a:"전임 김봉희 회장이 '경비 일 잘하면 계속 있어도 된다'고 직접 말씀하셨습니다. 갱신 때마다 별도 절차 없이 새 계약서에 서명만 했고, 8년간 반복됐습니다."},
+      {q:"관리비 의혹 제기와 비갱신 사이에 인과관계가 있다고 보는 이유는?", a:"2022년 11월에 서면을 낸 직후부터 박 회장 태도가 달라졌습니다. 1년 만에 갑자기 평가를 받았다는 통보가 온 겁니다."},
+      {q:"평가 점수 42점에 대해 어떻게 생각하나?", a:"저는 평가받는다는 사실 자체를 몰랐습니다. 42점이 어떤 항목에서 왜 나왔는지도 설명 들은 적 없습니다."},
+    ],
+    scores:{"recognize|reject":3, "recognize|recognize":1, "reject|reject":0, "reject|recognize":-1},
+    epilogue:{
+      revealed:"신고 준비 사실이 알려지면서 박동수의 보복 동기가 더욱 명확해졌다. 부당해고 인정 여부와 무관하게, 관리비 의혹에 대한 별도 감사가 시작됐다.",
+      hidden:"신고서는 서랍 안에 남아 있다. 이기철은 판정 결과만 기다렸다."
+    },
+    cards:[
+      {round:2, kind:"view", exhibit:"甲제1호증", title:"근로계약서 4부 및 전임 회장 진술서", docNo:"계약-2016/2018/2020/2022", date:"2016.03~2024.03",
+        body:"2016년부터 2022년까지 4차례 체결된 근로계약서. 매회 계약기간은 2년, 직종은 경비원. 계약서 어디에도 '갱신 불가' 또는 '회수 제한' 문구 없음.\n전임 입주자대표회의 회장 김봉희(72세) 진술: '이기철 씨는 성실하고 믿을 수 있는 분이라 계속 일하셨으면 한다고 직접 말씀드렸습니다. 아무 문제없이 계속 계실 거라고 생각했습니다.'",
+        note:"4번 연속 갱신이라는 사실과 전임 회장의 구두 약속이 갱신기대권의 물적·인적 근거다."},
+      {round:3, kind:"view", exhibit:"甲제2호증", title:"관리비 의혹 서면 (2022.11.10)", docNo:"서면-2022-1110", date:"2022.11.10",
+        body:"이기철이 박동수 회장에게 제출한 서면. '2022년 9~10월 조경 공사 대금 1,400만 원이 견적서 없이 지급된 사실을 확인하였으며, 이에 대한 소명을 요청합니다.' — 서면 수령 도장이 찍혀 있음.",
+        note:"비갱신 결정이 이 서면 이후 시작됐다는 정황 증거다."},
+      {round:4, exhibit:"甲제3호증", title:"지방자치단체 신고 준비 문서", docNo:"신고준비-2023", date:"2023.10 작성",
+        body:"이기철이 작성한 관리비 관련 신고 초안. '○○구청 주택과 민원 신고 예정: 조경 공사(2022.09~10) 1,400만 원 지출 근거 부재, 업체 선정 경위 불투명.' 이기철 자필.\n여백 메모: '박 회장이 이걸 알고 있다. 내가 신고하기 전에 내보내려는 걸까?'",
+        note:"이기철이 신고를 준비하고 있었다는 사실이 박동수의 비갱신 동기를 설명한다."},
+    ] },
+
+  { id:"kdh", side:"근로자측", seat:"근로자측 목격자", name:"김동현", org:"○○아파트 경비원", age:55,
+    stance:"본 것을 말하겠습니다. 두렵지만, 거짓말은 못 하겠습니다.",
+    background:"1969년생. 2020년부터 이 아파트에 경비원으로 근무 중이다. 이기철보다 4년 늦게 들어왔지만, 같은 초소를 쓰며 가깝게 지냈다. 2023년 12월, 강인호 감사가 이기철을 '평가'하던 날 우연히 현장에 있었다. 그리고 같은 달, 관리실 복도에서 박동수 회장이 최명희 소장에게 '이기철 씨는 이번에 정리합시다'라고 말하는 것을 들었다. 자신의 계약도 2026년 갱신 시기가 다가오고 있어서 증언이 두렵다.",
+    account:"저도 이기철 선배가 갱신이 안 된다고 들었을 때 놀랐습니다. 제가 본 것을 말씀드릴 수는 있지만, 솔직히 저도 1년 반 뒤 갱신이 있어서 두렵습니다. 그래도 거짓말은 못 하겠습니다.",
+    relations:"이기철 — 같은 초소를 쓰는 선배. 그를 돕고 싶지만 내 계약이 걸려 있다.\n정미선 — 가장 적극적으로 이기철을 도우려는 입주민.\n박동수 — 그가 하는 말을 복도에서 들었다. 그 말이 머릿속에 남아 있다.\n최명희 — 그 자리에 함께 있었다. 눈이 마주쳤는데 서로 모른 척했다.\n강인호 — 평가하는 날 그의 태도가 이상했다.",
+    secret:"최명희 소장으로부터 '이 일에 끼지 말라'는 개인 문자를 받았다. 그 문자가 오히려 증언을 결심하게 만들었다.",
+    goal:["진실을 말하되, 자신의 계약에 악영향이 미치지 않길 바란다."],
+    timeline:[
+      ["2020.03.01", "○○아파트 경비원 입사"],
+      ["2022.03", "1차 계약 갱신"],
+      ["2023.11.28", "박동수-최명희 복도 대화 청취.", true],
+      ["2023.12.05", "강인호의 이기철 '평가' 현장 목격.", true],
+      ["2024.01.16", "최명희에게 개인 문자 수신: '이 일에 끼지 마세요.'", true],
+      ["2026.06.05", "심판 출석 (오늘)"],
+    ],
+    qa:[
+      {q:"복도에서 들은 대화를 정확히 기억하나?", a:"박 회장님이 '이기철 씨는 이번에 정리합시다'라고 하셨고, 소장님이 '알겠습니다'라고 했습니다. 2023년 11월 28일, 퇴근하려고 복도를 지나가다 들었습니다."},
+      {q:"강인호 감사의 평가 현장에서 무엇을 봤나?", a:"강 감사님이 초소 앞에 5분 정도 서 계셨는데, 이기철 선배는 안쪽에서 전화받고 계셨습니다. 메모판에 뭔가 빠르게 적으시고 가셨는데, 선배가 뭘 잘못한 건 못 봤습니다."},
+      {q:"최명희 소장에게 받은 문자 내용은?", a:"'김 씨, 이 일에는 끼지 마세요. 본인 계약 생각해야죠.' 정확히 이 내용이었습니다. 그 문자 덕분에 오히려 나와야겠다고 결심했습니다."},
+    ],
+    scores:{"recognize|reject":2, "recognize|recognize":0, "reject|reject":0, "reject|recognize":-1},
+    epilogue:{
+      revealed:"증언과 문자 메시지가 함께 공개되면서 김동현의 증언에 신뢰도가 더해졌다. 그는 증언 이후 자신의 계약 갱신에 대한 불안감을 안고 살아갔다.",
+      hidden:"문자 메시지는 알려지지 않았다. 김동현은 조용히 자신의 계약 갱신 시기를 기다렸다."
+    },
+    cards:[
+      {round:2, kind:"claim", exhibit:"甲제4호증", title:"박동수 발언 진술서", docNo:"진술-2024-002", date:"2024.06.15",
+        body:"김동현 자필 진술서. '2023년 11월 28일 오후 5시 45분경, 관리동 2층 복도에서 박동수 회장이 최명희 소장에게 이기철 씨는 이번에 정리합시다라고 말하는 것을 명확히 들었음.' 서명 첨부.",
+        note:"보복성 비갱신을 입증하는 핵심 증언이다."},
+      {round:3, kind:"view", exhibit:"甲제5호증", title:"평가일 경위서", docNo:"경위-2024-003", date:"2024.06.15",
+        body:"김동현 작성 경위서. '2023년 12월 5일 14:30경, 강인호 감사가 경비초소 앞에 5분간 위치하며 이기철 씨가 내부 전화 응대 중인 상태에서 평가표에 기재한 뒤 이동함. 이기철 씨는 평가자의 방문을 인지하지 못함.'",
+        note:"이기철이 평가 사실을 몰랐다는 주장을 뒷받침하는 현장 목격 기록이다."},
+      {round:4, exhibit:"甲제6호증", title:"최명희 소장 개인 문자 메시지", docNo:"문자-2024-0116", date:"2024.01.16",
+        body:"최명희 → 김동현 전송 문자: '김 씨, 이 일에는 끼지 마세요. 본인 계약 생각해야죠.' 전송 시각 21:14. 이기철 갱신 불가 통보 다음 날.",
+        note:"증인을 압박한 정황이며 증거인멸 시도로 해석될 수 있다."},
+    ] },
+
+  { id:"jms", side:"근로자측", seat:"근로자측 입주민 증인", name:"정미선", org:"입주민 (전 입주자대표)", age:58,
+    stance:"진실은 반드시 밝혀져야 합니다. 저는 본 것을 말할 뿐입니다.",
+    background:"1968년생. 이 아파트 입주민으로 18년째 살고 있다. 2020~2022년 입주자대표회의 위원으로 활동했다. 그 시절 이기철을 여러 번 가까이서 지켜봤다. 2022년 박동수가 회장이 된 뒤 분위기가 달라지는 것도 느꼈다. 박동수가 조경 공사를 특정 업체에 계속 맡기는 것을 이상하게 생각했고, 그 업체가 처남 소유라는 사실을 나중에 알았다. 이기철이 그것을 문제 삼았을 때 속으로 응원했고, 나가게 됐을 때 가만히 있을 수 없었다.",
+    account:"이기철 씨가 갱신이 안 된다는 이야기를 들었을 때 제 귀를 의심했습니다. 8년 동안 이 아파트를 위해 일한 분인데, 평가 점수가 42점이라고요? 저는 박 회장이 처음부터 이기철 씨를 내보내려 했다고 생각합니다. 이유는 알고 있습니다.",
+    relations:"이기철 — 8년을 지켜본 사람. 진심으로 억울하다고 생각한다.\n김동현 — 이기철을 도우려는 마음은 알지만 두려워하는 것이 느껴진다.\n박동수 — 그가 관리비를 어떻게 다루는지 직접 회의에서 봤다.\n최명희 — 지시를 따른 것뿐이라 하겠지만, 그게 더 나쁜 것일 수 있다.\n강인호 — 박 회장과 밥을 같이 먹더니 갑자기 평가를 설계했다.",
+    secret:"2022년 12월 입주자대표회의에서 박동수가 '관리비에 딴지 거는 사람은 오래 못 간다'고 발언했다. 그리고 조경 업체가 박동수 처남 소유라는 사실을 확인했다.",
+    goal:["박동수 회장의 보복성 비갱신 사실을 밝혀 이기철이 정당한 보상을 받도록 하는 것."],
+    timeline:[
+      ["2006.03", "○○아파트 입주"],
+      ["2020.01~2022.03", "입주자대표회의 위원 활동"],
+      ["2022.12.15", "입주자대표회의 참관 — 박동수 발언 청취.", true],
+      ["2023.01", "조경 업체가 박동수 처남 소유임을 확인.", true],
+      ["2024.03", "이기철이 떠나는 날 직접 배웅"],
+      ["2026.06.05", "재심 심판 참석 (오늘)"],
+    ],
+    qa:[
+      {q:"2022년 12월 회의에서 박동수가 한 말을 정확히 기억하나?", a:"'관리비에 딴지 거는 사람은 오래 못 간다'고 했습니다. 그 자리에 다른 위원들도 있었습니다."},
+      {q:"강인호 감사가 박동수와 함께 식사한 것을 어떻게 아나?", a:"2023년 11월 초, 아파트 주변 식당에서 제가 직접 봤습니다. 그 직후 경비원 평가 실시 공고가 붙었습니다."},
+      {q:"조경 업체가 처남 소유라는 것을 어떻게 확인했나?", a:"해당 업체 사업자등록증을 업체 측에서 직접 받아봤고, 대표자 성명이 박 회장과 같은 성씨에 가족관계가 확인됩니다."},
+    ],
+    scores:{"recognize|reject":2, "recognize|recognize":0, "reject|reject":0, "reject|recognize":-1},
+    epilogue:{
+      revealed:"처남 업체 사실이 공개되면서 박동수의 비갱신 동기가 더욱 분명해졌다. 별도의 관리비 관련 조사가 시작됐다.",
+      hidden:"조경 업체 의혹은 이번 심판에서 드러나지 않았다. 정미선은 별도로 감사원에 신고하기로 결심했다."
+    },
+    cards:[
+      {round:2, kind:"view", exhibit:"甲제7호증", title:"이기철 칭찬 민원 기록 및 입대위 활동 기록", docNo:"민원-2020-2023", date:"2020.03~2023.11",
+        body:"입주민 23명이 제출한 이기철 관련 긍정 민원 목록. 택배 보관, 노인 부축, 야간 순찰 강화 요청 이행 등. 단 한 건의 불만 민원도 없음.\n정미선의 2020~2022 위원 활동 기록 — 회의 참석 16회, 이기철 관련 민원 처리 기록 4건 포함.",
+        note:"8년간 축적된 실제 업무 평판과 42점이라는 평가 점수가 극명하게 충돌한다."},
+      {round:3, kind:"view", exhibit:"甲제8호증", title:"입주자대표회의 회의록 (2022.12)", docNo:"회의록-2022-1215", date:"2022.12.15",
+        body:"2022년 12월 15일 정기회의록. 5번 항목: 박동수 발언 요지 '관리 관련 외부 민원 제기자에 대해 엄중 대처 방침 수립' 기재. 참석자 6명 서명.",
+        note:"발언 내용이 공문서에도 일부 남아 있다."},
+      {round:4, exhibit:"甲제9호증", title:"조경 업체 사업자등록증 및 관리비 집행 내역", docNo:"사업자-2022", date:"2022.09~10",
+        body:"○○조경 사업자등록증 — 대표자: 박동혁(박동수 처남). 2022년 9~10월 조경 공사 대금 1,400만 원 집행 내역. 견적서 없이 수의계약 처리됨.\n정미선 메모: '박동수 회장이 이기철 씨의 의혹 제기를 알고 있었다면, 갱신 거절의 진짜 이유가 여기 있다.'",
+        note:"이기철이 문제 삼은 바로 그 업체가 박동수 처남 소유라는 사실이 확인되는 결정적 증거다."},
+    ] },
+
+  { id:"pds", side:"사측", seat:"사측 의사결정자", name:"박동수", org:"입주자대표회의 회장", age:62,
+    stance:"절차에 따른 정당한 인사입니다. 평가 결과에 따른 결정이며 감정이 개입할 여지가 없습니다.",
+    background:"1964년생. 전직 공기업 팀장. 2022년 12월 입주자대표회의 회장으로 당선됐다. 당선 직후부터 관리 효율화를 명목으로 경비원 인원 재검토 등을 추진했다. 이기철이 관리비 집행에 이의를 제기했을 때 내부적으로 불쾌감을 표했다. 경비원 평가 제도는 그가 회장이 된 이후 처음 도입한 것이다. 표면적으로는 모든 경비원에게 동등하게 적용됐지만, 이기철만 유일하게 기준 미달 판정을 받았다. 처남이 운영하는 조경 업체에 관련한 의혹이 있다.",
+    account:"이기철 씨는 경비원 업무평가에서 60점 기준에 미달하는 42점을 받았습니다. 이는 관리규약에 따른 절차입니다. 우리 위원회는 모든 경비원에게 동일한 기준을 적용했습니다. 갱신기대권이라는 것은 계약서에 명시된 사항이 아닙니다.",
+    relations:"이기철 — 관리비에 딴지를 걸더니 이제 부당해고라고 한다. 절차는 완벽했다.\n김동현 — 증인으로 나온다고? 계약 갱신을 앞두고 무슨 생각인지.\n정미선 — 전 위원이 왜 외부인으로서 이 사건에 개입하는지 이해할 수 없다.\n최명희 — 내 지시를 잘 따라준 관리소장.\n강인호 — 공정하게 평가를 진행해준 감사.",
+    secret:"조경 공사 업체는 처남이 운영하는 회사다. 이기철이 이 사실을 알고 신고를 준비 중이었다는 첩보를 받았다.",
+    goal:["갱신기대권을 부정하고, 평가 절차의 합법성을 유지해 비갱신 결정을 정당화하는 것.", "관리비 의혹이 수면 위로 오르지 않게 하는 것."],
+    timeline:[
+      ["2022.12.01", "입주자대표회의 회장 취임"],
+      ["2022.11.10", "이기철 관리비 의혹 서면 수령.", true],
+      ["2023.01", "강인호 감사에게 경비원 평가 제도 설계 지시.", true],
+      ["2023.11.20", "강인호와 식사 (경비원 평가 최종 방향 협의).", true],
+      ["2023.11.28", "최명희에게 이기철 비갱신 방침 전달.", true],
+      ["2023.12.05", "경비원 업무평가 시행"],
+      ["2024.01.10", "입주자대표회의 비갱신 결의"],
+      ["2026.06.05", "재심 심판 참석 (오늘)"],
+    ],
+    qa:[
+      {q:"경비원 평가 제도는 왜 이기철 씨 계약 만료 직전에 도입됐나?", a:"회장 취임 후 관리 효율화 방침의 일환입니다. 타이밍은 우연입니다."},
+      {q:"이기철 씨가 제기한 관리비 의혹 서면에 어떻게 대응했나?", a:"적절한 해명을 했습니다. 조경 공사는 정상적인 절차를 거쳤습니다."},
+      {q:"강인호 감사와의 식사가 평가 방향을 사전에 논의한 것이 아닌가?", a:"위원회 업무 협의입니다. 감사는 독립적으로 평가를 진행했습니다."},
+    ],
+    scores:{"recognize|reject":-1, "recognize|recognize":2, "reject|reject":0, "reject|recognize":3},
+    epilogue:{
+      revealed:"처남 업체 의혹이 공개되면서 박동수의 비갱신 동기가 경제적 이해관계와 얽혀 있다는 사실이 드러났다. 위원장직은 유지했지만 별도 감사가 시작됐다.",
+      hidden:"비갱신 결정은 절차 위반 없이 통과됐다. 박동수는 다음 임기 준비를 시작했다."
+    },
+    cards:[
+      {round:2, kind:"view", exhibit:"乙제1호증", title:"경비원 업무평가 지침 및 최종 평가서", docNo:"지침-2023-001", date:"2023.11~12",
+        body:"강인호 설계 평가 지침 — 평가 항목: 근태(20점), 서비스(20점), 안전(20점), 민원처리(20점), 청결(20점). 합격선 60점.\n이기철 최종 평가서: 근태 8, 서비스 6, 안전 10, 민원처리 10, 청결 8 — 합계 42점. '평가 기준 미달로 갱신 부적합' 의견 기재.",
+        note:"공식 기준과 결과가 있다는 것을 보여주려는 목적이다."},
+      {round:3, kind:"view", exhibit:"乙제2호증", title:"입주자대표회의 비갱신 결의문 및 타 경비원 평가 결과", docNo:"결의-2024-001", date:"2024.01.10",
+        body:"2024년 1월 10일 임시회의 결의문. '이기철 경비원 계약 갱신 불가. 사유: 업무평가 기준 미달(42점).' 참석 위원 5명 전원 찬성.\n타 경비원 평가: A 74점, B 71점, C 66점 — 모두 합격선 통과.",
+        note:"공식 결의와 다른 경비원들과의 점수 비교를 함께 제시하여 절차적 합법성을 주장한다."},
+      {round:4, exhibit:"乙제3호증", title:"박동수 → 최명희 지시 이메일", docNo:"이메일-2023-1130", date:"2023.11.30",
+        body:"박동수 → 최명희 이메일. '소장님, 이기철 씨 건은 강 감사님 평가 결과로 처리하면 됩니다. 내년 3월 계약 만료 이후 연장 없는 방향으로 준비해주세요.' 원본 이메일 헤더 포함.",
+        note:"비갱신 지시가 이메일로 남아 있다. 평가 이전에 이미 결론이 정해져 있었다는 증거가 될 수 있다."},
+    ] },
+
+  { id:"cmh", side:"사측", seat:"사측 집행자", name:"최명희", org:"관리소장", age:52,
+    stance:"저는 위원회의 결정을 전달한 것입니다. 하지만 말씀드릴 것이 있습니다.",
+    background:"1974년생. 아파트 관리 업계에서 15년 경력을 가진 관리소장. 2021년부터 이 아파트를 맡았다. 이기철과는 업무 관계가 원만했고, 내심 성실한 직원이라고 생각했다. 박동수 회장 취임 이후 위원회와 관리소 간 긴장이 높아졌다. '이기철 씨는 이번에 정리합시다'라는 말을 들었을 때 당황했지만 거역하기 어려웠다. 갱신 불가 통보를 직접 전달하면서 미안함을 느꼈다. 나중에 이기철이 소송을 낸다는 말을 듣고 자신이 처음 작성한 평가서가 변경된 사실을 알게 됐다.",
+    account:"제가 이기철 씨에게 갱신 불가를 전달한 것은 사실입니다. 위원회의 결정을 전달한 것이고, 저는 그 결정을 만든 당사자가 아닙니다. 다만 저도 처음에는 이기철 씨 평가를 다르게 봤다는 것은 말씀드릴 수 있습니다.",
+    relations:"이기철 — 8년 함께 일한 직원. 속으로는 미안하다.\n김동현 — 그에게 보낸 문자가 문제가 됐다. 잘못된 판단이었다.\n박동수 — 회장의 지시를 따를 수밖에 없었다.\n강인호 — 그가 평가서를 어떻게 다뤘는지 알게 됐을 때 놀랐다.",
+    secret:"처음에 이기철에 대한 평가서를 65점으로 작성했다. 이후 박동수 지시로 강인호가 42점으로 재작성한 것을 알고 있다. 원본 평가서를 삭제하지 않고 보관하고 있다.",
+    goal:["자신의 책임을 최소화하되, 위원회의 부당한 지시까지 덮어쓰는 역할은 거부하고 싶다."],
+    timeline:[
+      ["2021.03", "○○아파트 관리소장 취임"],
+      ["2023.04", "이기철 연간 업무 평가 실시 — 65점 산정.", true],
+      ["2023.11.15", "박동수에게 평가서 65점 보고.", true],
+      ["2023.11.28", "박동수로부터 비갱신 지시 수령"],
+      ["2023.12.05", "강인호 재평가 시행(42점으로 변경) 인지"],
+      ["2024.01.15", "이기철에게 구두 갱신 불가 통보"],
+      ["2024.01.16", "김동현에게 '끼지 말라' 문자 발송.", true],
+      ["2026.06.05", "심판 참석 — 결심을 굳히고 왔다 (오늘)"],
+    ],
+    qa:[
+      {q:"박동수 회장으로부터 비갱신 지시를 받은 경위는?", a:"2023년 11월 28일, 회장님이 복도에서 '이기철 씨는 이번에 정리합시다'라고 했습니다. 저는 그게 지시라고 받아들였습니다."},
+      {q:"처음 작성한 65점 평가서와 강인호의 42점 평가서, 어느 쪽이 실제를 반영하나?", a:"솔직히 말씀드리면, 제가 작성한 65점이 더 실제에 가깝습니다."},
+      {q:"김동현에게 '끼지 말라'는 문자를 보낸 이유는?", a:"분위기가 복잡해질 것 같아 걱정이 됐습니다. 잘못된 판단이었습니다."},
+    ],
+    scores:{"recognize|reject":1, "recognize|recognize":1, "reject|reject":0, "reject|recognize":1},
+    epilogue:{
+      revealed:"원본 65점 평가서가 공개되면서, 최명희가 실제 평가를 더 높게 했다는 사실이 드러났다. 평가서 조작의 책임은 강인호와 박동수에게 향했고, 최명희는 일부 책임을 면했다.",
+      hidden:"65점 평가서는 끝내 아무도 모른 채 넘어갔다. 최명희는 서랍을 열어보며 오래 생각했다."
+    },
+    cards:[
+      {round:2, kind:"view", exhibit:"乙제4호증", title:"이기철 인사파일 및 갱신 불가 통보문", docNo:"인사-lkc-2016-2024", date:"2016.03~2024.01",
+        body:"이기철 재직 기간 전체 인사 파일. 징계 기록 없음. 야간 특근 월평균 3.2회.\n관리소장 평가란: '성실하고 민원 처리 능력 양호.'\n갱신 불가 내용증명 (2024.01.20): '귀하의 근로계약은 2024.03.01 만료될 예정이며, 입주자대표회의 결의에 따라 갱신하지 않음을 통보합니다. 사유: 업무평가 기준 미달.'",
+        note:"최명희 자신이 이기철을 좋게 평가했음이 인사파일에 기록되어 있다. 통보 문서의 사유와 충돌한다."},
+      {round:3, kind:"view", exhibit:"乙제5호증", title:"박동수 회장 지시 이메일 및 관리소장 업무 지침", docNo:"이메일-2023-1130", date:"2023.11.30",
+        body:"박동수 → 최명희 이메일: '소장님, 이기철 씨 건은 강 감사님 평가 결과로 처리하면 됩니다. 내년 3월 계약 만료 이후 연장 없는 방향으로 준비해주세요.'\n관리소장 업무 지침 제7조: '관리소장은 입주자대표회의 회장의 업무 지시를 따르며, 이에 반하는 경우 관리업체에 책임을 귀속한다.'",
+        note:"지시를 따를 수밖에 없었다는 구조적 근거와, 실제 지시 이메일이 함께 있다."},
+      {round:4, exhibit:"乙제6호증", title:"원본 평가서 (65점)", docNo:"평가-원본-lkc", date:"2023.04",
+        body:"최명희가 2023년 4월 작성한 이기철 업무 평가서. 근태 15, 서비스 14, 안전 15, 민원 12, 청결 9 — 합계 65점. 합격선(60점) 초과. 평가자 서명: 최명희.\n메모: '나는 65점을 썼다. 그것이 진실이다.'",
+        note:"강인호의 42점 평가서와 8개월 전 최명희의 65점 평가서. 동일 인물에 대한 두 개의 공식 평가가 존재한다."},
+    ] },
+
+  { id:"kih", side:"사측", seat:"사측 평가자", name:"강인호", org:"입주자대표회의 감사", age:45,
+    stance:"공정한 평가 절차를 따랐습니다. 42점은 이기철 씨의 실제 업무 수행 수준을 반영한 결과입니다.",
+    background:"1981년생. 아파트 입주민으로 2021년부터 감사직을 맡고 있다. 직업은 중소기업 경리 담당. 박동수 회장이 취임한 이후 실질적 영향력이 커졌다. 2023년 1월 박동수 지시로 경비원 평가 제도를 처음 설계했다. 평가 항목을 직접 만들고 채점도 직접 했다. 이기철에게 42점을 주기 전, 자신이 설계한 항목이 공정한지 의심한 적이 있었다. 하지만 박동수 회장과의 관계에서 오는 압박 속에서 서명했다.",
+    account:"평가는 공정하게 진행됐습니다. 제가 설계한 항목은 경비원 업무에 필요한 핵심 요소들입니다. 이기철 씨가 42점을 받은 것은 그의 실제 업무 수행 결과입니다.",
+    relations:"이기철 — 평가 결과를 사실대로 기록했다고 생각한다.\n김동현 — 목격했다고? 그건 그의 해석일 뿐이다.\n정미선 — 식사를 봤다고? 업무 협의다.\n박동수 — 회장의 방침에 따라 공식 절차를 진행한 것이다.\n최명희 — 그의 평가서가 기준 미달이라 별도 평가가 필요했다.",
+    secret:"실제로는 박동수와 식사 자리에서 '이기철만 기준 미달로 만들면 된다'는 취지의 말을 들었다. 항목 배점을 이기철에게 불리하게 설계했다.",
+    goal:["평가 절차의 합법성을 유지하고, 박동수와의 관계에서 발생할 수 있는 불이익을 피하는 것."],
+    timeline:[
+      ["2021.01", "입주자대표회의 감사 취임"],
+      ["2023.01.05", "박동수로부터 경비원 평가 제도 설계 지시 수령.", true],
+      ["2023.11.20", "박동수와 식사 (평가 방향 최종 협의).", true],
+      ["2023.12.05", "이기철 포함 경비원 4명 현장 평가 시행"],
+      ["2023.12.06", "이기철 42점, 타 3명 66~74점 집계"],
+      ["2026.06.05", "재심 심판 참석 (오늘)"],
+    ],
+    qa:[
+      {q:"경비원 평가 항목을 본인이 단독 설계한 이유는?", a:"감사로서 내부 평가 설계는 제 권한입니다. 일반적인 경비원 평가 기준을 참고했습니다."},
+      {q:"이기철과 다른 경비원들 점수 차이가 너무 크지 않나?", a:"평가 결과입니다. 다른 분들은 서비스와 민원 응대에서 높은 점수를 받았지만 이기철 씨는 해당 항목에서 낮게 나왔습니다."},
+      {q:"박동수 회장과의 식사에서 평가 방향을 사전에 논의했나?", a:"업무 협의입니다. 어떤 경비원을 몇 점으로 하자는 구체적 논의는 없었습니다."},
+    ],
+    scores:{"recognize|reject":-2, "recognize|recognize":2, "reject|reject":0, "reject|recognize":3},
+    epilogue:{
+      revealed:"식사 증거와 평가 지시 정황이 공개되면서 강인호의 평가서 공정성에 의문이 제기됐다. 별도 감사 대상이 됐다.",
+      hidden:"평가서 조작 의혹은 제기되지 않았다. 강인호는 다음 임기에도 감사직 연임을 신청했다."
+    },
+    cards:[
+      {round:2, kind:"view", exhibit:"乙제7호증", title:"경비원 업무평가 항목표 및 이기철 현장 관찰 기록", docNo:"항목-2023-001", date:"2023.11.25~12.05",
+        body:"평가 항목 세부 기준 — 근태(20): 지각·조퇴 건수. 서비스(20): 평가자 주관 관찰. 안전(20): 보안장비 점검 여부. 민원처리(20): 접수 민원 해결률. 청결(20): 경비초소 위생 상태.\n현장 관찰 기록(2023.12.05): '14:30~14:35, 경비초소 관찰. 경비원 이기철 내부 전화 응대 중. 외부 방문자 대응 부재. 경비초소 내 일부 물품 정리 미흡.'",
+        note:"서비스 항목이 평가자 주관에 100% 의존한다는 점, 그리고 5분 관찰로 서비스 6점을 매긴 근거가 무엇인지가 핵심 취약점이다."},
+      {round:3, kind:"view", exhibit:"乙제8호증", title:"다른 경비원 평가 결과 비교 및 공정 평가 확인서", docNo:"평가-비교-2023", date:"2023.12.06~10",
+        body:"경비원 A: 74점, 경비원 B: 71점, 경비원 C: 66점 — 세 명 모두 서비스 항목 14점 이상. 이기철의 서비스 항목은 6점.\n공정 평가 확인서(2023.12.10): '본 평가는 사전에 수립된 평가 기준에 따라 독립적이고 공정하게 시행되었음을 확인합니다.' 강인호 서명.",
+        note:"이기철만 서비스 항목 6점인 이유에 대한 설명이 없다. 공정성 확인서가 있지만 실질 내용은 별개 문제다."},
+      {round:4, exhibit:"乙제9호증", title:"박동수와의 식사 영수증 및 평가 설계 지시 정황", docNo:"영수증-2023-1120", date:"2023.11.20",
+        body:"인근 식당 영수증 (2인분, 67,000원). 결제 시각 12:48. 카드 결제 기록에 박동수 카드 말미 확인 가능.\n강인호 개인 메모(재심 심판 전 작성): '박 회장이 식사 자리에서 이기철 씨만 결과가 다르게 나오면 된다고 했다. 나는 그 말대로 항목을 설계했다. 이것이 사실이다.'",
+        note:"평가 설계 직전 박동수와 동석했다는 증거이자, 강인호 자신의 자백 메모가 담긴 결정적 증거다."},
+    ] },
+];
+
+const ALL_CARDS = [
+  ...CHARACTERS.flatMap(c => c.cards.map(card => ({
+    ...card,
+    id: c.id + "-" + card.round,
+    ownerId: c.id,
+    ownerName: c.name,
+  }))),
+  ...NPC_CARDS.map(card => ({
+    ...card,
+    id: card.ownerId + "-" + card.round,
+  })),
+];
+
+const ISSUE_MATRIX = [
+  {topic:"① 갱신기대권",
+    legal:"기간제 근로계약이 반복 갱신되어 그 정한 기간이 단순한 형식에 불과한 경우, 또는 근로자에게 갱신에 대한 정당한 기대권이 인정되는 경우에는 갱신 거절이 부당해고에 해당한다(대법원 2011다4282). 기대권 형성 여부는 계약 내용·갱신 관행·구두 약속·다른 직원 처우 등을 종합해 판단한다.",
+    employer:"계약서에 자동연장 조항 없음. 관리규약 제14조가 '평가 결과에 따라 갱신 여부를 결정할 수 있다'고 규정하고 있어 갱신기대권이 성립하지 않는다.", union:"8년 4차례 갱신, 전임 회장의 구두 약속, 갱신 시 별도 심사 절차 없음 — 이 세 가지가 갱신기대권 성립의 근거다.", truth:"대법원은 계약서 조항보다 실제 관행과 당사자들의 신뢰 관계를 더 중시한다. 8년간 4차례 갱신, 별도 심사 없는 갱신 방식은 사실상 자동연장에 준하는 관행을 형성했다고 볼 여지가 충분하다."},
+  {topic:"② 평가 절차의 공정성",
+    legal:"갱신기대권이 인정되는 경우, 갱신거절에는 사회통념상 상당한 이유가 있어야 한다. 평가가 근거가 되려면 평가 기준·절차의 공정성, 피평가자에 대한 사전 고지, 소명 기회 부여 등이 갖춰져야 한다(관리규약 제15조).",
+    employer:"공식 평가 기준(100점 만점, 합격선 60점)에 따라 시행된 평가이며, 결과는 객관적이다.", union:"이기철은 평가 실시 사실을 사전에 통보받지 못했다. 평가자가 단독으로 항목을 설계하고 채점했으며, 5분 관찰로 서비스 6점을 매긴 것은 주관적 판단에 불과하다.", truth:"관리규약 제15조의 '사전 고지' 의무가 위반됐다. 최명희의 65점 원본 평가서와 강인호의 42점 재평가서가 동시에 존재한다는 사실은 평가 과정의 공정성에 심각한 의문을 제기한다."},
+  {topic:"③ 보복성 비갱신 (관리비 제기와의 연관성)",
+    legal:"근로자의 정당한 권리 행사(관리비 이의제기) 이후 이루어진 불이익 처분이 해당 행사에 대한 보복임이 시간적 근접성·정황 증거로 인정되면, 갱신기대권 침해의 부당성이 강화된다.",
+    employer:"관리비 의혹 제기와 비갱신 결정 사이에 약 1년의 시간차가 있으며, 직접적 인과관계가 없다. 비갱신은 평가 점수에 따른 것이다.", union:"이기철이 서면을 제출한 직후 박동수 회장의 태도가 달라졌고, 그 직후 처음으로 평가 제도가 도입됐다. 시간적 근접성과 평가 도입의 동기가 보복을 강하게 시사한다.", truth:"박동수의 지시 이메일, 강인호와의 식사 정황, 처남 조경 업체 의혹 — 세 가지가 겹칠 때 보복성 비갱신의 심증이 굳어진다. 관리비 신고 준비 사실(이기철의 비밀)까지 공개되면 동기가 더욱 명확해진다."},
+  {topic:"④ 원본 평가서와 최종 평가서의 차이",
+    legal:"복수의 공식 평가서가 존재하는 경우, 최종 제출된 평가서만을 기준으로 갱신거절의 합리성을 판단하기 어렵다. 어떤 과정으로 점수가 바뀌었는지가 판정의 핵심 사실관계가 된다.",
+    employer:"강인호 감사가 공식 평가 지침에 따라 실시한 평가서(42점)가 공식 문서다.", union:"최명희 소장이 2023년 4월 이미 65점 평가서를 작성해 박동수에게 보고했다. 이후 강인호가 42점으로 재평가한 것은 사실상 점수를 조작한 것이다.", truth:"두 평가서가 모두 공개된다면, 갱신거절의 공식 사유(42점 미달)는 신뢰성을 잃는다. 평가서 조작이 인정되면 갱신거절 사유는 후처리에 불과하고, 갱신거절의 실질적 동기는 다른 곳에 있었다는 결론으로 이어진다."},
+];
+
+const KEY_HIDDEN_CARDS = ["lkc-4","jms-4","cmh-4","kih-4"];
+
+const VOTE_AXES = [
+  { key:"expectation", label:"쟁점 1", title:"이기철의 갱신기대권이 인정되는가?",
+    options:[
+      {v:"reject", t:"불인정 — 기간제 계약 만료에 불과", d:"4차례 갱신의 관행이 있더라도 명시적 갱신 약정이 없는 이상 갱신기대권이 성립하기 어렵다."},
+      {v:"recognize", t:"인정 — 정당한 갱신 기대 형성", d:"8년 4차례 갱신 관행과 전임 회장의 약속으로 갱신기대권이 성립한다."},
+    ]},
+  { key:"reason", label:"쟁점 2", title:"관리위원회의 갱신 거절 사유(업무평가 점수)는 정당한가?",
+    options:[
+      {v:"reject", t:"정당하지 않다 — 평가 조작·보복 의혹", d:"42점 평가서는 절차적 공정성이 없으며 보복성 비갱신의 구실에 불과하다."},
+      {v:"recognize", t:"정당하다 — 합격선 미달", d:"관리규약에 근거한 평가에서 60점 기준에 미달했으므로 갱신거절에 합리적 이유가 있다."},
+    ]},
+];
+
+const ENDINGS = {
+  "recognize|reject": {
+    stamp:"실제 재심 판정과 일치",
+    headline:"재심 인용 — 부당해고 인정",
+    body:"중앙노동위원회는 이기철의 갱신기대권을 인정하고, 관리위원회의 갱신 거절 사유에 정당성이 없다고 판단했습니다.\n\n8년간 4차례 갱신된 관행, 전임 회장의 구두 약속, 갱신 시 별도 심사 절차의 부재를 종합하면 갱신기대권은 성립합니다. 강인호가 주관한 평가서는 사전 고지 없이 시행됐고, 단독 채점자의 주관적 항목 배점으로 공정성을 담보하지 못합니다. 박동수 회장이 관리비 의혹 제기 직후 비갱신을 지시한 정황은 보복성 해고를 강하게 시사합니다. 이기철에게 원직복직 또는 해고기간 임금 상당액 지급을 명합니다.",
+    lesson:"HR 실무 시사점: 갱신기대권은 계약서 문구가 아닌 '실제 관행'으로 형성됩니다. 기간제 직원을 매번 갱신해왔다면, 그것이 이미 갱신기대권의 근거가 될 수 있습니다. 갱신거절을 하려면 평가 시스템을 미리, 투명하게, 공정하게 갖춰야 합니다."
+  },
+  "recognize|recognize": {
+    stamp:"가상 결말 — 기대권 인정, 사유 정당",
+    headline:"재심 기각 — 갱신기대권은 있으나 거절 사유 정당",
+    body:"갱신기대권의 존재를 인정하면서도, 경비원 업무평가 기준과 절차에 위법성이 없다고 보았습니다. 42점이라는 점수는 합격선(60점)에 명백히 미달하고, 강인호의 평가 항목은 관리규약에 근거합니다. 박동수-이기철 간 갈등은 사적 감정이 아닌 업무 효율성 문제로 볼 여지가 있습니다. 이기철의 청구를 기각합니다.",
+    lesson:"HR 실무 시사점: 갱신기대권이 성립하더라도 정당한 평가 시스템이 갖춰져 있고 절차적 공정성이 확보된다면 갱신거절이 인정될 수 있습니다. 평가 제도의 투명성이 핵심입니다."
+  },
+  "reject|reject": {
+    stamp:"가상 결말 — 기대권 없으나 평가 절차 위반",
+    headline:"일부 인정 — 갱신기대권 불인정, 평가 절차 위반 확인",
+    body:"기간제 근로계약의 특성상 갱신기대권이 성립하기 어렵다고 보았으나, 평가서 작성 과정의 절차적 하자를 지적했습니다. 관리규약 제15조의 '사전 고지' 의무가 이행되지 않았고, 단독 채점자에 의한 주관적 항목 평가는 공정성 요건을 충족하지 못합니다. 부당해고가 아닌 절차 위반에 해당하므로 위자료적 성격의 금전 지급을 권고합니다.",
+    lesson:"HR 실무 시사점: 갱신기대권이 없더라도 평가 절차가 불공정하면 별도의 법적 책임이 발생할 수 있습니다. 평가는 항상 사전 고지, 공정한 절차, 소명 기회를 갖춰야 합니다."
+  },
+  "reject|recognize": {
+    stamp:"가상 결말 — 초심 유지",
+    headline:"재심 기각 — 초심 그대로 확정",
+    body:"이기철의 청구를 기각합니다. 기간제 근로계약은 계약 기간 만료로 종료되는 것이 원칙이며, 4차례 갱신의 관행만으로 갱신기대권이 형성되었다고 볼 수 없습니다. 강인호의 평가는 사전 공지된 기준에 따라 시행된 것이며, 42점이라는 결과는 이기철의 실제 업무수행 수준을 반영합니다. 초심 기각을 유지합니다.",
+    lesson:"HR 실무 시사점: 기간제 계약은 기간 만료가 원칙이지만, 반복 갱신의 관행은 예상치 못한 법적 의무를 만들 수 있습니다. 갱신 여부를 명확히 하고, 평가 기준을 미리 공지하는 것이 분쟁 예방의 핵심입니다."
+  },
+};
+
+const FULL_STORY = [
+  { name:"이기철 — 순찰 메모 노트",
+    body:"이기철이 경비 자리를 얻은 것은 마흔 넘어 부도난 회사에서 나온 뒤, 건설 현장에서 10년을 버틴 다음이었다. 처음에는 체면이 좀 구겼다. 하지만 주민들 이름을 외우고, 야간 순찰에서 창문 잠금을 확인하고, 노인 주민의 짐을 들어주는 일이 쌓이면서 스스로 이 일이 자랑스러워졌다.\n\n2022년 가을, 조경 공사 대금 서류를 우연히 보게 됐다. 견적서 없이 1,400만 원이 지급된 흔적이었다. 조용히 내부에서 해결되길 바라며 서면으로 제기했다. 박동수 회장의 표정이 달라진 건 그 다음 날부터였다.\n\n갱신 불가 통보를 받은 날, 최명희 소장은 눈을 마주치지 않았다. 이기철은 경비초소 안을 한 번 둘러보고 나왔다. 8년치 순찰 메모 노트가 담긴 가방을 들고. 관리비 신고서는 아직 서랍에 있다." },
+  { name:"김동현 — 복도에서 들은 말",
+    body:"김동현은 원래 주의 깊게 보지 않는 사람이다. 하지만 복도에서 그 말을 들은 순간 — '이기철 씨는 이번에 정리합시다' — 귀가 멈췄다. 최명희 소장은 '알겠습니다'라고 했고, 둘 다 자신을 봤지만 아무도 멈추지 않았다.\n\n그날 밤 당직을 서면서 김동현은 오래 생각했다. 1년 반 뒤 자신도 갱신이다. 증언하면 어떻게 될까. 소장에게서 문자가 왔다. '이 일에는 끼지 마세요.' 그 문자가 오히려 결정을 만들었다. 두려움에 쓰는 글은 두려움을 이기는 글보다 오래 남는다. 김동현은 진술서를 썼다." },
+  { name:"정미선 — 조경 업체의 이름",
+    body:"정미선은 아파트 주민 중에서 가장 오래 이 아파트를 지켜본 사람 중 하나다. 2020년부터 2년간 입주자대표로 일하면서 이기철이 민원 처리하는 방식, 새벽에 승강기 고장을 혼자 처리하는 모습을 가까이서 봤다.\n\n박동수가 회장이 된 뒤, 특정 조경 업체가 계속 수의계약을 받는 것을 이상하게 생각했다. 나중에 그 업체 대표자가 박동수 처남이라는 걸 알았다. 이기철이 그것을 문제 삼았다는 말을 듣고 모든 게 연결됐다. 정미선은 회의록을 꺼냈다. '관리비에 딴지 거는 사람은 오래 못 간다' — 그 말이 저장된 종이를." },
+  { name:"박동수 — 경영과 이해관계",
+    body:"박동수는 공기업 팀장 출신이다. 퇴직 후 아파트 회장 자리를 맡으면서 자신의 조직 운영 방식을 그대로 가져왔다. 위계, 결재, 통제. 처남 업체에 조경 공사를 맡기는 것은 그에게 별로 대단한 일이 아니었다. 늘 해오던 방식이었다.\n\n이기철의 서면이 올라왔을 때, 박동수는 잠시 멈췄다. 경비원이 관리비에 이의를 제기한 것은 처음 있는 일이었다. 신고가 들어가면 처남 업체가 노출된다. 박동수는 조용히 해결책을 찾았다. 그것이 강인호에게 전화한 날이었다." },
+  { name:"최명희 — 65점의 종이",
+    body:"최명희는 15년간 관리소장으로 일하면서 규칙과 지시 사이에서 버텨왔다. 이기철 평가서를 65점으로 처음 썼을 때, 그것이 사실에 가장 가깝다고 생각했다. 그 종이를 박동수에게 보고했을 때, 회장은 말이 없었다.\n\n강인호가 '별도 평가'를 진행한다는 말을 듣고 최명희는 그게 무엇을 의미하는지 알았다. 하지만 말하지 않았다. 관리소장의 계약도 입주자대표회의가 결정한다. 그 계산이 침묵을 만들었다. 원본 평가서를 삭제하지 않은 것은 그나마 남은 한 가지 결심이었다." },
+  { name:"강인호 — 42점을 쓴 손",
+    body:"강인호는 평가 항목을 설계하면서 '서비스' 항목을 일부러 주관적으로 남겼다. 수치로 잡히지 않는 항목은 평가자 재량이 크다. 박동수 회장과의 식사에서 오간 말 — '이기철만 결과가 다르게 나오면 된다' — 은 명시적이지 않았지만 분명히 들었다.\n\n경비초소 앞에 5분 서 있으면서 이기철이 전화받는 모습을 봤다. 42점이라는 숫자를 썼다. 그 숫자가 한 사람의 8년을 끝냈다. 강인호는 그날 밤 잠을 이루지 못했다. 하지만 다음 날 제출서에 서명했다." },
+];
+
+/* ============================================================
+   2. 저장소 어댑터 — db 캡차빌리티(있으면 실시간 동기화) / 없으면 로컬 단일기기 모드
+   ============================================================ */
+function makeLocalStore(){
+  let state = {phase:"casting", phaseEndsAt: Date.now()+DURATIONS.casting*1000};
+  const players = new Map(); const votes = new Map(); const claims = new Map(); const tokenUse = new Map(); const ready = new Set(); const revealed = new Map(); const npc = new Set();
+  const stateCbs=[], playerCbs=[], voteCbs=[], claimCbs=[], tokenCbs=[], readyCbs=[], revealCbs=[], npcCbs=[];
+  return {
+    isLocal:true,
+    onState(cb){stateCbs.push(cb); cb(state); return ()=>{};},
+    setPhase(phase){state={phase, phaseEndsAt: Date.now()+(DURATIONS[phase]||0)*1000}; stateCbs.forEach(cb=>cb(state));},
+    getState(){return state;},
+    onPlayers(cb){playerCbs.push(cb); cb(players); return ()=>{};},
+    claimRole(roleId,name,playerName){ if(!players.has(roleId)){ players.set(roleId,{name,playerName:playerName||""}); playerCbs.forEach(cb=>cb(players)); return true;} return players.get(roleId).name===name;},
+    releaseRole(roleId){ players.delete(roleId); playerCbs.forEach(cb=>cb(players)); },
+    onVotes(cb){voteCbs.push(cb); cb(votes); return ()=>{};},
+    castVote(roleId,vote){votes.set(roleId,vote); voteCbs.forEach(cb=>cb(votes));},
+    onClaims(cb){claimCbs.push(cb); cb(claims); return ()=>{};},
+    claimCard(cardId,roleId,phase){
+      if(claims.has(cardId)) return false;
+      const key = phase+"_"+roleId; const used = tokenUse.get(key)?.count||0;
+      if(used >= TOKENS_PER_ROUND) return false;
+      claims.set(cardId,{by:roleId}); claimCbs.forEach(cb=>cb(claims));
+      tokenUse.set(key,{count:used+1}); tokenCbs.forEach(cb=>cb(tokenUse));
+      return true;
+    },
+    onTokenUse(cb){tokenCbs.push(cb); cb(tokenUse); return ()=>{};},
+    spendToken(phase,roleId){
+      const key = phase+"_"+roleId; const used = tokenUse.get(key)?.count||0;
+      if(used >= TOKENS_PER_ROUND) return false;
+      tokenUse.set(key,{count:used+1}); tokenCbs.forEach(cb=>cb(tokenUse));
+      return true;
+    },
+    onReady(cb){readyCbs.push(cb); cb(ready); return ()=>{};},
+    setReady(key,isReady){ if(isReady) ready.add(key); else ready.delete(key); readyCbs.forEach(cb=>cb(ready)); },
+    onRevealed(cb){revealCbs.push(cb); cb(revealed); return ()=>{};},
+    revealCard(cardId, roleId){ revealed.set(cardId,{by:roleId, at:new Date().toISOString()}); revealCbs.forEach(cb=>cb(revealed)); },
+    onNpc(cb){npcCbs.push(cb); cb(npc); return ()=>{};},
+    setNpc(roleId,isNpc){ if(isNpc) npc.add(roleId); else npc.delete(roleId); npcCbs.forEach(cb=>cb(npc)); },
+  };
+}
+function makeDbStore(db, roomId){
+  // 조(room)별로 경로를 분리 — 같은 코드를 쓴 조끼리만 진행상황을 공유
+  const stateRef = db.doc(`rooms/${roomId}`);
+  const playersCol = db.collection(`rooms/${roomId}/players`);
+  const votesCol = db.collection(`rooms/${roomId}/votes`);
+  const claimsCol = db.collection(`rooms/${roomId}/claims`);
+  const readyCol = db.collection(`rooms/${roomId}/ready`);
+  const revealedCol = db.collection(`rooms/${roomId}/revealed`);
+  const npcCol = db.collection(`rooms/${roomId}/npc`);
+  const tokenCol = db.collection(`rooms/${roomId}/tokenUse`);
+  return {
+    isLocal:false,
+    onState(cb){
+      return stateRef.onSnapshot(async (snap)=>{
+        if(!snap.exists){
+          try{ await stateRef.set({phase:"casting", phaseEndsAt:new Date(Date.now()+DURATIONS.casting*1000).toISOString()}); }catch(e){}
+          return;
+        }
+        cb(snap.data());
+      }, ()=>{});
+    },
+    async setPhase(phase){
+      try{ await stateRef.set({phase, phaseEndsAt:new Date(Date.now()+(DURATIONS[phase]||0)*1000).toISOString()}); }catch(e){}
+    },
+    onPlayers(cb){
+      return playersCol.onSnapshot(qs=>{
+        const m=new Map(); qs.docs.forEach(d=>m.set(d.id,d.data())); cb(m);
+      }, ()=>{});
+    },
+    async claimRole(roleId,name,playerName){
+      // get-then-set이 아니라 트랜잭션으로 — 두 사람이 같은 역할을 동시에 누르면 get-then-set은
+      // 둘 다 "비어있음"을 보고 둘 다 성공해버리는 경합이 생길 수 있어(그 결과 myRole이 같은 값으로
+      // 겹치는 게 이후 카드 공개 권한 오작동의 원인이 될 수 있음), 트랜잭션으로 원자적으로 처리한다.
+      const ref = playersCol.doc(roleId);
+      try{
+        return await db.runTransaction(async tx=>{
+          const snap = await tx.get(ref);
+          if(snap.exists) return snap.data().name===name;
+          tx.set(ref, {name, playerName:playerName||"", at:new Date().toISOString()});
+          return true;
+        });
+      }catch(e){ return false; }
+    },
+    async releaseRole(roleId){ try{ await playersCol.doc(roleId).delete(); }catch(e){} },
+    onVotes(cb){
+      return votesCol.onSnapshot(qs=>{
+        const m=new Map(); qs.docs.forEach(d=>m.set(d.id,d.data())); cb(m);
+      }, ()=>{});
+    },
+    async castVote(roleId,vote){ try{ await votesCol.doc(roleId).set({...vote, at:new Date().toISOString()}); }catch(e){} },
+    onClaims(cb){
+      return claimsCol.onSnapshot(qs=>{
+        const m=new Map(); qs.docs.forEach(d=>m.set(d.id,d.data())); cb(m);
+      }, ()=>{});
+    },
+    async claimCard(cardId, roleId, phase){
+      // 마찬가지로 트랜잭션 — get-then-set 경합이 있으면 동시 클릭 시 두 명이 모두
+      // "가져가기 성공"으로 응답받아 카드가 자신 것이라 착각하는 문제가 생긴다.
+      // 확보도 토큰을 쓰는 행동이라, 같은 트랜잭션 안에서 토큰 잔여량도 함께 체크·차감한다.
+      const ref = claimsCol.doc(cardId);
+      const tokenRef = tokenCol.doc(tokenKey(phase, roleId));
+      try{
+        return await db.runTransaction(async tx=>{
+          const snap = await tx.get(ref);
+          if(snap.exists) return false; // 이미 다른 사람이 가져감
+          const tokenSnap = await tx.get(tokenRef);
+          const used = tokenSnap.exists ? (tokenSnap.data().count||0) : 0;
+          if(used >= TOKENS_PER_ROUND) return false; // 이번 라운드 토큰 소진
+          tx.set(ref, {by:roleId, at:new Date().toISOString()});
+          tx.set(tokenRef, {count: used+1}, {merge:true});
+          return true;
+        });
+      }catch(e){ return false; }
+    },
+    onTokenUse(cb){
+      return tokenCol.onSnapshot(qs=>{
+        const m=new Map(); qs.docs.forEach(d=>m.set(d.id, d.data())); cb(m);
+      }, ()=>{});
+    },
+    async spendToken(phase, roleId){
+      // view형/타인 공개 카드를 열람할 때 쓰는 순수 토큰 소모(소유권 없음) — claimCard와 동일한 트랜잭션 패턴
+      const tokenRef = tokenCol.doc(tokenKey(phase, roleId));
+      try{
+        return await db.runTransaction(async tx=>{
+          const snap = await tx.get(tokenRef);
+          const used = snap.exists ? (snap.data().count||0) : 0;
+          if(used >= TOKENS_PER_ROUND) return false;
+          tx.set(tokenRef, {count: used+1}, {merge:true});
+          return true;
+        });
+      }catch(e){ return false; }
+    },
+    onReady(cb){
+      return readyCol.onSnapshot(qs=>{
+        const s=new Set(); qs.docs.forEach(d=>s.add(d.id)); cb(s);
+      }, ()=>{});
+    },
+    async setReady(key, isReady){
+      try{
+        if(isReady) await readyCol.doc(key).set({at:new Date().toISOString()});
+        else await readyCol.doc(key).delete();
+      }catch(e){}
+    },
+    onRevealed(cb){
+      return revealedCol.onSnapshot(qs=>{
+        const m=new Map(); qs.docs.forEach(d=>m.set(d.id, d.data())); cb(m);
+      }, ()=>{});
+    },
+    async revealCard(cardId, roleId){ try{ await revealedCol.doc(cardId).set({by:roleId, at:new Date().toISOString()}); }catch(e){} },
+    onNpc(cb){
+      return npcCol.onSnapshot(qs=>{
+        const s=new Set(); qs.docs.forEach(d=>s.add(d.id)); cb(s);
+      }, ()=>{});
+    },
+    async setNpc(roleId, isNpc){
+      try{
+        if(isNpc) await npcCol.doc(roleId).set({at:new Date().toISOString()});
+        else await npcCol.doc(roleId).delete();
+      }catch(e){}
+    },
+  };
+}
+
+/* ============================================================
+   3. 앱 상태 & 렌더
+   ============================================================ */
+const app = document.getElementById("app");
+let dbHandle = null;   // Firebase Firestore 인스턴스(초기화 실패 시 null → 로컬 단독 모드로 폴백)
+
+// Firebase 프로젝트 설정 — 이 프로젝트는 "노동미스터리" 파티게임 전용, 접근 제한 없는 테스트 모드 DB.
+const firebaseConfig = {
+  apiKey: "AIzaSyB3Wmj8_Q1fBWJAlFBtH5jIJVxTNh4_Ydw",
+  authDomain: "gen-lang-client-0482079303.firebaseapp.com",
+  projectId: "gen-lang-client-0482079303",
+  storageBucket: "gen-lang-client-0482079303.firebasestorage.app",
+  messagingSenderId: "32922324860",
+  appId: "1:32922324860:web:4fd4d93dfa28f82b491ef9",
+  measurementId: "G-0J1F124650"
+};
+let store = null;      // 현재 조(room)에 연결된 스토어 — 방 선택 전엔 null
+let myRoom = localStorage.getItem("lm_room") || null;
+let myName = localStorage.getItem("lm_playername") || ""; // 참가자 실명 — 역할 로스터에 표시용
+let myRole = null; // 역할은 방(room)마다 따로 저장 — connectStore()에서 room-scoped 키로 읽어옴
+let sharedState = {phase:"casting", phaseEndsAt: Date.now()+DURATIONS.casting*1000};
+let players = new Map();
+let votes = new Map();
+let claims = new Map(); // 각 카드를 먼저 가져간 사람(roleId) — cardId -> {by}
+let tokenUse = new Map(); // 라운드별 토큰 사용량 — `${phase}_${roleId}` -> {count}
+let lastTokenSig = ""; // tokenUse 변경 감지용 — claims/votes와 달리 같은 문서의 count 필드만 바뀌므로 size 비교로는 안 잡힘
+let readySet = new Set(); // "다음 단계 준비완료"를 누른 사람들 — 키는 `${phase}_${roleId}`
+let revealedSet = new Map(); // "공개하기"를 눌러 전원에게 드러난 카드 — cardId -> {by, at}
+let revealNotifyReady = false; // 방 접속 후 첫 onRevealed 스냅샷(기존 공개 내역)은 조용히 반영, 그 이후의 변화만 푸시 알림
+let npcSet = new Set(); // NPC로 돌리기로 한 역할 id들 — 인원이 6명이 안 될 때 남는 역할을 채움
+function castingFilled(){ return players.size + npcSet.size >= CHARACTERS.length; } // 6개 역할이 전부 "실제 참가자" 또는 "NPC"로 채워졌는지
+// 2026-09-23: 라운드별 최소 채택 요구(구 EVIDENCE_MIN_CLAIMS)는 폐지 — 다 안 써도 페널티 없음.
+// 대신 확보(가져가기)·열람 행동 자체를 라운드당 토큰 2개로 제한하는 상한선만 둔다(요청 반영).
+const TOKENS_PER_ROUND = 2;
+const EVIDENCE_PHASES = ["round2","round3","round4"];
+function tokenKey(phase, roleId){ return phase+"_"+roleId; }
+function tokensSpent(roleId, phase = sharedState.phase){ return tokenUse.get(tokenKey(phase, roleId))?.count || 0; }
+function myTokensSpent(){ return tokensSpent(myRole); }
+function remainingTokens(roleId = myRole){ return TOKENS_PER_ROUND - tokensSpent(roleId); }
+// 전원이 이번 라운드 토큰을 다 쓰면(더 볼 것도 없다는 뜻) 남은 시간을 기다리지 않고 조기 진행
+function allPlayersUsedAllTokens(){
+  for(const roleId of players.keys()){ if(tokensSpent(roleId) < TOKENS_PER_ROUND) return false; }
+  return true;
+}
+function readyKey(){ return sharedState.phase + "_" + myRole; }
+function readyCountForPhase(){
+  let n=0; readySet.forEach(k=>{ if(k.startsWith(sharedState.phase+"_")) n++; }); return n;
+}
+let myCardsOpen = false; // "내 소유 카드" 팝업 표시 여부
+let rosterOpen = false;  // "관계도(역할 로스터)" 팝업 표시 여부
+let rulingExpanded = false; // 초심 판정서 "판정 이유 전문" 펼침 여부
+let phaseGuideOpen = false;   // 단계 안내 팝업 표시 여부
+let lastSeenGuidePhase = null; // 이미 안내를 본 단계(같은 단계에서 중복으로 자동 표시하지 않기 위함)
+function showPhaseGuideIfNew(){
+  if(!PHASE_GUIDE[sharedState.phase]) return; // result 등 안내가 없는 단계는 건너뜀
+  if(lastSeenGuidePhase === sharedState.phase) return;
+  lastSeenGuidePhase = sharedState.phase;
+  phaseGuideOpen = true;
+}
+let myOpened = new Set(); // 내가 이번 판에 펼쳐본(탭한) 카드 id들 — 다시 봐도 접힌 채로 안 보이게, 방+역할별로 localStorage에 보관
+let paidOpenSet = new Set(); // 토큰 내고 지금 펼쳐둔 공용/타인 공개 카드 id들 — 세션 메모리에만 유지(새로고침하면 초기화, 다시 보려면 재결제)
+
+function loadMyOpened(){
+  try{ myOpened = new Set(JSON.parse(localStorage.getItem("lm_opened_"+myRoom+"_"+myRole) || "[]")); }
+  catch(e){ myOpened = new Set(); }
+}
+function saveMyOpened(){
+  try{ localStorage.setItem("lm_opened_"+myRoom+"_"+myRole, JSON.stringify([...myOpened])); }catch(e){}
+}
+let activeTab = "id"; // id | timeline | cards
+let gateError = "";
+let roomError = "";
+let stateLoaded = false; // 재연결 시 서버의 진짜 현재 단계를 받기 전까지, 남아있는 과거 라운드의 준비완료 기록으로 단계가 잘못 넘어가는 것을 막는 안전장치
+let unsubFns = [];
+
+const ROOM_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 헷갈리는 0/O/1/I 제외
+function genRoomCode(){ let s=""; for(let i=0;i<4;i++) s+=ROOM_CHARS[Math.floor(Math.random()*ROOM_CHARS.length)]; return s; }
+function sanitizeRoomCode(raw){ return (raw||"").trim().toUpperCase().replace(/[^\p{L}\p{N}_\-.~:@+]/gu,"").slice(0,20); }
+
+// 조(room) 연결 — 코드 입력 시 그 조 전용 경로로 스토어를 새로 구성
+function connectStore(){
+  unsubFns.forEach(u=>{ try{ u && u(); }catch(e){} }); unsubFns=[];
+  players = new Map(); votes = new Map(); claims = new Map(); tokenUse = new Map(); readySet = new Set(); revealedSet = new Map(); revealNotifyReady = false; npcSet = new Set(); myCardsOpen = false; rosterOpen = false;
+  phaseGuideOpen = false; lastSeenGuidePhase = null; paidOpenSet = new Set(); lastTokenSig = "";
+  myRole = localStorage.getItem("lm_role_"+myRoom) || null; // 이 방에서 예전에 고른 역할이 있으면 복원
+  loadMyOpened();
+  sharedState = {phase:"casting", phaseEndsAt: Date.now()+DURATIONS.casting*1000};
+  stateLoaded = false; // 서버의 진짜 현재 단계를 아직 못 받아온 상태 — 이 동안은 준비완료 체크로 단계를 넘기지 않는다
+  updateConnBanner();
+  setTimeout(()=>{ if(myRoom && !stateLoaded) updateConnBanner(); }, 5000); // 5초 지나도 연결 안 되면 경고 표시
+  store = dbHandle ? makeDbStore(dbHandle, myRoom) : makeLocalStore();
+  // 실시간 구독은 변경이 없어도 주기적으로 재전달될 수 있어(약 30초 폴백),
+  // 값이 실제로 달라졌을 때만 다시 그린다 — 그렇지 않으면 그 타이밍에 겹친
+  // 사용자 클릭(예: 카드 가져가기)이 화면 재구성 때문에 씹힐 수 있다.
+  unsubFns.push(store.onState(s=>{
+    const changed = s.phase !== sharedState.phase || s.phaseEndsAt !== sharedState.phaseEndsAt;
+    if(changed) paidOpenSet = new Set(); // 새 단계로 넘어가면 토큰도 리셋되므로, 펼쳐둔 유료 카드 표시도 같이 접어둠
+    sharedState = s;
+    const wasLoaded = stateLoaded;
+    stateLoaded = true;
+    if(!wasLoaded) updateConnBanner();
+    if(changed) render(); // render() 안에서 새 단계 안내 팝업 표시 여부를 알아서 체크함
+  }));
+  unsubFns.push(store.onPlayers(p=>{
+    const changed = p.size!==players.size;
+    players = p;
+    if(changed && (!myRole || sharedState.phase==="casting")) render();
+  }));
+  unsubFns.push(store.onNpc(n=>{
+    const changed = n.size!==npcSet.size;
+    npcSet = n;
+    if(changed && (!myRole || sharedState.phase==="casting")) render();
+  }));
+  unsubFns.push(store.onVotes(v=>{ const changed = v.size!==votes.size; votes = v; if(changed && (sharedState.phase==="vote"||sharedState.phase==="result")) render(); }));
+  unsubFns.push(store.onClaims(c=>{
+    const changed = c.size!==claims.size; claims = c;
+    if(changed && activeTab==="cards") render();
+  }));
+  unsubFns.push(store.onTokenUse(t=>{
+    // claims/votes는 새 문서가 추가되는 구조라 size 비교로 변경을 감지했지만, tokenUse는
+    // 같은 `${phase}_${roleId}` 문서의 count 필드만 증가하므로 size가 그대로라 그 방식이 안 통함 —
+    // 내용을 문자열로 직렬화해 비교한다.
+    const sig = JSON.stringify([...t.entries()].sort());
+    const changed = sig !== lastTokenSig; lastTokenSig = sig;
+    tokenUse = t;
+    // 전원이 이번 라운드 토큰을 다 쓰면 더 볼 게 없다는 뜻 — 시간이 남아도 바로 토론으로
+    if(changed && stateLoaded && players.size>0 && EVIDENCE_PHASES.includes(sharedState.phase) && allPlayersUsedAllTokens()) store.setPhase("discussion");
+    if(changed) render(); // 토큰 배지가 상단 케이스바에도 상시 표시되므로 탭 제한 없이 다시 그린다
+  }));
+  unsubFns.push(store.onRevealed(r=>{
+    const changed = r.size!==revealedSet.size;
+    // 방 접속 직후 첫 스냅샷은 기존에 이미 공개돼있던 카드 목록일 뿐이라 조용히 반영하고,
+    // 그 이후 새로 추가된 카드만 "누가 공개했다"는 푸시 토스트로 전원에게 알린다.
+    if(revealNotifyReady){
+      r.forEach((info,id)=>{
+        if(revealedSet.has(id)) return;
+        const card = ALL_CARDS.find(c=>c.id===id);
+        const revealer = CHARACTERS.find(c=>c.id===info.by);
+        if(card) showToast(`🗣 ${revealer?revealer.name:"누군가"}님이 증거 ${card.exhibit}를 공개했습니다`);
+      });
+    }
+    revealNotifyReady = true;
+    revealedSet = r;
+    // 상단 "최근 공개된 증거" 피드가 이제 모든 탭에서 보이므로, 탭 제한 없이 다시 그린다.
+    if(changed) render();
+  }));
+  unsubFns.push(store.onReady(r=>{
+    const changed = r.size!==readySet.size;
+    readySet = r;
+    // 참가한 전원(이미 역할을 고른 사람 수 기준)이 준비완료를 누르면 시간이 남아도 바로 다음 단계로
+    if(stateLoaded && players.size>0 && sharedState.phase!=="result" && readyCountForPhase()>=players.size){ advancePhase(); }
+    if(changed) render();
+  }));
+  render();
+}
+function leaveRoom(){
+  unsubFns.forEach(u=>{ try{ u && u(); }catch(e){} }); unsubFns=[];
+  localStorage.removeItem("lm_room");
+  if(myRoom) localStorage.removeItem("lm_role_"+myRoom);
+  myRoom=null; myRole=null; store=null; players=new Map(); votes=new Map(); claims=new Map(); tokenUse=new Map(); readySet=new Set(); revealedSet=new Map(); revealNotifyReady=false; npcSet=new Set(); myCardsOpen=false; rosterOpen=false; myOpened=new Set(); paidOpenSet=new Set(); lastTokenSig="";
+  phaseGuideOpen=false; lastSeenGuidePhase=null; stateLoaded=false;
+  activeTab="id"; gateError=""; roomError="";
+  updateConnBanner();
+  render();
+}
+
+function phaseEndsAtMs(){
+  const v = sharedState.phaseEndsAt;
+  if(!v) return Date.now();
+  return typeof v === "number" ? v : new Date(v).getTime();
+}
+function phaseIndex(p){ return PHASES.indexOf(p); }
+// 예전엔 카드마다 자기 라운드(card.round)가 돼야 열렸지만, 라운드별로 따로 여는 게
+// 오히려 막판(3라운드)에 밀린 카드들이 한꺼번에 제한 없이 풀리는 혼란을 만든다는 피드백에 따라
+// round2부터는 전체 증거(1·2·3라운드분)가 동시에 열람/소유 가능하도록 단순화(2026-09-15).
+function isCardUnlocked(){ return phaseIndex(sharedState.phase) >= phaseIndex("round2"); }
+
+function showToast(text){
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = text;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=> el.classList.add("show"));
+  setTimeout(()=>{ el.classList.remove("show"); setTimeout(()=>el.remove(), 300); }, 4000);
+}
+
+function fmtClock(ms){
+  const s = Math.max(0, Math.round(ms/1000));
+  const m = Math.floor(s/60), r = s%60;
+  return String(m).padStart(2,"0")+":"+String(r).padStart(2,"0");
+}
+
+function render(){
+  if(!myRoom){ renderRoomGate(); return; }
+  if(!myRole || sharedState.phase==="casting"){ renderGate(); return; } // 배역 미선택, 혹은 내 배역은 정했지만 다른 사람들이 아직 고르는 중
+  showPhaseGuideIfNew(); // 이 단계 안내를 아직 못 봤다면 표시(중복 호출은 내부에서 걸러짐)
+  const me = CHARACTERS.find(c=>c.id===myRole);
+  // 토론/투표/결과 단계에서도 "내 신원·사건개요·증거카드" 탭은 항상 유지 —
+  // 단계 전용 패널(쟁점/투표/결과)은 그 위에 추가로 얹어서 카드 재확인이 가능하게 함
+  let phasePanelHtml = "";
+  if(sharedState.phase==="briefing") phasePanelHtml = `<p style="color:var(--text-dim);font-size:13px;">아직 증거대에 카드가 깔리지 않습니다. '사건 개요' 탭에서 초심 판정 요지와 타임라인을 함께 읽고, 누가 무엇을 언제 했는지 사건의 흐름부터 맞춰보세요.</p>`;
+  else if(sharedState.phase==="intro") phasePanelHtml = `<p style="color:var(--text-dim);font-size:13px;">한 사람씩 30초~1분으로 이름·소속·겉으로 내세우는 입장만 짧게 소개하세요. 🔒 비밀은 아직 비밀입니다!</p>`;
+  else if(sharedState.phase==="discussion") phasePanelHtml = renderDiscussion();
+  else if(sharedState.phase==="vote") phasePanelHtml = renderVote();
+  else if(sharedState.phase==="result") phasePanelHtml = renderResult();
+
+  app.innerHTML = `
+    ${renderCasebar()}
+    ${renderRecentReveals()}
+    ${phasePanelHtml ? `<div id="phasePanel">${phasePanelHtml}</div><h3 style="margin:26px 0 4px;font-size:14px;color:var(--text-dim);">참고: 내 신원·증거대 다시 보기</h3>` : ""}
+    <div class="tabs">
+      <button class="tab ${activeTab==='id'?'active':''}" data-tab="id">내 신원</button>
+      <button class="tab ${activeTab==='timeline'?'active':''}" data-tab="timeline">사건 개요</button>
+      <button class="tab ${activeTab==='cards'?'active':''}" data-tab="cards">증거대</button>
+    </div>
+    <div id="panel"></div>
+  `;
+  app.querySelectorAll(".tab").forEach(b=>b.addEventListener("click", ()=>{activeTab=b.dataset.tab; render();}));
+  if(sharedState.phase==="vote") bindVote();
+
+  const panel = document.getElementById("panel");
+  if(activeTab==="id"){ panel.innerHTML = renderId(me); }
+  else if(activeTab==="timeline"){ panel.innerHTML = renderTimeline(); bindTimeline(); }
+  else { panel.innerHTML = renderBoard(); bindBoard(); }
+
+  bindCasebarButtons();
+}
+
+function renderCasebar(){
+  const idx = phaseIndex(sharedState.phase);
+  const remain = phaseEndsAtMs() - Date.now();
+  const showTimer = sharedState.phase!=="result";
+  return `
+  <div class="casebar"><div class="casebar-inner">
+    <div>
+      <div class="case-no">사건번호 ${CASE_NO} · 방 코드 <b class="mono">${myRoom}</b></div>
+      <div class="case-title">${CASE_TITLE}</div>
+    </div>
+    <div class="phase-track">
+      ${PHASES.map((p,i)=>`<span class="phase-dot ${i===idx?'active':(i<idx?'done':'')}">${PHASE_LABEL[p]}</span>`).join("")}
+    </div>
+    ${showTimer?`<span class="timer" id="timerEl">${fmtClock(remain)}</span>`:""}
+    ${EVIDENCE_PHASES.includes(sharedState.phase) && myRole ? `<span class="btn" style="cursor:default;">🎫 토큰 ${remainingTokens()}/${TOKENS_PER_ROUND}</span>` : ""}
+    ${PHASE_GUIDE[sharedState.phase]?`<button class="btn" id="guideBtn">❓ 지금 할 일</button>`:""}
+    <button class="btn" id="rosterBtn">🗺 관계도 보기</button>
+    <button class="btn seal" id="myCardsBtn">📁 내 증거함 (${myAccessibleCards().length})</button>
+    ${sharedState.phase!=="result"?`<button class="btn ${readySet.has(readyKey())?'primary':''}" id="readyBtn">🙋 다음 단계 준비 (${readyCountForPhase()}/${players.size})</button>`:""}
+    <button class="btn" id="leaveRoomBtn2">세션 나가기</button>
+    ${store && store.isLocal ? `<div class="sync-note">🔌 로컬 모드 — 이 기기에서만 진행됩니다 (실시간 동기화 미사용)</div>`:""}
+  </div></div>
+  ${myCardsOpen ? renderMyCardsModal() : ""}
+  ${phaseGuideOpen && PHASE_GUIDE[sharedState.phase] ? renderPhaseGuideModal() : ""}
+  ${rosterOpen ? renderRosterModal() : ""}`;
+}
+function renderRosterModal(){
+  return `
+  <div class="modal-backdrop" id="rosterBackdrop">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3>🗺 누가 어떤 역할인가요</h3>
+        <button class="btn" id="rosterClose">닫기</button>
+      </div>
+      ${CHARACTERS.map(c=>{
+        const p = players.get(c.id);
+        return `<div class="my-card">
+          <div class="side-tag ${c.side==='사측'?'employer':'floor'}" style="margin-bottom:4px;">${c.side}</div>
+          <div class="doc-title">${c.name} <span style="font-weight:400;color:var(--text-paper-dim);">· ${c.seat}</span></div>
+          <div class="doc-body">${p ? `👤 <b>${p.playerName || "이름 미입력"}</b>님이 맡았습니다` : npcSet.has(c.id) ? "🤖 NPC로 진행" : "아직 아무도 고르지 않았습니다"}</div>
+        </div>`;
+      }).join("")}
+    </div>
+  </div>`;
+}
+function renderPhaseGuideModal(){
+  const g = PHASE_GUIDE[sharedState.phase];
+  return `
+  <div class="modal-backdrop" id="guideBackdrop">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3>${g.title}</h3>
+        <button class="btn" id="guideClose">닫기</button>
+      </div>
+      <p style="white-space:pre-wrap;font-size:13.5px;line-height:1.65;">${g.body}</p>
+      <p style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--paper-shadow);font-size:12px;color:var(--text-paper-dim);">준비가 끝났으면 상단의 '🙋 다음 단계 준비' 버튼을 누르세요 — 참가한 전원이 누르면 시간이 남아도 바로 다음 단계로 넘어갑니다.</p>
+    </div>
+  </div>`;
+}
+// "내 증거함" = 내가 확보한(가져간) 카드 — 언제나 무료로 다시 볼 수 있는 것들만 모아봄.
+// 공용 view 카드·타인이 공개한 카드는 볼 때마다 토큰이 들어서(2026-09-23) 여기엔 포함하지 않음 —
+// 증거대에서 매번 토큰을 내고 열람해야 함.
+function myAccessibleCards(){
+  return ALL_CARDS.filter(c => claims.get(c.id)?.by===myRole);
+}
+function renderMyCardsModal(){
+  const mine = myAccessibleCards();
+  return `
+  <div class="modal-backdrop" id="myCardsBackdrop">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3>📁 내 증거함</h3>
+        <button class="btn" id="myCardsClose">닫기</button>
+      </div>
+      ${mine.length===0
+        ? `<p style="color:var(--text-dim);font-size:13px;">아직 확인한 카드가 없습니다. 증거대에서 🔒 표시된 카드를 가져가세요.</p>`
+        : mine.map(card=>{
+          const revealedBy = revealedSet.get(card.id);
+          const mineTag = revealedBy ? "📌 내가 확보 · 🗣 공개함" : "📌 내가 확보";
+          const canReveal = !revealedBy;
+          return `
+          <div class="my-card">
+            <div class="doc-head"><span>${card.docNo}</span><span>${card.date}</span></div>
+            <div class="doc-title">증거 ${card.exhibit} · ${card.title}</div>
+            <div class="owner-tag" style="margin-bottom:8px;">출처: ${card.ownerName} · ${mineTag}</div>
+            <div class="doc-body">${card.body}</div>
+            ${card.note?`<div class="doc-note">${card.note}</div>`:""}
+            ${canReveal?`<button class="btn reveal-btn" data-reveal="${card.id}" style="margin-top:8px;">🗣 이 증거 공개하기</button>`:""}
+          </div>`;
+        }).join("")
+      }
+    </div>
+  </div>`;
+}
+function bindCasebarButtons(){
+  const readyBtn = document.getElementById("readyBtn");
+  if(readyBtn) readyBtn.addEventListener("click", async ()=>{
+    // 아직 안 한 게 있으면(투표/증거 채택) 준비 자체를 막고 뭘 해야 하는지 토스트로 알려줌 —
+    // disabled+title 방식은 모바일(호버 없음)에선 안 보여서 클릭 시점에 메시지를 띄우는 쪽으로.
+    if(sharedState.phase==="vote" && !hasMyVoteComplete()){
+      showToast("🗳 먼저 두 쟁점에 모두 투표하세요"); return;
+    }
+    readyBtn.disabled = true;
+    await store.setReady(readyKey(), !readySet.has(readyKey()));
+    render();
+  });
+  const leave = document.getElementById("leaveRoomBtn2");
+  if(leave) leave.addEventListener("click", leaveRoom);
+  const myCardsBtn = document.getElementById("myCardsBtn");
+  if(myCardsBtn) myCardsBtn.addEventListener("click", ()=>{ myCardsOpen = true; render(); });
+  const backdrop = document.getElementById("myCardsBackdrop");
+  if(backdrop) backdrop.addEventListener("click", (e)=>{ if(e.target===backdrop){ myCardsOpen=false; render(); } });
+  const closeBtn = document.getElementById("myCardsClose");
+  if(closeBtn) closeBtn.addEventListener("click", ()=>{ myCardsOpen=false; render(); });
+  // "내 증거함" 모달 안에서 바로 공개하기 — 보드 탭에 있을 때만 동작하던 .reveal-btn을
+  // 여기서도 바인딩(bindCasebarButtons는 activeTab과 무관하게 매 렌더마다 실행됨).
+  app.querySelectorAll("#myCardsBackdrop .reveal-btn").forEach(btn=>{
+    btn.addEventListener("click", async (e)=>{
+      e.stopPropagation();
+      btn.disabled = true; btn.textContent = "공개 중...";
+      await store.revealCard(btn.dataset.reveal, myRole);
+      render();
+    });
+  });
+  const guideBtn = document.getElementById("guideBtn");
+  if(guideBtn) guideBtn.addEventListener("click", ()=>{ phaseGuideOpen = true; render(); });
+  const guideBackdrop = document.getElementById("guideBackdrop");
+  if(guideBackdrop) guideBackdrop.addEventListener("click", (e)=>{ if(e.target===guideBackdrop){ phaseGuideOpen=false; render(); } });
+  const guideClose = document.getElementById("guideClose");
+  if(guideClose) guideClose.addEventListener("click", ()=>{ phaseGuideOpen=false; render(); });
+  const rosterBtn = document.getElementById("rosterBtn");
+  if(rosterBtn) rosterBtn.addEventListener("click", ()=>{ rosterOpen = true; render(); });
+  const rosterBackdrop = document.getElementById("rosterBackdrop");
+  if(rosterBackdrop) rosterBackdrop.addEventListener("click", (e)=>{ if(e.target===rosterBackdrop){ rosterOpen=false; render(); } });
+  const rosterClose = document.getElementById("rosterClose");
+  if(rosterClose) rosterClose.addEventListener("click", ()=>{ rosterOpen=false; render(); });
+}
+function advancePhase(){
+  // 최종 투표(vote) 단계는 전원이 두 쟁점에 다 투표하기 전엔 시간이 다 되거나 누가 '다음 단계 준비'를
+  // 눌러도 결과로 안 넘어가게 막는다 — 안 그러면 0표/일부표인 채로 결과 화면에 진짜 판정처럼
+  // "재심 인용" 등이 떠버리는 문제가 있었다(과반 계산이 동수를 기각으로 처리하는데, 0표도 동수라
+  // 그대로 기각 결과가 나와버림, 2026-09-15).
+  if(sharedState.phase==="vote" && players.size>0 && votesDoneCount()<players.size) return;
+  const idx = phaseIndex(sharedState.phase);
+  const next = PHASES[Math.min(idx+1, PHASES.length-1)];
+  if(next !== sharedState.phase) store.setPhase(next);
+}
+
+function renderRoomGate(){
+  app.innerHTML = `
+    <div class="cover">
+      <div class="cover-emblem">
+        <svg viewBox="0 0 160 160" width="100%" height="100%" role="img" aria-label="사건 엠블럼">
+          <circle cx="80" cy="80" r="76" fill="none" stroke="var(--ink-3)" stroke-width="2"/>
+          <circle cx="80" cy="80" r="68" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="3 5"/>
+          <g>
+            <rect x="-4" y="-4" width="8" height="8" fill="var(--gold)" transform="translate(80,8) rotate(45)"/>
+            <rect x="-4" y="-4" width="8" height="8" fill="var(--gold)" transform="translate(152,80) rotate(45)"/>
+            <rect x="-4" y="-4" width="8" height="8" fill="var(--gold)" transform="translate(80,152) rotate(45)"/>
+            <rect x="-4" y="-4" width="8" height="8" fill="var(--gold)" transform="translate(8,80) rotate(45)"/>
+          </g>
+          <circle cx="80" cy="80" r="58" fill="var(--seal)"/>
+          <circle cx="80" cy="80" r="58" fill="none" stroke="var(--paper)" stroke-width="3"/>
+          <!-- 저울(scales of justice) 픽토그램 -->
+          <line x1="80" y1="48" x2="80" y2="106" stroke="var(--paper)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="56" y1="60" x2="104" y2="60" stroke="var(--paper)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M56 60 L47 82 A11 11 0 0 0 65 82 Z" fill="none" stroke="var(--paper)" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M104 60 L95 82 A11 11 0 0 0 113 82 Z" fill="none" stroke="var(--paper)" stroke-width="2.5" stroke-linejoin="round"/>
+          <rect x="68" y="104" width="24" height="7" rx="2" fill="var(--paper)"/>
+          <circle cx="80" cy="48" r="4" fill="var(--paper)"/>
+        </svg>
+      </div>
+      <h1 class="cover-title">ER 미스터리<br>'(주)클린테크 갱신거절 사건'</h1>
+      <p class="cover-tagline">6인용 노동분쟁 심문 미스터리</p>
+      <div class="cover-divider"></div>
+      <p class="cover-lede">우리 조의 이름(코드)을 입력하세요 —<br>같은 코드를 쓴 사람끼리만 진행상황을 공유합니다.</p>
+      ${roomError?`<p style="color:var(--seal-bright);font-size:13px;margin-bottom:10px;">${roomError}</p>`:""}
+      <div class="cover-form">
+        <input id="playerNameInput" maxlength="12" placeholder="당신의 이름"
+          value="${myName.replace(/"/g,'&quot;')}"
+          style="background:var(--paper);border:2px solid var(--ink-3);color:var(--text);border-radius:4px;padding:11px 14px;font-size:16px;font-weight:600;width:120px;">
+        <input id="roomCodeInput" class="mono" maxlength="20" placeholder="예: 1조, A조"
+          style="background:var(--paper);border:2px solid var(--ink-3);color:var(--text);border-radius:4px;padding:11px 14px;font-size:16px;font-weight:600;letter-spacing:.04em;width:140px;">
+        <button class="btn primary" id="joinRoomBtn">이 코드로 입장</button>
+        <button class="btn" id="genRoomBtn">랜덤 코드 생성</button>
+      </div>
+      <p class="cover-footnote">이 시나리오는 2025부해-08 판정례를 참고해 각색되었습니다.</p>
+      <a href="../" class="cover-back">← 다른 사건 보기</a>
+    </div>
+  `;
+  const nameInput = document.getElementById("playerNameInput");
+  const input = document.getElementById("roomCodeInput");
+  document.getElementById("joinRoomBtn").addEventListener("click", ()=>{
+    const name = nameInput.value.trim();
+    const code = sanitizeRoomCode(input.value);
+    if(!name){ roomError = "당신의 이름을 입력하세요."; render(); return; }
+    if(!code){ roomError = "조 이름(코드)을 입력하세요."; render(); return; }
+    myName = name; localStorage.setItem("lm_playername", name);
+    roomError = ""; myRoom = code; localStorage.setItem("lm_room", code); connectStore();
+  });
+  document.getElementById("genRoomBtn").addEventListener("click", ()=>{ input.value = genRoomCode(); input.focus(); });
+  [nameInput, input].forEach(el=>el.addEventListener("keydown", (e)=>{ if(e.key==="Enter") document.getElementById("joinRoomBtn").click(); }));
+  (myName ? input : nameInput).focus();
+}
+
+function renderRoleGrid(list){
+  return `<div class="role-grid">
+    ${list.map(c=>{
+      const taken = players.has(c.id);
+      const isNpc = npcSet.has(c.id);
+      const isMe = myRole===c.id;
+      let bodyHtml;
+      if(taken){
+        bodyHtml = `<div class="stamp-badge">배정<br>완료</div><div class="pick">${isMe?"✔ 나":`✔ ${players.get(c.id)?.playerName || "선택됨"}`}</div>`;
+      } else if(isNpc){
+        bodyHtml = `<div class="pick npc">🤖 NPC로 진행</div><button class="btn npc-cancel" data-npcoff="${c.id}">되돌리기</button>`;
+      } else {
+        bodyHtml = `
+          ${myRole?"":`<button class="btn primary pick" data-role="${c.id}">이 역할 맡기</button>`}
+          <button class="btn npc-toggle" data-npcon="${c.id}">🤖 사람 없으면 NPC로</button>`;
+      }
+      return `<div class="role-card ${taken?'taken':''} ${isNpc?'npc':''}">
+        <div class="side-tag ${c.side==='사측'?'employer':'floor'}">${c.side}</div>
+        <div class="seat">${c.seat}</div>
+        <div class="name">${c.name}</div>
+        <div class="org">${c.org} · ${c.age}세</div>
+        ${bodyHtml}
+      </div>`;
+    }).join("")}
+  </div>`;
+}
+
+function renderGate(){
+  const filled = players.size + npcSet.size;
+  const ready = castingFilled();
+  const waiting = myRole && sharedState.phase==="casting"; // 나는 이미 배역을 정했고, 다른 사람들을 기다리는 중
+  app.innerHTML = `
+    <div class="gate">
+      <div class="case-no mono">사건번호 ${CASE_NO} · 방 코드 ${myRoom}</div>
+      <h1>ER 미스터리 '(주)클린테크 갱신거절 사건'</h1>
+      ${renderGuideBox(CORE_CONCEPTS)}
+      ${waiting
+        ? `<p class="lede">당신은 <b>${CHARACTERS.find(c=>c.id===myRole).name}</b> 역할입니다. ${ready?"모든 배역이 정해졌습니다 — 준비됐으면 아래 버튼으로 사건을 시작하세요.":"다른 참가자들이 배역을 고르는 중이에요."}</p>`
+        : `<p class="lede">사측 경영진 3명 · 근로자측 3명, 총 6개의 역할이 각자 다른 증거를 쥐고 있습니다. 자신의 배역을 선택하세요 — 이미 다른 참가자가 고른 배역은 선택할 수 없습니다. 6명이 다 모이지 않았다면, 남는 역할을 "NPC로" 돌려서 인원 수를 맞출 수 있습니다.</p>`
+      }
+      <div class="casting-progress">배역 확정 현황: <b>${filled} / ${CHARACTERS.length}</b>${npcSet.size?` (참가자 ${players.size}명 · NPC ${npcSet.size}명)`:""}</div>
+      ${ready?`<button class="btn primary" id="startGameBtn" style="margin-bottom:16px;">🎬 사건 시작하기</button>`:""}
+      ${gateError?`<p style="color:var(--seal-bright);font-size:13px;margin-bottom:14px;">${gateError}</p>`:""}
+      <button class="btn" id="leaveRoomBtn" style="margin-bottom:16px;">다른 조 코드로 나가기</button>
+      ${waiting?`<button class="btn" id="switchRoleBtn" style="margin-bottom:16px;margin-left:8px;">↺ 다른 배역으로 바꾸기</button>`:""}
+      <div class="side-block">
+        <h3 class="side-heading employer">사측 진영</h3>
+        ${renderRoleGrid(CHARACTERS.filter(c=>c.side==='사측'))}
+      </div>
+      <div class="side-block">
+        <h3 class="side-heading floor">근로자측 진영</h3>
+        ${renderRoleGrid(CHARACTERS.filter(c=>c.side!=='사측'))}
+      </div>
+    </div>
+  `;
+  document.getElementById("leaveRoomBtn").addEventListener("click", leaveRoom);
+  app.querySelectorAll("[data-role]").forEach(b=>{
+    b.addEventListener("click", async ()=>{
+      const roleId = b.dataset.role;
+      const name = CHARACTERS.find(c=>c.id===roleId).name;
+      b.disabled = true; b.textContent = "확인 중...";
+      try{
+        const ok = await store.claimRole(roleId, name, myName);
+        if(ok){ myRole = roleId; localStorage.setItem("lm_role_"+myRoom, roleId); loadMyOpened(); render(); }
+        else { gateError = "이미 다른 참가자가 선택한 역할입니다."; render(); }
+      }catch(e){
+        gateError = "역할 선택 중 통신 오류가 발생했습니다. 다시 시도해 주세요.";
+        render();
+      }
+    });
+  });
+  app.querySelectorAll("[data-npcon]").forEach(b=>{
+    b.addEventListener("click", async ()=>{
+      b.disabled = true;
+      try{ await store.setNpc(b.dataset.npcon, true); }catch(e){}
+      render();
+    });
+  });
+  app.querySelectorAll("[data-npcoff]").forEach(b=>{
+    b.addEventListener("click", async ()=>{
+      b.disabled = true;
+      try{ await store.setNpc(b.dataset.npcoff, false); }catch(e){}
+      render();
+    });
+  });
+  const startBtn = document.getElementById("startGameBtn");
+  if(startBtn) startBtn.addEventListener("click", ()=>{
+    startBtn.disabled = true; startBtn.textContent = "시작하는 중...";
+    advancePhase();
+  });
+  const switchBtn = document.getElementById("switchRoleBtn");
+  if(switchBtn) switchBtn.addEventListener("click", async ()=>{
+    switchBtn.disabled = true;
+    const prevRole = myRole;
+    myRole = null;
+    localStorage.removeItem("lm_role_"+myRoom);
+    players.delete(prevRole); // 서버 응답을 기다리지 않고 화면부터 바로 갱신
+    render();
+    try{ await store.releaseRole(prevRole); }catch(e){}
+  });
+}
+
+function renderId(me){
+  const nl2br = s => (s||"").replace(/\n/g,"<br>");
+  return `
+    <div class="id-card">
+      <div class="id-head">
+        <div class="id-badge">${me.name[0]}</div>
+        <div>
+          <div class="side-tag ${me.side==='사측'?'employer':'floor'}" style="margin-bottom:4px;">${me.side}</div>
+          <div class="id-name">${me.name}</div>
+          <div class="id-org">${me.org} · ${me.age}세 · ${me.seat}</div>
+        </div>
+      </div>
+      <div class="id-field"><div class="label">인물 배경</div><div class="val">${me.background}</div></div>
+      <div class="id-field"><div class="label">겉으로 내세우는 입장</div><div class="val">${me.stance}</div></div>
+      <div class="id-field"><div class="label">그날의 기억</div><div class="val">${me.account}</div></div>
+      ${me.timeline?`<div class="id-field"><div class="label">나의 행적 (날짜별)</div><div class="tl-list">
+        ${me.timeline.map(([d,t,secret])=>`<div class="tl-row"><span class="tl-date">${d}</span><span class="${secret?'sv':''}" ${secret?'tabindex="0"':''}>${secret?'🔒 ':''}${t}</span></div>`).join("")}
+      </div><div class="hint" style="margin-top:6px;font-size:11px;color:var(--text-dim);font-style:italic;">🔒 붉게 가려진 행적은 누르고 있는 동안만 보여요.</div></div>`:""}
+      <div class="id-field"><div class="label">다른 참가자와의 관계</div><div class="val">${nl2br(me.relations)}</div></div>
+      <div class="id-field secret"><div class="label">🔒 나만 아는 것</div><div class="val" tabindex="0">${me.secret}</div><div class="hint">👆 누르고 있는 동안만 보여요 — 옆 사람 조심!</div></div>
+      <div class="id-field"><div class="label">이 자리에서의 목표</div><div class="goal-list">
+        <div class="goal-line"><span class="goal-tag">🎯 원하는 결과</span>${me.goal[0]}</div>
+        ${me.goal[1]?`<div class="goal-line"><span class="goal-tag">🤐 숨기고 싶은 것</span>${me.goal[1]}</div>`:""}
+      </div></div>
+      ${me.qa?`<div class="id-field"><div class="label">예상 질문과 나의 대응</div>
+        ${me.qa.map(x=>`<div class="qa-item"><div class="qa-q">Q. ${x.q}</div><div class="sv" tabindex="0">${x.a}</div></div>`).join("")}
+        <div class="hint" style="margin-top:6px;font-size:11px;color:var(--text-dim);font-style:italic;">대응 요령은 누르고 있는 동안만 보여요. 그대로 읽지 말고, 내 말로 바꿔 답하세요.</div>
+      </div>`:""}
+    </div>
+  `;
+}
+
+function renderRulingSection(sec){
+  // 재귀적으로 렌더링 — "3. 위원회의 판단"처럼 하위(가/나/다) 섹션을 갖는 경우도 처리
+  return `
+    <div class="ruling-section">
+      <h4>${sec.h}</h4>
+      ${(sec.body||[]).map(p=>`<p>${p}</p>`).join("")}
+      ${(sec.sub||[]).map(renderRulingSection).join("")}
+    </div>`;
+}
+function renderGuideBox(guide){
+  return `
+    <div class="legal-guide">
+      <div class="legal-guide-title">${guide.title}</div>
+      ${guide.points.map(p=>`
+        <div class="legal-point">
+          <b>${p.q}</b>${p.a}
+          ${p.detail?`<details class="legal-detail"><summary>🔎 관련 법리·판례 자세히 보기</summary><div class="legal-detail-body">${p.detail}</div></details>`:""}
+        </div>`).join("")}
+    </div>`;
+}
+function renderLegalGuide(){ return renderGuideBox(LEGAL_GUIDE); }
+function renderTimeline(){
+  return `
+    ${renderLegalGuide()}
+    <div class="ruling-box">
+      <span class="stamp">${LOWER_RULING.caseNo}</span>
+      <div class="ruling-title">${LOWER_RULING.title}</div>
+      <div class="ruling-subtitle">${LOWER_RULING.subtitle} · ${LOWER_RULING.date}</div>
+      <div class="ruling-headline">${LOWER_RULING.headline}</div>
+      <h4>【주 문】</h4>
+      <ol class="ruling-order">${LOWER_RULING.order.map(o=>`<li>${o}</li>`).join("")}</ol>
+      <button class="btn" id="rulingToggle">${rulingExpanded?"▲ 판정 이유 전문 접기":"▼ 판정 이유 전문 보기"}</button>
+      ${rulingExpanded ? `<div class="ruling-reasons">${LOWER_RULING.reasonSections.map(renderRulingSection).join("")}</div>` : ""}
+    </div>
+    <div class="timeline">
+      ${TIMELINE.map(([d,t])=>`<div class="tl-item"><div class="tl-date">${d}</div><div class="tl-text">${t}</div></div>`).join("")}
+    </div>`;
+}
+function bindTimeline(){
+  const btn = document.getElementById("rulingToggle");
+  if(btn) btn.addEventListener("click", ()=>{ rulingExpanded = !rulingExpanded; render(); });
+}
+
+function revealTag(card){
+  const info = revealedSet.get(card.id);
+  if(!info) return "";
+  const r = CHARACTERS.find(c=>c.id===info.by);
+  return ` · 🗣 ${r?r.name:"누군가"}님이 공개`;
+}
+// 공개된 증거를 최근 순으로 몇 장 상단에 띄워 "다같이 지켜보는" 느낌을 주는 실시간 피드.
+// 탭과 무관하게 항상 보이도록 casebar 바로 아래에서 호출한다(전체 내용은 여전히 증거대/내 증거함에서 확인).
+function renderRecentReveals(){
+  if(!myRole || !isCardUnlocked()) return "";
+  const items = [...revealedSet.entries()]
+    .sort((a,b)=> new Date(b[1].at) - new Date(a[1].at))
+    .slice(0,5)
+    .map(([cardId,info])=>{
+      const card = ALL_CARDS.find(c=>c.id===cardId);
+      if(!card) return "";
+      const revealer = CHARACTERS.find(c=>c.id===info.by);
+      return `<div class="reveal-chip"><span class="exhibit-no">증거 ${card.exhibit}</span> ${card.title} <span class="reveal-by">— ${revealer?revealer.name:"누군가"} 제출</span></div>`;
+    }).join("");
+  if(!items) return "";
+  return `<div class="reveal-feed"><div class="reveal-feed-label">🗞 최근 공개된 증거</div><div class="reveal-feed-list">${items}</div></div>`;
+}
+function renderBoard(){
+  const cards = ALL_CARDS; // 공용 증거대 — 전원 동일한 풀을 봄
+  if(!isCardUnlocked()){
+    return `
+      <div class="board-legend"><span>증거대는 1라운드가 시작되면 열립니다.</span></div>
+      <div class="card-grid">${cards.map(card=>`<div class="locked"><div class="lock-icon">🔒</div><div>아직 열리지 않았습니다</div><div class="owner-tag">${card.ownerName}</div></div>`).join("")}</div>`;
+  }
+  return `
+    <div class="board-legend">
+      <span><b>🎫 가져가기</b>와 <b>📖 공용 카드·남이 공개한 카드 열람</b>은 각각 토큰 1개가 듭니다 — 라운드당 최대 2번까지만(다 안 써도 무방)</span>
+      <span>확보(가져가기)한 카드는 그 뒤로 나만 영구 무료로 다시 볼 수 있음 — 한 카드는 한 명만 가져갈 수 있음</span>
+      <span>확보한 카드는 언제든 <b>🗣 공개하기</b>로 전원에게 알릴 수 있음(공개해도 남이 보려면 그 사람 토큰이 듦)</span>
+    </div>
+    <div class="card-grid">
+    ${cards.map(card=>{
+      if(card.kind==="view"){
+        const isOpen = paidOpenSet.has(card.id);
+        return `<div class="flipcard ${isOpen?'flipped':''}" data-idx="${card.id}" data-paid="1"><div class="flipcard-inner">
+          <div class="face front">
+            <div class="seal-icon">📖</div>
+            <div class="exhibit-no">증거 ${card.exhibit}</div>
+            <div class="owner-tag">${card.ownerName} · 공용 열람</div>
+            <div class="tap-hint">🎫 탭하여 열람(1개)</div>
+          </div>
+          <div class="face back">
+            <div class="doc-head"><span>${card.docNo}</span><span>${card.date}</span></div>
+            <div class="doc-title">${card.title}</div>
+            <div class="doc-body">${card.body}</div>
+            ${card.note?`<div class="doc-note">${card.note}</div>`:""}
+          </div>
+        </div></div>`;
+      }
+      const claim = claims.get(card.id);
+      const isRevealed = revealedSet.has(card.id);
+      if(!claim){
+        return `<div class="ownable" data-card="${card.id}">
+          <div class="seal-icon">⚖</div>
+          <div class="exhibit-no">증거 ${card.exhibit}</div>
+          <div class="owner-tag">${card.ownerName}</div>
+          <button class="btn primary claim-btn" data-claim="${card.id}">🔒 가져가기(🎫1개)</button>
+        </div>`;
+      }
+      if(claim.by !== myRole && !isRevealed){
+        const claimant = CHARACTERS.find(c=>c.id===claim.by);
+        return `<div class="locked claimed"><div class="lock-icon">🔒</div><div>${claimant?claimant.name:"다른 참가자"}님이 확보함</div><div class="owner-tag">${card.ownerName}</div></div>`;
+      }
+      const isMine = claim.by === myRole;
+      if(isMine){
+        // 내가 확보한 카드 — 언제나 무료, 로컬에 영구히 펼쳐본 상태로 기억
+        const canReveal = !isRevealed;
+        const alreadyOpen = myOpened.has(card.id);
+        const ownerTagExtra = isRevealed ? revealTag(card) : ' · 📌 내가 확보';
+        return `<div class="flipcard ${alreadyOpen?'flipped':''}" data-idx="${card.id}"><div class="flipcard-inner">
+          <div class="face front">
+            <div class="seal-icon">⚖</div>
+            <div class="exhibit-no">증거 ${card.exhibit}</div>
+            <div class="owner-tag">${card.ownerName}${ownerTagExtra}</div>
+            ${canReveal?`<button class="btn reveal-btn" data-reveal="${card.id}">🗣 이 증거 공개하기</button>`:""}
+            <div class="tap-hint">탭하여 확인</div>
+          </div>
+          <div class="face back">
+            <div class="doc-head"><span>${card.docNo}</span><span>${card.date}</span></div>
+            <div class="doc-title">${card.title}</div>
+            <div class="doc-body">${card.body}</div>
+            ${card.note?`<div class="doc-note">${card.note}</div>`:""}
+          </div>
+        </div></div>`;
+      }
+      // 남이 확보해서 공개한 카드 — 나에겐 유료 열람 대상
+      const isOpen = paidOpenSet.has(card.id);
+      return `<div class="flipcard ${isOpen?'flipped':''}" data-idx="${card.id}" data-paid="1"><div class="flipcard-inner">
+        <div class="face front">
+          <div class="seal-icon">⚖</div>
+          <div class="exhibit-no">증거 ${card.exhibit}</div>
+          <div class="owner-tag">${card.ownerName}${revealTag(card)}</div>
+          <div class="tap-hint">🎫 탭하여 열람(1개)</div>
+        </div>
+        <div class="face back">
+          <div class="doc-head"><span>${card.docNo}</span><span>${card.date}</span></div>
+          <div class="doc-title">${card.title}</div>
+          <div class="doc-body">${card.body}</div>
+          ${card.note?`<div class="doc-note">${card.note}</div>`:""}
+        </div>
+      </div></div>`;
+    }).join("")}
+    </div>`;
+}
+function bindBoard(){
+  app.querySelectorAll(".flipcard").forEach(el=>{
+    const isPaid = el.dataset.paid === "1";
+    el.addEventListener("click", async ()=>{
+      const card = ALL_CARDS.find(c=>c.id===el.dataset.idx);
+      if(!card) return;
+      if(!isPaid){
+        if(!myOpened.has(card.id)){
+          // 처음 여는 카드 — "이미 본 카드" 표시를 남겨 다음에도 펼쳐진 채로 보이게 함
+          myOpened.add(card.id); saveMyOpened(); render(); return;
+        }
+        el.classList.toggle("flipped");
+        return;
+      }
+      // 유료 카드(공용 열람·타인 공개) — 접는 건 무료, 다시 펼치려면 토큰을 또 낸다
+      if(paidOpenSet.has(card.id)){ paidOpenSet.delete(card.id); render(); return; }
+      if(!EVIDENCE_PHASES.includes(sharedState.phase)){ showToast("🎫 증거 공개 라운드가 끝나 더 이상 토큰을 쓸 수 없습니다"); return; }
+      if(remainingTokens() <= 0){ showToast("🎫 이번 라운드 토큰을 모두 사용했습니다"); return; }
+      const ok = await store.spendToken(sharedState.phase, myRole);
+      if(!ok){ showToast("🎫 이번 라운드 토큰을 모두 사용했습니다"); return; }
+      paidOpenSet.add(card.id);
+      render();
+    });
+  });
+  app.querySelectorAll(".claim-btn").forEach(btn=>{
+    btn.addEventListener("click", async (e)=>{
+      e.stopPropagation();
+      if(!EVIDENCE_PHASES.includes(sharedState.phase)){ showToast("🎫 증거 공개 라운드가 끝나 더 이상 가져갈 수 없습니다"); return; }
+      if(remainingTokens() <= 0){ showToast("🎫 이번 라운드 토큰을 모두 사용했습니다"); return; }
+      btn.disabled = true; btn.textContent = "확인 중...";
+      const ok = await store.claimCard(btn.dataset.claim, myRole, sharedState.phase);
+      if(!ok) showToast("이미 다른 사람이 가져갔거나 토큰이 부족합니다");
+      render();
+    });
+  });
+  app.querySelectorAll(".reveal-btn").forEach(btn=>{
+    btn.addEventListener("click", async (e)=>{
+      e.stopPropagation();
+      btn.disabled = true; btn.textContent = "공개 중...";
+      await store.revealCard(btn.dataset.reveal, myRole);
+      render();
+    });
+  });
+}
+
+function renderDiscussion(){
+  return `
+    <p style="margin-bottom:10px;color:var(--text-dim);font-size:13px;">모든 증거가 공개되었습니다. 각자의 카드를 서로에게 말로 설명하며, 법적 요건에 사실관계를 대입해 아래 쟁점을 교차검증하세요. 결론(숨겨진 진실)은 투표 후 결과 화면에서 공개됩니다.</p>
+    <div class="matrix">
+      ${ISSUE_MATRIX.map(m=>`
+        <div class="matrix-card">
+          <div class="topic">${m.topic}</div>
+          <div class="matrix-row legal"><span class="tag">⚖ 법적 요건</span><span>${m.legal}</span></div>
+          <div class="matrix-row employer"><span class="tag">사측 주장</span><span>${m.employer}</span></div>
+          <div class="matrix-row union"><span class="tag">노측 반박</span><span>${m.union}</span></div>
+        </div>`).join("")}
+    </div>
+  `;
+}
+
+// VOTE_AXES는 사건마다 key가 다르므로(예: dismissal/ulp, comparator/reason) 하드코딩하지 않고 매번 읽어온다.
+function votesDoneCount(){
+  const keys = VOTE_AXES.map(a=>a.key);
+  let n=0; votes.forEach(v=>{ if(v && keys.every(k=>v[k]!==undefined)) n++; }); return n;
+}
+function hasMyVoteComplete(){
+  const v = votes.get(myRole);
+  return !!(v && VOTE_AXES.every(a=>v[a.key]!==undefined));
+}
+function renderVote(){
+  const my = votes.get(myRole) || {};
+  return `
+    <p style="color:var(--text-dim);font-size:13px;">토론 내용을 바탕으로 두 쟁점에 각각 투표하세요(익명 집계). 투표는 언제든 바꿀 수 있습니다.</p>
+    ${VOTE_AXES.map(axis=>`
+      <div class="vote-axis">
+        <div class="axis-h"><span class="axis-label">${axis.label}</span> ${axis.title}</div>
+        <div class="vote-grid">
+          ${axis.options.map(o=>`
+            <button class="vote-opt ${my[axis.key]===o.v?'selected':''}" data-axis="${axis.key}" data-v="${o.v}">
+              <div class="t">${o.t}</div>
+              <div class="d">${o.d}</div>
+            </button>`).join("")}
+        </div>
+      </div>`).join("")}
+    <div class="vote-progress">두 쟁점 모두 투표 완료: ${votesDoneCount()} / ${players.size}명${npcSet.size?` (NPC ${npcSet.size}명 제외)`:""}</div>
+  `;
+}
+function bindVote(){
+  app.querySelectorAll(".vote-opt").forEach(b=>{
+    b.addEventListener("click", async ()=>{
+      const cur = votes.get(myRole) || {};
+      const next = {...cur, [b.dataset.axis]: b.dataset.v};
+      votes.set(myRole, next);
+      await store.castVote(myRole, next);
+      if(votesDoneCount() >= players.size) advancePhase();
+      else render();
+    });
+  });
+}
+
+function renderFullStory(){
+  return `
+    <details class="full-story-details" style="margin-top:24px;">
+      <summary style="cursor:pointer;font-family:var(--serif);font-weight:800;font-size:15px;padding:14px 18px;background:var(--ink-2);border:2px solid var(--ink-3);border-radius:5px;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        🗂 사건의 전말 — 심문정에서 끝내 드러나지 않은 이야기
+        <span style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">▸ 펼치기</span>
+      </summary>
+      <div style="padding:18px;border:2px solid var(--ink-3);border-top:none;border-radius:0 0 5px 5px;background:var(--paper);">
+        <p style="color:var(--text-paper-dim);font-size:12.5px;margin-bottom:18px;font-style:italic;">게임이 끝난 후 공개됩니다. 심문 과정에서 드러났든 드러나지 않았든, 이것이 각 당사자의 진짜 이야기입니다.</p>
+        ${FULL_STORY.map((s,i)=>`
+          <div style="margin-bottom:${i<FULL_STORY.length-1?'20px':'0'};${i<FULL_STORY.length-1?'padding-bottom:20px;border-bottom:1px solid var(--ink-3);':''}">
+            <h3 style="font-family:var(--serif);font-weight:800;font-size:14px;margin-bottom:10px;color:var(--seal);">▶ ${s.name}</h3>
+            <p style="white-space:pre-wrap;font-size:13.5px;line-height:1.8;color:var(--text-paper);">${s.body}</p>
+          </div>`).join("")}
+      </div>
+    </details>`;
+}
+
+function renderResult(){
+  const tally = {};
+  VOTE_AXES.forEach(axis=>{ tally[axis.key] = {reject:0, recognize:0}; });
+  votes.forEach(v=>{
+    VOTE_AXES.forEach(axis=>{ if(v && tally[axis.key][v[axis.key]]!==undefined) tally[axis.key][v[axis.key]]++; });
+  });
+  // 과반 규칙 — 동수일 땐 기각(reject)으로 처리
+  const majority = axisKey => tally[axisKey].recognize > tally[axisKey].reject ? "recognize" : "reject";
+  const axisResult = {}; VOTE_AXES.forEach(axis=>{ axisResult[axis.key] = majority(axis.key); });
+  const endingKey = VOTE_AXES.map(axis=>axisResult[axis.key]).join("|");
+  const ending = ENDINGS[endingKey];
+  const ranked = [...CHARACTERS].sort((a,b)=>b.scores[endingKey]-a.scores[endingKey]);
+  const topScore = ranked[0].scores[endingKey];
+  const epilogueHtml = `
+    <div class="epilogue-box">
+      <div class="label">🏆 개인 점수판 — 이번 결말에서 나는 몇 점?</div>
+      <p style="color:var(--text-dim);font-size:12.5px;margin-bottom:12px;">쟁점의 결론이 어느 쪽으로 나느냐에 따라, 각자에게 유리한 정도가 다릅니다. 같은 진영이라도 점수는 다를 수 있습니다.</p>
+      ${ranked.map(c=>{
+        const score = c.scores[endingKey];
+        const isTop = score===topScore;
+        const cardId = c.id+"-4";
+        const wasRevealed = revealedSet.has(cardId);
+        return `<div class="epilogue-row">
+          <span class="ep-name">${isTop?"👑 ":""}${c.name}</span><span class="ep-tag">${c.side} · ${c.seat}${npcSet.has(c.id)?" · 🤖 NPC":""}</span><span class="ep-score ${score<0?'neg':'pos'}">${score>0?'+':''}${score}점</span><span class="ep-tag">${wasRevealed?"🗣 비밀 공개됨":"🔒 비밀 지켜짐"}</span>
+          <div>${wasRevealed ? c.epilogue.revealed : c.epilogue.hidden}</div>
+        </div>`;
+      }).join("")}
+    </div>`;
+  return `
+    ${VOTE_AXES.map(axis=>{
+      const total = Math.max(1, tally[axis.key].reject + tally[axis.key].recognize);
+      return `<div class="tally">
+        <div class="axis-h"><span class="axis-label">${axis.label}</span> ${axis.title}</div>
+        ${axis.options.map(o=>{
+          const c = tally[axis.key][o.v]||0; const pct = Math.round(c/total*100);
+          return `<div class="tally-row ${o.v===axisResult[axis.key]?'match':''}">
+            <span>${o.t}</span><span class="mono">${c}표</span>
+            <div class="tally-bar-track"><div class="tally-bar-fill" style="width:${pct}%"></div></div>
+          </div>`;
+        }).join("")}
+      </div>`;
+    }).join("")}
+    <div class="verdict-box">
+      <span class="stamp">${ending.stamp}</span>
+      <h2>${ending.headline}</h2>
+      <p style="white-space:pre-wrap;">${ending.body}</p>
+    </div>
+    ${KEY_HIDDEN_CARDS.some(id=>revealedSet.has(id)) ? `<div class="lesson"><div class="label">⚠ 이번 판에서 드러난 증거</div>실제 사건 기록에는 배후 지시(제6·18호)나 평가 점수 거래(제15·22호) 같은 내부 증거가 없었고, 실제 재심 판정은 그 상태에서 내려졌습니다. 이번 심문회의에서는 이런 증거가 공개되었습니다. 실제 심리에서 이 증거가 드러났다면 인사고과는 조작된 근거가 되어 갱신거절의 합리적 이유가 무너지고, 부당노동행위도 인정될 가능성이 큽니다. 같은 사실관계라도 <b>어떤 증거가 심리에서 드러나느냐</b>에 따라 결론이 바뀔 수 있습니다.</div>` : ""}
+    <div class="lesson"><div class="label">LESSON</div>${ending.lesson}</div>
+    ${renderGuideBox(LEARNING_POINTS)}
+    <div class="matrix" style="margin-top:16px;">
+      <p style="color:var(--text-dim);font-size:13px;margin-bottom:4px;">🔎 쟁점별 해설 — 토론 중엔 숨겨져 있던 진실입니다.</p>
+      ${ISSUE_MATRIX.map(m=>`
+        <div class="matrix-card">
+          <div class="topic">${m.topic}</div>
+          <div class="matrix-row truth"><span class="tag">숨겨진 진실</span><span>${m.truth}</span></div>
+        </div>`).join("")}
+    </div>
+    ${epilogueHtml}
+    ${renderFullStory()}
+  `;
+}
+
+/* ============================================================
+   4. 부팅 — Firebase 초기화 후 스토어 연결
+   ============================================================ */
+function updateConnBanner(){
+  const el = document.getElementById("connBanner");
+  if(!el) return;
+  if(!dbHandle){
+    el.className = "conn-banner show local";
+    el.textContent = "⚠️ 실시간 동기화 연결 실패 — 이 기기는 다른 참가자와 공유되지 않는 단독 모드로 실행 중입니다. 인터넷 연결을 확인하고 새로고침해 주세요.";
+  } else if(myRoom && !stateLoaded){
+    el.className = "conn-banner show slow";
+    el.textContent = "🔴 연결 확인 중... 계속 이 상태면 새로고침해 주세요.";
+  } else {
+    el.className = "conn-banner";
+    el.textContent = "";
+  }
+}
+async function boot(){
+  try{
+    firebase.initializeApp(firebaseConfig);
+    dbHandle = firebase.firestore();
+  }catch(e){ dbHandle = null; }
+  updateConnBanner();
+  if(myRoom) connectStore(); else render(); // 기존에 입장했던 방 코드가 있으면 바로 재연결
+
+  setInterval(()=>{
+    if(!store || sharedState.phase==="result") return;
+    if(Date.now() >= phaseEndsAtMs()){ advancePhase(); return; }
+    const remain = phaseEndsAtMs() - Date.now();
+    const t = document.getElementById("timerEl"); // 전체 재렌더 없이 초시계만 갱신(클릭 타이밍 충돌 방지)
+    if(t) t.textContent = fmtClock(remain);
+  }, 1000);
+}
+boot();
+</script>
+</body>
+</html>
