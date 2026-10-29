@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ER미스터리 '(주)클린테크 갱신거절 사건'</title>
+<title>ER미스터리 '○○아파트 경비원 갱신거절 사건'</title>
 <style>
 /* ============================================================
    DESIGN TOKENS — 빈티지·레트로 사건기록철(색바랜 서류/도장) 단일 테마
@@ -1442,7 +1442,7 @@ function renderRoomGate(){
           <circle cx="80" cy="48" r="4" fill="var(--paper)"/>
         </svg>
       </div>
-      <h1 class="cover-title">ER 미스터리<br>'(주)클린테크 갱신거절 사건'</h1>
+      <h1 class="cover-title">ER 미스터리<br>'○○아파트 경비원 갱신거절 사건'</h1>
       <p class="cover-tagline">6인용 노동분쟁 심문 미스터리</p>
       <div class="cover-divider"></div>
       <p class="cover-lede">우리 조의 이름(코드)을 입력하세요 —<br>같은 코드를 쓴 사람끼리만 진행상황을 공유합니다.</p>
@@ -1456,7 +1456,7 @@ function renderRoomGate(){
         <button class="btn primary" id="joinRoomBtn">이 코드로 입장</button>
         <button class="btn" id="genRoomBtn">랜덤 코드 생성</button>
       </div>
-      <p class="cover-footnote">이 시나리오는 2025부해-08 판정례를 참고해 각색되었습니다.</p>
+      <p class="cover-footnote">이 시나리오는 2026부해각색-05호 판정례를 참고해 각색되었습니다.</p>
       <a href="../" class="cover-back">← 다른 사건 보기</a>
     </div>
   `;
@@ -1509,7 +1509,7 @@ function renderGate(){
   app.innerHTML = `
     <div class="gate">
       <div class="case-no mono">사건번호 ${CASE_NO} · 방 코드 ${myRoom}</div>
-      <h1>ER 미스터리 '(주)클린테크 갱신거절 사건'</h1>
+      <h1>ER 미스터리 '○○아파트 경비원 갱신거절 사건'</h1>
       ${renderGuideBox(CORE_CONCEPTS)}
       ${waiting
         ? `<p class="lede">당신은 <b>${CHARACTERS.find(c=>c.id===myRole).name}</b> 역할입니다. ${ready?"모든 배역이 정해졌습니다 — 준비됐으면 아래 버튼으로 사건을 시작하세요.":"다른 참가자들이 배역을 고르는 중이에요."}</p>`
