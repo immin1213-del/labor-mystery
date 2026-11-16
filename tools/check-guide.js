@@ -27,5 +27,12 @@ const hub = fs.readFileSync(path.join(root, "index.html"), "utf8");
 check(!hub.includes("최소 1·2·3장"), "허브에 옛 규칙 문구(최소 1·2·3장) 있음");
 check(hub.includes('href="guide/"'), "허브에 진행자용 설명 화면 링크(guide/) 없음");
 
+// 결말·점수 규칙: 결말은 '그 인물의 비밀 카드(c.id-4)가 공개됐는지', 점수는 '판정 결과'로만 정해짐(renderResult)
+for (const [name, html] of [["guide", guide], ["허브", hub]]) {
+  for (const wrong of ["결과 화면의 내 결말이 달라집니다", "비밀을 지켰는지", "비밀을 공개했는지에 따라"]) {
+    check(!html.includes(wrong), `${name}에 잘못된 결말 규칙 문구: "${wrong}"`);
+  }
+}
+
 if (fails.length) { fails.forEach(f => console.error("FAIL: " + f)); process.exit(1); }
 console.log(`PASS: guide ${slides.length}장`);
