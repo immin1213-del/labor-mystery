@@ -22,5 +22,10 @@ const REAL_NAMES = ["김도윤","박기준","백태우","이서현","오동석",
 const leaked = REAL_NAMES.filter(n => guide.includes(n));
 check(leaked.length === 0, `실제 사건 인물명 포함: ${leaked.join(", ")}`);
 
+// 허브: 옛 규칙 문구 제거 + 설명 화면 링크
+const hub = fs.readFileSync(path.join(root, "index.html"), "utf8");
+check(!hub.includes("최소 1·2·3장"), "허브에 옛 규칙 문구(최소 1·2·3장) 있음");
+check(hub.includes('href="guide/"'), "허브에 진행자용 설명 화면 링크(guide/) 없음");
+
 if (fails.length) { fails.forEach(f => console.error("FAIL: " + f)); process.exit(1); }
 console.log(`PASS: guide ${slides.length}장`);
