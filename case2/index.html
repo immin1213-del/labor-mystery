@@ -877,7 +877,7 @@ const ALL_CARDS = [
     ...card,
     id: card.id || (c.id + "-" + card.round),       // db 문서 id로 쓸 안전한 영문 id
     ownerId: c.id,
-    ownerName: c.name,
+    ownerName: `${c.name} (${c.side})`, // 증거대에서 출처 인물의 진영이 바로 보이게(NPC·제3자 자료는 진영 없음)
   }))),
   ...NPC_CARDS.map(card => ({
     ...card,
@@ -1766,7 +1766,7 @@ function renderBoard(){
       }
       if(claim.by !== myRole && !isRevealed){
         const claimant = CHARACTERS.find(c=>c.id===claim.by);
-        return `<div class="locked claimed"><div class="lock-icon">🔒</div><div>${claimant?claimant.name:"다른 참가자"}님이 확보함</div><div class="owner-tag">${card.ownerName}</div></div>`;
+        return `<div class="locked claimed"><div class="lock-icon">🔒</div><div>${claimant?`${claimant.name}(${claimant.side})`:"다른 참가자"}님이 확보함</div><div class="owner-tag">${card.ownerName}</div></div>`;
       }
       const isMine = claim.by === myRole;
       if(isMine){
