@@ -538,8 +538,8 @@ const PHASE_LABEL = {casting:"배역 선택 대기", briefing:"사건 개요·�
 const PHASE_GUIDE = {
   briefing:{title:"📖 사건 개요·전후관계 파악", body:"진행자 없이 진행됩니다. 아직 증거카드는 공개되지 않으니, 이 시간 동안 아래를 확인하고 참가자들끼리 대화하며 사건의 흐름부터 맞춰보세요.\n\n1. '내 신원' 탭 — 내게 배정된 역할의 배경·입장·비밀·목표를 꼼꼼히 읽으세요.\n2. '사건 개요' 탭 — 초심 판정 요지와 사건 타임라인을 확인하며 누가 언제 무엇을 했는지 맞춰보세요."},
   intro:{title:"🎤 짧게 자기소개 해주세요", body:"본격적인 증거 공개 전에, 한 사람씩 30초~1분 정도로 자신의 역할(이름·소속·겉으로 내세우는 입장)만 짧게 소개하세요. 🔒 비밀은 아직 말하지 마세요!"},
-  round2:{title:"🔍 증거대가 열렸습니다", body:"'증거대' 탭에서 모든 증거가 한꺼번에 공개됩니다.\n\n🎫 이번 라운드엔 토큰이 2개 있습니다 — 카드를 '가져가기'로 확보하거나, 남이 공개한 카드를 열람할 때마다 1개씩 듭니다.\n\n🔒 확보한 카드는 나만 영구 무료로 다시 볼 수 있습니다. 한 카드는 한 명만 가져갈 수 있으니 서둘러 확인하세요."},
-  round3:{title:"🔍 계속 증거를 확인하세요", body:"아직 못 가져간 카드가 있다면 지금 확인하세요.\n\n🎫 토큰이 다시 2개로 채워졌습니다."},
+  round2:{title:"🔍 증거대가 열렸습니다", body:"'증거대' 탭에서 증거 36장이 모두 열립니다.\n\n🎫 라운드마다 토큰 2개 — 카드 1장을 '가져가기'할 때 1개씩 씁니다. 6명이 세 라운드 동안 2장씩 가져가면 36장이 모두 주인을 찾습니다.\n\n🔒 확보한 카드는 나만 볼 수 있습니다. '공개하기'를 누르면 전원에게 알림이 가고, 누구나 토큰 없이 열람할 수 있습니다.\n\n⏱ 전원이 '다음 단계 준비'를 누르거나 시간이 끝나면 다음 라운드로 넘어갑니다."},
+  round3:{title:"🔍 계속 증거를 확인하세요", body:"아직 주인이 없는 카드를 확보하세요. 🎫 토큰이 다시 2개로 채워졌습니다.\n\n공개된 카드는 토큰 없이 볼 수 있으니 다른 사람이 공개한 증거도 확인하세요."},
   round4:{title:"🔒 결정적 증거를 놓치지 마세요", body:"각 인물의 가장 결정적인 비밀이 걸려있습니다. 확보한 카드를 '공개하기'로 전원에게 터뜨릴지, 조용히 숨길지에 따라 최종 결과 화면에서 그 인물의 결말이 달라집니다.\n\n🎫 토큰도 다시 2개로 채워졌습니다."},
   discussion:{title:"💬 교차검증 토론", body:"모든 증거가 공개되었습니다. 각자 확보한 카드를 서로에게 설명하며, '증거대' 탭 위쪽의 쟁점 비교표를 하나씩 짚어보세요."},
   vote:{title:"🗳 최종 판정 투표", body:"토론 내용을 바탕으로 두 가지 쟁점(갱신기대권 인정 여부 / 거절 사유 정당성)에 각각 투표하세요. 두 쟁점의 조합에 따라 결말이 4가지로 달라집니다. 다른 사람 표는 결과가 나오기 전까지 알 수 없는 익명 투표이며, 투표는 언제든 바꿀 수 있습니다."},
@@ -548,18 +548,64 @@ const PHASE_GUIDE = {
 const DURATIONS = {casting:1800, briefing:600, intro:240, round2:300, round3:300, round4:300, discussion:900, vote:120};
 
 const NPC_CARDS = [
-  { id:"npc-ruling", ownerId:"npc-ruling", round:2, kind:"view",
+  { id:"npc-ruling", ownerId:"npc-ruling", ownerName:"지방노동위원회(NPC)", round:2,
     exhibit:"참고자료 1", title:"지방노동위원회 초심 결정문", docNo:"2024부해-각색-0720", date:"2024.07.20",
     body:"초심 결정 요지: '이 사건 근로계약은 기간의 정함이 있는 계약으로, 반복 갱신이 3~4회 이루어졌다 하더라도 명시적 갱신 약정이 없는 이상 갱신기대권이 성립한다고 보기 어렵다. 피신청인이 제시한 업무평가(42점)는 관리규약에 근거한 것으로 갱신거절에 합리적 이유가 인정된다. 신청인의 청구를 기각한다.'",
     note:"초심은 두 쟁점 모두에서 사측 손을 들어줬다. 재심에서 어느 쪽 판단이 달라질지가 오늘의 핵심이다." },
-  { id:"npc-precedent", ownerId:"npc-precedent", round:3, kind:"view",
+  { id:"npc-precedent", ownerId:"npc-precedent", ownerName:"참고 판례", round:3,
     exhibit:"참고자료 2", title:"갱신기대권 관련 대법원 판례", docNo:"대법원 2011다4282", date:"2011.07.14",
     body:"'기간제 근로계약이 반복 갱신되어 그 정한 기간이 단순한 형식에 불과한 경우, 또는 근로자에게 갱신에 대한 정당한 기대권이 인정되는 경우에는 사용자가 이를 갱신 거절하는 것이 부당해고에 해당한다.' — 대법원 2011다4282 판결",
     note:"이 판례가 이기철 사건에 어떻게 적용되는지가 쟁점이다. 4차례 갱신이 '단순한 형식'을 넘어선 것인지 논의해볼 것." },
-  { id:"npc-regulation", ownerId:"npc-regulation", round:2, kind:"view",
+  { id:"npc-regulation", ownerId:"npc-regulation", ownerName:"아파트 관리규약", round:2,
     exhibit:"참고자료 3", title:"아파트 관리규약 (경비원 관련 조항)", docNo:"관리규약-2019", date:"2019.03",
     body:"제14조(경비원 채용): '경비원은 2년 단위로 계약하며, 업무 실적 평가 결과에 따라 갱신 여부를 결정할 수 있다.'\n제15조: '평가는 공정한 절차에 따라 시행하여야 하며, 피평가자에게 사전 고지하여야 한다.'",
     note:"'사전 고지' 의무 위반 여부가 절차적 정당성 판단의 핵심이다. 이기철은 평가를 사전에 통보받았는가?" },
+  // ── 2026-11-16 증거 36장 확장(라운드당 12장 = 6명×토큰 2개) ──
+  { id:"x-patrol", ownerId:"npc-office", ownerName:"관리사무소 서류철", round:2, exhibit:"참고자료 4", title:"경비원 근무일지 발췌(2023)", docNo:"경비 근무일지 3초소", date:"2023.01~12",
+    body:"이기철 야간순찰 체크 — 근무일 182일 중 181일 기록\n누락 1회(2023.08.14): '302동 입주민 응급 이송 구급차 동행으로 순찰 지연, 관리소장 사후 승인'\n지각·조퇴 기록 없음.",
+    note:"근태 20점 만점에 8점(乙제1호증) — 이 일지와 어떻게 맞춰볼 수 있을까." },
+  { id:"x-eval-notice", ownerId:"npc-council", ownerName:"입주자대표회의 서류철", round:2, exhibit:"乙제10호증", title:"경비원 업무평가 제도 도입 공고", docNo:"입대위 공고 2023-02", date:"2023.02.01",
+    body:"'2023년부터 경비원의 업무 역량 향상과 공정한 계약 관리를 위해 연 1회 업무평가를 실시합니다. 평가 항목과 일정은 추후 공지합니다.' — 입주자대표회의 회장 박동수\n게시 장소: 관리동 1층 게시판",
+    note:"사측은 '제도는 공개됐다'고 말한다. 다만 '추후 공지'된 일정이 언제 공지됐는지는 이 공고에 없다." },
+  { id:"x-renew4", ownerId:"npc-office", ownerName:"관리사무소 서류철", round:2, exhibit:"甲제10호증", title:"경비원 4명 계약 갱신 현황", docNo:"관리-인사-2024-01", date:"2024.01.20",
+    body:"2024년 3월 계약만료 대상 경비원 4명\n· 경비원 A(근속 5년, 74점) — 갱신\n· 경비원 B(근속 3년, 71점) — 갱신\n· 경비원 C(근속 2년, 66점) — 갱신\n· 이기철(근속 8년, 42점) — 갱신 거절\n※ 2016년 이후 이 아파트에서 갱신이 거절된 경비원은 이기철이 처음.",
+    note:"가장 오래 일한 사람이 가장 낮은 점수를 받았다." },
+  { id:"x-board", ownerId:"npc-office", ownerName:"관리사무소 서류철", round:2, exhibit:"참고자료 5", title:"관리동 게시판 공지 사진", docNo:"게시판 사진(관리사무소 촬영)", date:"2023.12.05",
+    body:"공지문: '금일(12.5) 경비원 업무평가를 실시합니다. — 입주자대표회의 감사'\n사진 파일 촬영 시각: 2023.12.05 13:52\n※ 이 게시판은 관리동 1층에 있으며, 경비초소(3초소)와는 약 300m 떨어져 있다.",
+    note:"관리규약 제15조는 '사전 고지'를 요구한다(참고자료 3). 평가 38분 전, 초소에서 300m 떨어진 게시판 공지는 사전 고지일까?" },
+  { id:"x-callog", ownerId:"npc-office", ownerName:"관리사무소 서류철", round:3, exhibit:"甲제11호증", title:"경비초소 내선 통화 기록", docNo:"내선전화 로그 3초소", date:"2023.12.05",
+    body:"14:27~14:38 (11분) 수신 — 발신: 302동 1104호\n근무일지 기재: '1104호 어르신 욕실 낙상 신고. 119 신고 안내 및 관리사무소 연락, 구급대 도착 시까지 통화 유지.'",
+    note:"강인호의 관찰 기록(乙제7호증) '14:30~14:35, 내부 전화 응대 중, 외부 방문자 대응 부재'가 바로 이 시간이다." },
+  { id:"x-observe", ownerId:"npc-council", ownerName:"입주자대표회의 서류철", round:3, exhibit:"乙제11호증", title:"경비원별 현장 관찰 시간 기록", docNo:"평가 관찰기록 원본", date:"2023.12.05",
+    body:"경비원 A — 10:00~10:40(40분) / 경비원 B — 11:00~11:35(35분) / 경비원 C — 13:30~14:05(35분) / 이기철 — 14:30~14:35(5분)\n평가자: 강인호(단독)",
+    note:"사측이 '같은 날 같은 기준으로 평가했다'며 낸 자료다. 관찰 시간도 같았을까?" },
+  { id:"x-petition", ownerId:"npc-residents", ownerName:"입주민 일동", round:3, exhibit:"甲제12호증", title:"입주민 서명부(이기철 계약 유지 요청)", docNo:"입주민 연명부", date:"2024.02.03~10",
+    body:"'8년간 성실히 근무한 이기철 경비원의 계약 유지를 요청합니다.'\n서명: 112세대(전체 약 380세대) / 대표 제출: 정미선\n입주자대표회의 회신(2024.02.20): '이미 결의된 사항으로 재논의하지 않음.'",
+    note:"입주민 3분의 1 가까이 서명했다. 결의는 서명 전에 이미 끝나 있었다." },
+  { id:"x-sole", ownerId:"npc-council", ownerName:"입주자대표회의 서류철", round:3, exhibit:"乙제12호증", title:"조경 공사 수의계약 사유서", docNo:"입대위-2022-조경", date:"2022.09.02",
+    body:"'단지 내 수목 고사 확산으로 긴급 방제·식재가 필요하여 견적 비교 절차를 생략하고 수의계약으로 진행함. 계약금액 1,400만원.'\n작성: 관리사무소(당시 관리소장 최명희) / 승인: 입주자대표회의",
+    note:"사측은 '긴급해서 견적을 생략했을 뿐'이라 말한다. 그 '긴급'은 9~10월 두 달 내내 이어졌다." },
+  { id:"x-warning", ownerId:"npc-council", ownerName:"입주자대표회의 서류철", round:3, exhibit:"甲제13호증", title:"이기철 서면에 대한 회장 명의 회신", docNo:"입대위-2022-회신-07", date:"2022.12.05",
+    body:"수신: 경비원 이기철\n'귀하가 제기한 조경 공사 관련 의혹은 근거가 없으며, 경비원의 직무 범위를 벗어난 관리비 문제 제기는 관리 업무에 대한 방해가 될 수 있음을 경고합니다.' — 입주자대표회의 회장 박동수",
+    note:"의혹에 대한 소명은 없고 '경고'만 있다. 열흘 뒤 회의에서 '외부 민원 제기자 엄중 대처'(甲제8호증)가 나온다." },
+  { id:"x-design-v", ownerId:"npc-kangpc", ownerName:"강인호 PC 파일", round:4, exhibit:"참고자료 6", title:"평가 항목 설계 파일 변경 이력", docNo:"경비원평가_설계.xlsx 버전 기록", date:"2023.10~11",
+    body:"v1(2023.10.12 저장): 근태 40 / 민원처리 30 / 청결 30 — 전부 기록 기반 항목\nv2(2023.11.21 09:14 저장): 근태 20 / 서비스 20(평가자 주관 관찰) / 안전 20 / 민원처리 20 / 청결 20\n파일 메모란(v2): '회장님 의견 반영'",
+    note:"주관 항목 '서비스'는 박동수와 식사한 다음 날 아침(11.21)에 생겼다." },
+  { id:"x-gu-call", ownerId:"npc-gu", ownerName:"○○구청 주택과(NPC)", round:4, exhibit:"참고자료 7", title:"구청 민원 상담 기록", docNo:"주택과 전화상담 대장", date:"2023.11.16",
+    body:"상담 요지: '공동주택 조경 공사를 견적 없이 수의계약한 경우 신고 절차와 필요 서류 문의'\n상담자: 성명 미기재, 연락처 010-****-4417\n처리: 서면 신고 시 관리비 집행 증빙 첨부 안내",
+    note:"연락처 끝자리 4417은 이기철의 휴대폰 번호와 같다. 이 상담 뒤 이틀 만에 누군가 그 사실을 알게 된다(참고자료 8)." },
+  { id:"x-inlaw", ownerId:"npc-inlaw", ownerName:"박동혁 휴대폰(NPC)", round:4, exhibit:"참고자료 8", title:"박동혁(조경업체 대표)의 문자", docNo:"문자 캡처", date:"2023.11.18",
+    body:"박동혁 → 박동수: '형님, 구청에 아는 사람이 그러는데 경비 아저씨가 우리 조경 건 신고하는 거 물어봤답니다. 괜찮을까요?'\n박동수 → 박동혁: '내가 알아서 정리할게. 걱정 마.'",
+    note:"11.18 '정리할게' → 11.20 강인호와 식사 → 11.21 평가 항목 변경 → 11.28 '이기철 씨는 이번에 정리합시다'(甲제4호증)." },
+  { id:"x-choi-note", ownerId:"npc-choinote", ownerName:"최명희 업무수첩", round:4, exhibit:"참고자료 9", title:"최명희 관리소장 업무수첩", docNo:"개인 업무수첩", date:"2023.11.28",
+    body:"'17:50 회장님 복도에서 — 이기철 씨 이번에 정리. 평가는 강 감사가 새로 한다고. 내 4월 평가(65점)는 어떻게 되는 거냐고 물으니 \"그건 참고용\"이라고.'\n'김동현 씨가 계단에 있었다. 들었을까.'",
+    note:"김동현의 진술(甲제4호증)과 같은 날, 같은 장소의 기록이다. 다른 사람의 손으로 쓰였다." },
+  { id:"x-member", ownerId:"npc-member", ownerName:"입대위 위원 D(NPC)", round:4, exhibit:"참고자료 10", title:"비갱신 결의 참석 위원의 진술서", docNo:"자필 진술서", date:"2026.05.20",
+    body:"'2024년 1월 10일 임시회의 전날, 회장님이 위원들에게 전화로 \"평가 결과대로 처리하는 거니까 거수만 해달라\"고 했습니다. 회의에서 평가서는 점수만 보여주고 세부 내용은 보여주지 않았습니다. 최 소장님이 4월에 따로 평가한 게 있다는 건 오늘에서야 알았습니다.'",
+    note:"'참석 위원 5명 전원 찬성'(乙제2호증)의 실제 모습이다." },
+  { id:"x-kang-chat", ownerId:"npc-kangphone", ownerName:"강인호 휴대폰(NPC)", round:4, exhibit:"참고자료 11", title:"강인호·박동수 카톡", docNo:"1:1 대화방 캡처", date:"2023.12.06",
+    body:"강인호: '회장님, 집계 끝났습니다. 말씀하신 대로 나왔습니다. 이기철 씨 42점, 나머지 셋은 다 60점 넘습니다.'\n박동수: '수고했어요 강 감사. 결의는 1월에 합시다.'",
+    note:"'말씀하신 대로' — 평가 결과가 나오기 전에 이미 정해진 '말씀'이 있었다." },
 ];
 
 const CHARACTERS = [
@@ -592,10 +638,10 @@ const CHARACTERS = [
       hidden:"신고서는 서랍 안에 남아 있다. 이기철은 판정 결과만 기다렸다."
     },
     cards:[
-      {round:2, kind:"view", exhibit:"甲제1호증", title:"근로계약서 4부 및 전임 회장 진술서", docNo:"계약-2016/2018/2020/2022", date:"2016.03~2024.03",
+      {round:2, exhibit:"甲제1호증", title:"근로계약서 4부 및 전임 회장 진술서", docNo:"계약-2016/2018/2020/2022", date:"2016.03~2024.03",
         body:"2016년부터 2022년까지 4차례 체결된 근로계약서. 매회 계약기간은 2년, 직종은 경비원. 계약서 어디에도 '갱신 불가' 또는 '회수 제한' 문구 없음.\n전임 입주자대표회의 회장 김봉희(72세) 진술: '이기철 씨는 성실하고 믿을 수 있는 분이라 계속 일하셨으면 한다고 직접 말씀드렸습니다. 아무 문제없이 계속 계실 거라고 생각했습니다.'",
         note:"4번 연속 갱신이라는 사실과 전임 회장의 구두 약속이 갱신기대권의 물적·인적 근거다."},
-      {round:3, kind:"view", exhibit:"甲제2호증", title:"관리비 의혹 서면 (2022.11.10)", docNo:"서면-2022-1110", date:"2022.11.10",
+      {round:3, exhibit:"甲제2호증", title:"관리비 의혹 서면 (2022.11.10)", docNo:"서면-2022-1110", date:"2022.11.10",
         body:"이기철이 박동수 회장에게 제출한 서면. '2022년 9~10월 조경 공사 대금 1,400만 원이 견적서 없이 지급된 사실을 확인하였으며, 이에 대한 소명을 요청합니다.' — 서면 수령 도장이 찍혀 있음.",
         note:"비갱신 결정이 이 서면 이후 시작됐다는 정황 증거다."},
       {round:4, exhibit:"甲제3호증", title:"지방자치단체 신고 준비 문서", docNo:"신고준비-2023", date:"2023.10 작성",
@@ -632,7 +678,7 @@ const CHARACTERS = [
       {round:2, kind:"claim", exhibit:"甲제4호증", title:"박동수 발언 진술서", docNo:"진술-2024-002", date:"2024.06.15",
         body:"김동현 자필 진술서. '2023년 11월 28일 오후 5시 45분경, 관리동 2층 복도에서 박동수 회장이 최명희 소장에게 이기철 씨는 이번에 정리합시다라고 말하는 것을 명확히 들었음.' 서명 첨부.",
         note:"보복성 비갱신을 입증하는 핵심 증언이다."},
-      {round:3, kind:"view", exhibit:"甲제5호증", title:"평가일 경위서", docNo:"경위-2024-003", date:"2024.06.15",
+      {round:3, exhibit:"甲제5호증", title:"평가일 경위서", docNo:"경위-2024-003", date:"2024.06.15",
         body:"김동현 작성 경위서. '2023년 12월 5일 14:30경, 강인호 감사가 경비초소 앞에 5분간 위치하며 이기철 씨가 내부 전화 응대 중인 상태에서 평가표에 기재한 뒤 이동함. 이기철 씨는 평가자의 방문을 인지하지 못함.'",
         note:"이기철이 평가 사실을 몰랐다는 주장을 뒷받침하는 현장 목격 기록이다."},
       {round:4, exhibit:"甲제6호증", title:"최명희 소장 개인 문자 메시지", docNo:"문자-2024-0116", date:"2024.01.16",
@@ -666,10 +712,10 @@ const CHARACTERS = [
       hidden:"조경 업체 의혹은 이번 심판에서 드러나지 않았다. 정미선은 별도로 감사원에 신고하기로 결심했다."
     },
     cards:[
-      {round:2, kind:"view", exhibit:"甲제7호증", title:"이기철 칭찬 민원 기록 및 입대위 활동 기록", docNo:"민원-2020-2023", date:"2020.03~2023.11",
+      {round:2, exhibit:"甲제7호증", title:"이기철 칭찬 민원 기록 및 입대위 활동 기록", docNo:"민원-2020-2023", date:"2020.03~2023.11",
         body:"입주민 23명이 제출한 이기철 관련 긍정 민원 목록. 택배 보관, 노인 부축, 야간 순찰 강화 요청 이행 등. 단 한 건의 불만 민원도 없음.\n정미선의 2020~2022 위원 활동 기록 — 회의 참석 16회, 이기철 관련 민원 처리 기록 4건 포함.",
         note:"8년간 축적된 실제 업무 평판과 42점이라는 평가 점수가 극명하게 충돌한다."},
-      {round:3, kind:"view", exhibit:"甲제8호증", title:"입주자대표회의 회의록 (2022.12)", docNo:"회의록-2022-1215", date:"2022.12.15",
+      {round:3, exhibit:"甲제8호증", title:"입주자대표회의 회의록 (2022.12)", docNo:"회의록-2022-1215", date:"2022.12.15",
         body:"2022년 12월 15일 정기회의록. 5번 항목: 박동수 발언 요지 '관리 관련 외부 민원 제기자에 대해 엄중 대처 방침 수립' 기재. 참석자 6명 서명.",
         note:"발언 내용이 공문서에도 일부 남아 있다."},
       {round:4, exhibit:"甲제9호증", title:"조경 업체 사업자등록증 및 관리비 집행 내역", docNo:"사업자-2022", date:"2022.09~10",
@@ -705,10 +751,10 @@ const CHARACTERS = [
       hidden:"비갱신 결정은 절차 위반 없이 통과됐다. 박동수는 다음 임기 준비를 시작했다."
     },
     cards:[
-      {round:2, kind:"view", exhibit:"乙제1호증", title:"경비원 업무평가 지침 및 최종 평가서", docNo:"지침-2023-001", date:"2023.11~12",
+      {round:2, exhibit:"乙제1호증", title:"경비원 업무평가 지침 및 최종 평가서", docNo:"지침-2023-001", date:"2023.11~12",
         body:"강인호 설계 평가 지침 — 평가 항목: 근태(20점), 서비스(20점), 안전(20점), 민원처리(20점), 청결(20점). 합격선 60점.\n이기철 최종 평가서: 근태 8, 서비스 6, 안전 10, 민원처리 10, 청결 8 — 합계 42점. '평가 기준 미달로 갱신 부적합' 의견 기재.",
         note:"공식 기준과 결과가 있다는 것을 보여주려는 목적이다."},
-      {round:3, kind:"view", exhibit:"乙제2호증", title:"입주자대표회의 비갱신 결의문 및 타 경비원 평가 결과", docNo:"결의-2024-001", date:"2024.01.10",
+      {round:3, exhibit:"乙제2호증", title:"입주자대표회의 비갱신 결의문 및 타 경비원 평가 결과", docNo:"결의-2024-001", date:"2024.01.10",
         body:"2024년 1월 10일 임시회의 결의문. '이기철 경비원 계약 갱신 불가. 사유: 업무평가 기준 미달(42점).' 참석 위원 5명 전원 찬성.\n타 경비원 평가: A 74점, B 71점, C 66점 — 모두 합격선 통과.",
         note:"공식 결의와 다른 경비원들과의 점수 비교를 함께 제시하여 절차적 합법성을 주장한다."},
       {round:4, exhibit:"乙제3호증", title:"박동수 → 최명희 지시 이메일", docNo:"이메일-2023-1130", date:"2023.11.30",
@@ -744,10 +790,10 @@ const CHARACTERS = [
       hidden:"65점 평가서는 끝내 아무도 모른 채 넘어갔다. 최명희는 서랍을 열어보며 오래 생각했다."
     },
     cards:[
-      {round:2, kind:"view", exhibit:"乙제4호증", title:"이기철 인사파일 및 갱신 불가 통보문", docNo:"인사-lkc-2016-2024", date:"2016.03~2024.01",
+      {round:2, exhibit:"乙제4호증", title:"이기철 인사파일 및 갱신 불가 통보문", docNo:"인사-lkc-2016-2024", date:"2016.03~2024.01",
         body:"이기철 재직 기간 전체 인사 파일. 징계 기록 없음. 야간 특근 월평균 3.2회.\n관리소장 평가란: '성실하고 민원 처리 능력 양호.'\n갱신 불가 내용증명 (2024.01.20): '귀하의 근로계약은 2024.03.01 만료될 예정이며, 입주자대표회의 결의에 따라 갱신하지 않음을 통보합니다. 사유: 업무평가 기준 미달.'",
         note:"최명희 자신이 이기철을 좋게 평가했음이 인사파일에 기록되어 있다. 통보 문서의 사유와 충돌한다."},
-      {round:3, kind:"view", exhibit:"乙제5호증", title:"박동수 회장 지시 이메일 및 관리소장 업무 지침", docNo:"이메일-2023-1130", date:"2023.11.30",
+      {round:3, exhibit:"乙제5호증", title:"박동수 회장 지시 이메일 및 관리소장 업무 지침", docNo:"이메일-2023-1130", date:"2023.11.30",
         body:"박동수 → 최명희 이메일: '소장님, 이기철 씨 건은 강 감사님 평가 결과로 처리하면 됩니다. 내년 3월 계약 만료 이후 연장 없는 방향으로 준비해주세요.'\n관리소장 업무 지침 제7조: '관리소장은 입주자대표회의 회장의 업무 지시를 따르며, 이에 반하는 경우 관리업체에 책임을 귀속한다.'",
         note:"지시를 따를 수밖에 없었다는 구조적 근거와, 실제 지시 이메일이 함께 있다."},
       {round:4, exhibit:"乙제6호증", title:"원본 평가서 (65점)", docNo:"평가-원본-lkc", date:"2023.04",
@@ -781,10 +827,10 @@ const CHARACTERS = [
       hidden:"평가서 조작 의혹은 제기되지 않았다. 강인호는 다음 임기에도 감사직 연임을 신청했다."
     },
     cards:[
-      {round:2, kind:"view", exhibit:"乙제7호증", title:"경비원 업무평가 항목표 및 이기철 현장 관찰 기록", docNo:"항목-2023-001", date:"2023.11.25~12.05",
+      {round:2, exhibit:"乙제7호증", title:"경비원 업무평가 항목표 및 이기철 현장 관찰 기록", docNo:"항목-2023-001", date:"2023.11.25~12.05",
         body:"평가 항목 세부 기준 — 근태(20): 지각·조퇴 건수. 서비스(20): 평가자 주관 관찰. 안전(20): 보안장비 점검 여부. 민원처리(20): 접수 민원 해결률. 청결(20): 경비초소 위생 상태.\n현장 관찰 기록(2023.12.05): '14:30~14:35, 경비초소 관찰. 경비원 이기철 내부 전화 응대 중. 외부 방문자 대응 부재. 경비초소 내 일부 물품 정리 미흡.'",
         note:"서비스 항목이 평가자 주관에 100% 의존한다는 점, 그리고 5분 관찰로 서비스 6점을 매긴 근거가 무엇인지가 핵심 취약점이다."},
-      {round:3, kind:"view", exhibit:"乙제8호증", title:"다른 경비원 평가 결과 비교 및 공정 평가 확인서", docNo:"평가-비교-2023", date:"2023.12.06~10",
+      {round:3, exhibit:"乙제8호증", title:"다른 경비원 평가 결과 비교 및 공정 평가 확인서", docNo:"평가-비교-2023", date:"2023.12.06~10",
         body:"경비원 A: 74점, 경비원 B: 71점, 경비원 C: 66점 — 세 명 모두 서비스 항목 14점 이상. 이기철의 서비스 항목은 6점.\n공정 평가 확인서(2023.12.10): '본 평가는 사전에 수립된 평가 기준에 따라 독립적이고 공정하게 시행되었음을 확인합니다.' 강인호 서명.",
         note:"이기철만 서비스 항목 6점인 이유에 대한 설명이 없다. 공정성 확인서가 있지만 실질 내용은 별개 문제다."},
       {round:4, exhibit:"乙제9호증", title:"박동수와의 식사 영수증 및 평가 설계 지시 정황", docNo:"영수증-2023-1120", date:"2023.11.20",
@@ -796,13 +842,13 @@ const CHARACTERS = [
 const ALL_CARDS = [
   ...CHARACTERS.flatMap(c => c.cards.map(card => ({
     ...card,
-    id: c.id + "-" + card.round,
+    id: card.id || (c.id + "-" + card.round),
     ownerId: c.id,
     ownerName: c.name,
   }))),
   ...NPC_CARDS.map(card => ({
     ...card,
-    id: card.ownerId + "-" + card.round,
+    id: card.id || (card.ownerId + "-" + card.round),
   })),
 ];
 
@@ -888,7 +934,7 @@ function makeLocalStore(){
   return {
     isLocal:true,
     onState(cb){stateCbs.push(cb); cb(state); return ()=>{};},
-    setPhase(phase){state={phase, phaseEndsAt: Date.now()+(DURATIONS[phase]||0)*1000}; stateCbs.forEach(cb=>cb(state));},
+    advance(from, phase){ if(state.phase!==from) return; state={phase, phaseEndsAt: Date.now()+(DURATIONS[phase]||0)*1000}; stateCbs.forEach(cb=>cb(state)); },
     getState(){return state;},
     onPlayers(cb){playerCbs.push(cb); cb(players); return ()=>{};},
     claimRole(roleId,name,playerName){ if(!players.has(roleId)){ players.set(roleId,{name,playerName:playerName||""}); playerCbs.forEach(cb=>cb(players)); return true;} return players.get(roleId).name===name;},
@@ -905,12 +951,6 @@ function makeLocalStore(){
       return true;
     },
     onTokenUse(cb){tokenCbs.push(cb); cb(tokenUse); return ()=>{};},
-    spendToken(phase,roleId){
-      const key = phase+"_"+roleId; const used = tokenUse.get(key)?.count||0;
-      if(used >= TOKENS_PER_ROUND) return false;
-      tokenUse.set(key,{count:used+1}); tokenCbs.forEach(cb=>cb(tokenUse));
-      return true;
-    },
     onReady(cb){readyCbs.push(cb); cb(ready); return ()=>{};},
     setReady(key,isReady){ if(isReady) ready.add(key); else ready.delete(key); readyCbs.forEach(cb=>cb(ready)); },
     onRevealed(cb){revealCbs.push(cb); cb(revealed); return ()=>{};},
@@ -940,8 +980,16 @@ function makeDbStore(db, roomId){
         cb(snap.data());
       }, ()=>{});
     },
-    async setPhase(phase){
-      try{ await stateRef.set({phase, phaseEndsAt:new Date(Date.now()+(DURATIONS[phase]||0)*1000).toISOString()}); }catch(e){}
+    // 여러 기기가 동시에(타이머 만료·준비완료) 단계를 넘기려 해도, 서버의 현재 단계가 from일 때만 반영된다.
+    // 화면이 꺼졌다 켜진 기기가 옛 단계 기준으로 덮어써 단계가 튀거나 두 칸 넘어가는 문제 방지(2026-11-16).
+    async advance(from, phase){
+      try{
+        await db.runTransaction(async tx=>{
+          const snap = await tx.get(stateRef);
+          if(snap.exists && snap.data().phase !== from) return;
+          tx.set(stateRef, {phase, phaseEndsAt:new Date(Date.now()+(DURATIONS[phase]||0)*1000).toISOString()});
+        });
+      }catch(e){}
     },
     onPlayers(cb){
       return playersCol.onSnapshot(qs=>{
@@ -998,19 +1046,6 @@ function makeDbStore(db, roomId){
         const m=new Map(); qs.docs.forEach(d=>m.set(d.id, d.data())); cb(m);
       }, ()=>{});
     },
-    async spendToken(phase, roleId){
-      // view형/타인 공개 카드를 열람할 때 쓰는 순수 토큰 소모(소유권 없음) — claimCard와 동일한 트랜잭션 패턴
-      const tokenRef = tokenCol.doc(tokenKey(phase, roleId));
-      try{
-        return await db.runTransaction(async tx=>{
-          const snap = await tx.get(tokenRef);
-          const used = snap.exists ? (snap.data().count||0) : 0;
-          if(used >= TOKENS_PER_ROUND) return false;
-          tx.set(tokenRef, {count: used+1}, {merge:true});
-          return true;
-        });
-      }catch(e){ return false; }
-    },
     onReady(cb){
       return readyCol.onSnapshot(qs=>{
         const s=new Set(); qs.docs.forEach(d=>s.add(d.id)); cb(s);
@@ -1059,7 +1094,7 @@ const firebaseConfig = {
   measurementId: "G-0J1F124650"
 };
 let store = null;      // 현재 조(room)에 연결된 스토어 — 방 선택 전엔 null
-let myRoom = localStorage.getItem("lm_room") || null;
+let myRoom = localStorage.getItem("lm_c4_room") || null;
 let myName = localStorage.getItem("lm_playername") || ""; // 참가자 실명 — 역할 로스터에 표시용
 let myRole = null; // 역할은 방(room)마다 따로 저장 — connectStore()에서 room-scoped 키로 읽어옴
 let sharedState = {phase:"casting", phaseEndsAt: Date.now()+DURATIONS.casting*1000};
@@ -1074,21 +1109,17 @@ let revealNotifyReady = false; // 방 접속 후 첫 onRevealed 스냅샷(기존
 let npcSet = new Set(); // NPC로 돌리기로 한 역할 id들 — 인원이 6명이 안 될 때 남는 역할을 채움
 function castingFilled(){ return players.size + npcSet.size >= CHARACTERS.length; } // 6개 역할이 전부 "실제 참가자" 또는 "NPC"로 채워졌는지
 // 2026-09-23: 라운드별 최소 채택 요구(구 EVIDENCE_MIN_CLAIMS)는 폐지 — 다 안 써도 페널티 없음.
-// 대신 확보(가져가기)·열람 행동 자체를 라운드당 토큰 2개로 제한하는 상한선만 둔다(요청 반영).
+// 대신 '가져가기'만 라운드당 토큰 2개로 제한한다. 공개된 카드 열람은 무료(2026-11-16).
 const TOKENS_PER_ROUND = 2;
 const EVIDENCE_PHASES = ["round2","round3","round4"];
 function tokenKey(phase, roleId){ return phase+"_"+roleId; }
 function tokensSpent(roleId, phase = sharedState.phase){ return tokenUse.get(tokenKey(phase, roleId))?.count || 0; }
 function myTokensSpent(){ return tokensSpent(myRole); }
 function remainingTokens(roleId = myRole){ return TOKENS_PER_ROUND - tokensSpent(roleId); }
-// 전원이 이번 라운드 토큰을 다 쓰면(더 볼 것도 없다는 뜻) 남은 시간을 기다리지 않고 조기 진행
-function allPlayersUsedAllTokens(){
-  for(const roleId of players.keys()){ if(tokensSpent(roleId) < TOKENS_PER_ROUND) return false; }
-  return true;
-}
-function readyKey(){ return sharedState.phase + "_" + myRole; }
+function readyPrefix(){ return sharedState.phase + "@" + phaseEndsAtMs() + "_"; }
+function readyKey(){ return readyPrefix() + myRole; }
 function readyCountForPhase(){
-  let n=0; readySet.forEach(k=>{ if(k.startsWith(sharedState.phase+"_")) n++; }); return n;
+  let n=0; readySet.forEach(k=>{ if(k.startsWith(readyPrefix())) n++; }); return n;
 }
 let myCardsOpen = false; // "내 소유 카드" 팝업 표시 여부
 let rosterOpen = false;  // "관계도(역할 로스터)" 팝업 표시 여부
@@ -1102,14 +1133,13 @@ function showPhaseGuideIfNew(){
   phaseGuideOpen = true;
 }
 let myOpened = new Set(); // 내가 이번 판에 펼쳐본(탭한) 카드 id들 — 다시 봐도 접힌 채로 안 보이게, 방+역할별로 localStorage에 보관
-let paidOpenSet = new Set(); // 토큰 내고 지금 펼쳐둔 공용/타인 공개 카드 id들 — 세션 메모리에만 유지(새로고침하면 초기화, 다시 보려면 재결제)
 
 function loadMyOpened(){
-  try{ myOpened = new Set(JSON.parse(localStorage.getItem("lm_opened_"+myRoom+"_"+myRole) || "[]")); }
+  try{ myOpened = new Set(JSON.parse(localStorage.getItem("lm_c4_opened_"+myRoom+"_"+myRole) || "[]")); }
   catch(e){ myOpened = new Set(); }
 }
 function saveMyOpened(){
-  try{ localStorage.setItem("lm_opened_"+myRoom+"_"+myRole, JSON.stringify([...myOpened])); }catch(e){}
+  try{ localStorage.setItem("lm_c4_opened_"+myRoom+"_"+myRole, JSON.stringify([...myOpened])); }catch(e){}
 }
 let activeTab = "id"; // id | timeline | cards
 let gateError = "";
@@ -1119,26 +1149,25 @@ let unsubFns = [];
 
 const ROOM_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 헷갈리는 0/O/1/I 제외
 function genRoomCode(){ let s=""; for(let i=0;i<4;i++) s+=ROOM_CHARS[Math.floor(Math.random()*ROOM_CHARS.length)]; return s; }
-function sanitizeRoomCode(raw){ return (raw||"").trim().toUpperCase().replace(/[^\p{L}\p{N}_\-.~:@+]/gu,"").slice(0,20); }
+function sanitizeRoomCode(raw){ return (raw||"").trim().toUpperCase().replace(/[^\p{L}\p{N}_\-.~:@+]/gu,"").slice(0,17); } // "c1-" 같은 사건 접두어를 붙여도 Firestore 규칙의 방 ID 20자 제한 안에 들도록
 
 // 조(room) 연결 — 코드 입력 시 그 조 전용 경로로 스토어를 새로 구성
 function connectStore(){
   unsubFns.forEach(u=>{ try{ u && u(); }catch(e){} }); unsubFns=[];
   players = new Map(); votes = new Map(); claims = new Map(); tokenUse = new Map(); readySet = new Set(); revealedSet = new Map(); revealNotifyReady = false; npcSet = new Set(); myCardsOpen = false; rosterOpen = false;
-  phaseGuideOpen = false; lastSeenGuidePhase = null; paidOpenSet = new Set(); lastTokenSig = "";
-  myRole = localStorage.getItem("lm_role_"+myRoom) || null; // 이 방에서 예전에 고른 역할이 있으면 복원
+  phaseGuideOpen = false; lastSeenGuidePhase = null; lastTokenSig = "";
+  myRole = localStorage.getItem("lm_c4_role_"+myRoom) || null; // 이 방에서 예전에 고른 역할이 있으면 복원
   loadMyOpened();
   sharedState = {phase:"casting", phaseEndsAt: Date.now()+DURATIONS.casting*1000};
   stateLoaded = false; // 서버의 진짜 현재 단계를 아직 못 받아온 상태 — 이 동안은 준비완료 체크로 단계를 넘기지 않는다
   updateConnBanner();
   setTimeout(()=>{ if(myRoom && !stateLoaded) updateConnBanner(); }, 5000); // 5초 지나도 연결 안 되면 경고 표시
-  store = dbHandle ? makeDbStore(dbHandle, myRoom) : makeLocalStore();
+  store = dbHandle ? makeDbStore(dbHandle, "c4-"+myRoom) : makeLocalStore();
   // 실시간 구독은 변경이 없어도 주기적으로 재전달될 수 있어(약 30초 폴백),
   // 값이 실제로 달라졌을 때만 다시 그린다 — 그렇지 않으면 그 타이밍에 겹친
   // 사용자 클릭(예: 카드 가져가기)이 화면 재구성 때문에 씹힐 수 있다.
   unsubFns.push(store.onState(s=>{
     const changed = s.phase !== sharedState.phase || s.phaseEndsAt !== sharedState.phaseEndsAt;
-    if(changed) paidOpenSet = new Set(); // 새 단계로 넘어가면 토큰도 리셋되므로, 펼쳐둔 유료 카드 표시도 같이 접어둠
     sharedState = s;
     const wasLoaded = stateLoaded;
     stateLoaded = true;
@@ -1167,8 +1196,6 @@ function connectStore(){
     const sig = JSON.stringify([...t.entries()].sort());
     const changed = sig !== lastTokenSig; lastTokenSig = sig;
     tokenUse = t;
-    // 전원이 이번 라운드 토큰을 다 쓰면 더 볼 게 없다는 뜻 — 시간이 남아도 바로 토론으로
-    if(changed && stateLoaded && players.size>0 && EVIDENCE_PHASES.includes(sharedState.phase) && allPlayersUsedAllTokens()) store.setPhase("discussion");
     if(changed) render(); // 토큰 배지가 상단 케이스바에도 상시 표시되므로 탭 제한 없이 다시 그린다
   }));
   unsubFns.push(store.onRevealed(r=>{
@@ -1199,9 +1226,9 @@ function connectStore(){
 }
 function leaveRoom(){
   unsubFns.forEach(u=>{ try{ u && u(); }catch(e){} }); unsubFns=[];
-  localStorage.removeItem("lm_room");
-  if(myRoom) localStorage.removeItem("lm_role_"+myRoom);
-  myRoom=null; myRole=null; store=null; players=new Map(); votes=new Map(); claims=new Map(); tokenUse=new Map(); readySet=new Set(); revealedSet=new Map(); revealNotifyReady=false; npcSet=new Set(); myCardsOpen=false; rosterOpen=false; myOpened=new Set(); paidOpenSet=new Set(); lastTokenSig="";
+  localStorage.removeItem("lm_c4_room");
+  if(myRoom) localStorage.removeItem("lm_c4_role_"+myRoom);
+  myRoom=null; myRole=null; store=null; players=new Map(); votes=new Map(); claims=new Map(); tokenUse=new Map(); readySet=new Set(); revealedSet=new Map(); revealNotifyReady=false; npcSet=new Set(); myCardsOpen=false; rosterOpen=false; myOpened=new Set(); lastTokenSig="";
   phaseGuideOpen=false; lastSeenGuidePhase=null; stateLoaded=false;
   activeTab="id"; gateError=""; roomError="";
   updateConnBanner();
@@ -1329,11 +1356,9 @@ function renderPhaseGuideModal(){
     </div>
   </div>`;
 }
-// "내 증거함" = 내가 확보한(가져간) 카드 — 언제나 무료로 다시 볼 수 있는 것들만 모아봄.
-// 공용 view 카드·타인이 공개한 카드는 볼 때마다 토큰이 들어서(2026-09-23) 여기엔 포함하지 않음 —
-// 증거대에서 매번 토큰을 내고 열람해야 함.
+// "내 증거함" = 내가 확보한 카드 + 누군가 공개한 카드(공개 카드는 누구나 무료 열람, 2026-11-16)
 function myAccessibleCards(){
-  return ALL_CARDS.filter(c => claims.get(c.id)?.by===myRole);
+  return ALL_CARDS.filter(c => claims.get(c.id)?.by===myRole || revealedSet.has(c.id));
 }
 function renderMyCardsModal(){
   const mine = myAccessibleCards();
@@ -1348,8 +1373,9 @@ function renderMyCardsModal(){
         ? `<p style="color:var(--text-dim);font-size:13px;">아직 확인한 카드가 없습니다. 증거대에서 🔒 표시된 카드를 가져가세요.</p>`
         : mine.map(card=>{
           const revealedBy = revealedSet.get(card.id);
-          const mineTag = revealedBy ? "📌 내가 확보 · 🗣 공개함" : "📌 내가 확보";
-          const canReveal = !revealedBy;
+          const isMine = claims.get(card.id)?.by===myRole;
+          const mineTag = !isMine ? revealTag(card).replace(/^ · /,"") : revealedBy ? "📌 내가 확보 · 🗣 공개함" : "📌 내가 확보";
+          const canReveal = isMine && !revealedBy;
           return `
           <div class="my-card">
             <div class="doc-head"><span>${card.docNo}</span><span>${card.date}</span></div>
@@ -1415,7 +1441,7 @@ function advancePhase(){
   if(sharedState.phase==="vote" && players.size>0 && votesDoneCount()<players.size) return;
   const idx = phaseIndex(sharedState.phase);
   const next = PHASES[Math.min(idx+1, PHASES.length-1)];
-  if(next !== sharedState.phase) store.setPhase(next);
+  if(next !== sharedState.phase) store.advance(sharedState.phase, next);
 }
 
 function renderRoomGate(){
@@ -1451,7 +1477,7 @@ function renderRoomGate(){
         <input id="playerNameInput" maxlength="12" placeholder="당신의 이름"
           value="${myName.replace(/"/g,'&quot;')}"
           style="background:var(--paper);border:2px solid var(--ink-3);color:var(--text);border-radius:4px;padding:11px 14px;font-size:16px;font-weight:600;width:120px;">
-        <input id="roomCodeInput" class="mono" maxlength="20" placeholder="예: 1조, A조"
+        <input id="roomCodeInput" class="mono" maxlength="17" placeholder="예: 1조, A조"
           style="background:var(--paper);border:2px solid var(--ink-3);color:var(--text);border-radius:4px;padding:11px 14px;font-size:16px;font-weight:600;letter-spacing:.04em;width:140px;">
         <button class="btn primary" id="joinRoomBtn">이 코드로 입장</button>
         <button class="btn" id="genRoomBtn">랜덤 코드 생성</button>
@@ -1468,7 +1494,7 @@ function renderRoomGate(){
     if(!name){ roomError = "당신의 이름을 입력하세요."; render(); return; }
     if(!code){ roomError = "조 이름(코드)을 입력하세요."; render(); return; }
     myName = name; localStorage.setItem("lm_playername", name);
-    roomError = ""; myRoom = code; localStorage.setItem("lm_room", code); connectStore();
+    roomError = ""; myRoom = code; localStorage.setItem("lm_c4_room", code); connectStore();
   });
   document.getElementById("genRoomBtn").addEventListener("click", ()=>{ input.value = genRoomCode(); input.focus(); });
   [nameInput, input].forEach(el=>el.addEventListener("keydown", (e)=>{ if(e.key==="Enter") document.getElementById("joinRoomBtn").click(); }));
@@ -1538,7 +1564,7 @@ function renderGate(){
       b.disabled = true; b.textContent = "확인 중...";
       try{
         const ok = await store.claimRole(roleId, name, myName);
-        if(ok){ myRole = roleId; localStorage.setItem("lm_role_"+myRoom, roleId); loadMyOpened(); render(); }
+        if(ok){ myRole = roleId; localStorage.setItem("lm_c4_role_"+myRoom, roleId); loadMyOpened(); render(); }
         else { gateError = "이미 다른 참가자가 선택한 역할입니다."; render(); }
       }catch(e){
         gateError = "역할 선택 중 통신 오류가 발생했습니다. 다시 시도해 주세요.";
@@ -1570,7 +1596,7 @@ function renderGate(){
     switchBtn.disabled = true;
     const prevRole = myRole;
     myRole = null;
-    localStorage.removeItem("lm_role_"+myRoom);
+    localStorage.removeItem("lm_c4_role_"+myRoom);
     players.delete(prevRole); // 서버 응답을 기다리지 않고 화면부터 바로 갱신
     render();
     try{ await store.releaseRole(prevRole); }catch(e){}
@@ -1683,29 +1709,12 @@ function renderBoard(){
   }
   return `
     <div class="board-legend">
-      <span><b>🎫 가져가기</b>와 <b>📖 공용 카드·남이 공개한 카드 열람</b>은 각각 토큰 1개가 듭니다 — 라운드당 최대 2번까지만(다 안 써도 무방)</span>
-      <span>확보(가져가기)한 카드는 그 뒤로 나만 영구 무료로 다시 볼 수 있음 — 한 카드는 한 명만 가져갈 수 있음</span>
-      <span>확보한 카드는 언제든 <b>🗣 공개하기</b>로 전원에게 알릴 수 있음(공개해도 남이 보려면 그 사람 토큰이 듦)</span>
+      <span><b>🎫 가져가기</b>에 토큰 1개 — 라운드마다 2개씩 새로 받음(6명×2개×3라운드 = 증거 36장)</span>
+      <span>한 카드는 한 명만 가져갈 수 있고, 확보한 카드는 나만 볼 수 있음</span>
+      <span><b>🗣 공개하기</b>로 공개된 카드는 누구나 토큰 없이 열람 가능</span>
     </div>
     <div class="card-grid">
     ${cards.map(card=>{
-      if(card.kind==="view"){
-        const isOpen = paidOpenSet.has(card.id);
-        return `<div class="flipcard ${isOpen?'flipped':''}" data-idx="${card.id}" data-paid="1"><div class="flipcard-inner">
-          <div class="face front">
-            <div class="seal-icon">📖</div>
-            <div class="exhibit-no">증거 ${card.exhibit}</div>
-            <div class="owner-tag">${card.ownerName} · 공용 열람</div>
-            <div class="tap-hint">🎫 탭하여 열람(1개)</div>
-          </div>
-          <div class="face back">
-            <div class="doc-head"><span>${card.docNo}</span><span>${card.date}</span></div>
-            <div class="doc-title">${card.title}</div>
-            <div class="doc-body">${card.body}</div>
-            ${card.note?`<div class="doc-note">${card.note}</div>`:""}
-          </div>
-        </div></div>`;
-      }
       const claim = claims.get(card.id);
       const isRevealed = revealedSet.has(card.id);
       if(!claim){
@@ -1742,14 +1751,13 @@ function renderBoard(){
           </div>
         </div></div>`;
       }
-      // 남이 확보해서 공개한 카드 — 나에겐 유료 열람 대상
-      const isOpen = paidOpenSet.has(card.id);
-      return `<div class="flipcard ${isOpen?'flipped':''}" data-idx="${card.id}" data-paid="1"><div class="flipcard-inner">
+      // 남이 확보해서 공개한 카드 — 누구나 무료로 열람
+      return `<div class="flipcard ${myOpened.has(card.id)?'flipped':''}" data-idx="${card.id}"><div class="flipcard-inner">
         <div class="face front">
           <div class="seal-icon">⚖</div>
           <div class="exhibit-no">증거 ${card.exhibit}</div>
           <div class="owner-tag">${card.ownerName}${revealTag(card)}</div>
-          <div class="tap-hint">🎫 탭하여 열람(1개)</div>
+          <div class="tap-hint">탭하여 확인</div>
         </div>
         <div class="face back">
           <div class="doc-head"><span>${card.docNo}</span><span>${card.date}</span></div>
@@ -1763,26 +1771,14 @@ function renderBoard(){
 }
 function bindBoard(){
   app.querySelectorAll(".flipcard").forEach(el=>{
-    const isPaid = el.dataset.paid === "1";
-    el.addEventListener("click", async ()=>{
+    el.addEventListener("click", ()=>{
       const card = ALL_CARDS.find(c=>c.id===el.dataset.idx);
       if(!card) return;
-      if(!isPaid){
-        if(!myOpened.has(card.id)){
+      if(!myOpened.has(card.id)){
           // 처음 여는 카드 — "이미 본 카드" 표시를 남겨 다음에도 펼쳐진 채로 보이게 함
-          myOpened.add(card.id); saveMyOpened(); render(); return;
-        }
-        el.classList.toggle("flipped");
-        return;
+        myOpened.add(card.id); saveMyOpened(); render(); return;
       }
-      // 유료 카드(공용 열람·타인 공개) — 접는 건 무료, 다시 펼치려면 토큰을 또 낸다
-      if(paidOpenSet.has(card.id)){ paidOpenSet.delete(card.id); render(); return; }
-      if(!EVIDENCE_PHASES.includes(sharedState.phase)){ showToast("🎫 증거 공개 라운드가 끝나 더 이상 토큰을 쓸 수 없습니다"); return; }
-      if(remainingTokens() <= 0){ showToast("🎫 이번 라운드 토큰을 모두 사용했습니다"); return; }
-      const ok = await store.spendToken(sharedState.phase, myRole);
-      if(!ok){ showToast("🎫 이번 라운드 토큰을 모두 사용했습니다"); return; }
-      paidOpenSet.add(card.id);
-      render();
+      el.classList.toggle("flipped");
     });
   });
   app.querySelectorAll(".claim-btn").forEach(btn=>{
@@ -1968,7 +1964,7 @@ async function boot(){
   if(myRoom) connectStore(); else render(); // 기존에 입장했던 방 코드가 있으면 바로 재연결
 
   setInterval(()=>{
-    if(!store || sharedState.phase==="result") return;
+    if(!store || !stateLoaded || sharedState.phase==="result") return;
     if(Date.now() >= phaseEndsAtMs()){ advancePhase(); return; }
     const remain = phaseEndsAtMs() - Date.now();
     const t = document.getElementById("timerEl"); // 전체 재렌더 없이 초시계만 갱신(클릭 타이밍 충돌 방지)
