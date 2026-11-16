@@ -11,7 +11,7 @@
   --seal:#a1402a;--seal-bright:#bf5539;--gold:#8a6a2b;--text:#2b2314;--text-dim:#79693f;
 }
 *{box-sizing:border-box;}
-html,body{margin:0;height:100%;background:#1b160c;overflow:hidden;font-family:"Pretendard",system-ui,sans-serif;color:var(--text);}
+html,body{margin:0;height:100%;background:#1b160c;overflow:hidden;font-family:"Pretendard",system-ui,sans-serif;color:var(--text);word-break:keep-all;}
 /* 1920×1080 고정 캔버스를 창 크기에 맞춰 축소·확대(남는 부분은 레터박스) */
 #stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center;background:var(--ink);}
 .slide{position:absolute;inset:0;padding:80px 110px 120px;display:none;}
@@ -22,26 +22,324 @@ html,body{margin:0;height:100%;background:#1b160c;overflow:hidden;font-family:"P
   border-top:2px solid var(--ink-3);background:var(--ink-2);font-size:22px;color:var(--text-dim);}
 #bar a{color:var(--text-dim);}
 #counter{margin-left:auto;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;}
+/* 장 배치: 왼쪽 게임 화면 모형 + 오른쪽 설명 */
+.split{display:grid;grid-template-columns:940px 1fr;gap:70px;align-items:start;}
+.notes{list-style:none;margin:0;padding:0;display:grid;gap:34px;font-size:38px;line-height:1.45;}
+.notes li{display:flex;gap:18px;align-items:flex-start;}
+.notes b{color:var(--seal);}
+.lead{font-size:36px;line-height:1.5;margin:0 0 30px;color:var(--text);}
+.pin{flex:none;display:inline-grid;place-items:center;width:46px;height:46px;border-radius:50%;
+  background:var(--seal);color:#fff;font-size:26px;font-weight:900;vertical-align:middle;}
+.mock .pin{width:34px;height:34px;font-size:19px;margin-left:6px;box-shadow:0 0 0 3px var(--paper);}
+/* 게임 화면 모형 */
+.mock{background:var(--ink);border:3px solid var(--ink-3);border-radius:14px;padding:22px;font-size:21px;
+  box-shadow:8px 8px 0 var(--paper-shadow);display:grid;gap:14px;zoom:1.35;} /* 프로젝터에서 읽히도록 모형 전체 확대 */
+.m-box{background:var(--ink-2);border:2px solid var(--ink-3);border-radius:6px;padding:14px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+.m-btn{border:2px solid var(--text);background:var(--paper);border-radius:5px;padding:7px 12px;font-weight:700;font-size:19px;white-space:nowrap;}
+.m-btn.red{background:var(--seal);border-color:var(--seal);color:#fff;}
+.m-btn.dark{background:var(--ink-3);border-color:var(--ink-3);color:var(--paper);}
+.m-chip{font-size:16px;padding:3px 10px;border-radius:99px;border:1px solid var(--ink-4);color:var(--text-dim);}
+.m-chip.on{background:var(--seal);border-color:var(--seal);color:#fff;}
+.m-time{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;padding:0 8px;border-left:2px solid var(--ink-3);}
+.m-input{background:var(--paper);border:2px solid var(--ink-3);border-radius:5px;padding:9px 14px;color:var(--text-dim);min-width:180px;}
+.m-paper{background:var(--paper);border:2px solid var(--ink-3);border-radius:6px;padding:14px 16px;line-height:1.5;}
+.m-label{font-size:16px;font-weight:800;color:var(--seal);letter-spacing:.04em;}
+.m-dim{color:var(--text-dim);font-size:18px;}
+.m-blur{filter:blur(6px);}
+.m-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.m-card{background:var(--paper);border:2px solid var(--seal);border-radius:8px;padding:14px 10px;text-align:center;display:grid;gap:6px;justify-items:center;min-height:170px;align-content:center;}
+.m-card.locked{border-color:var(--ink-4);background:var(--ink-2);color:var(--text-dim);}
+.m-table{width:100%;border-collapse:collapse;font-size:18px;background:var(--paper);}
+.m-table th,.m-table td{border:1px solid var(--ink-4);padding:8px 10px;text-align:left;vertical-align:top;}
+.m-table th{background:var(--ink-2);}
+.m-stamp{display:inline-block;border:3px solid var(--seal);color:var(--seal);font-weight:900;padding:4px 14px;border-radius:6px;transform:rotate(-3deg);}
+/* 흐름표 */
+.flow{display:grid;grid-template-columns:repeat(7,1fr);gap:14px;margin-top:20px;}
+.flow div{background:var(--paper);border:3px solid var(--ink-3);border-radius:10px;padding:22px 14px;text-align:center;font-size:27px;font-weight:800;line-height:1.3;}
+.flow div small{display:block;margin-top:10px;font-size:22px;font-weight:600;color:var(--text-dim);}
+.flow div.hot{border-color:var(--seal);}
+.flow-note{margin-top:46px;font-size:32px;line-height:1.5;}
+/* 표지 */
+.cover{height:100%;display:grid;place-content:center;text-align:center;gap:24px;}
+.cover h1{margin:0;font-size:120px;font-weight:900;letter-spacing:-.02em;}
+.cover p{margin:0;font-size:40px;color:var(--text-dim);}
+.cover .rule{width:120px;height:4px;background:var(--gold);margin:12px auto;}
+.sides{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:40px;}
+.side{border:3px solid var(--ink-3);border-radius:12px;background:var(--paper);padding:30px 34px;font-size:32px;line-height:1.5;}
+.side h3{margin:0 0 10px;font-size:40px;}
+.check{list-style:none;margin:0;padding:0;display:grid;gap:30px;font-size:40px;}
+.check li::before{content:"☑ ";color:var(--seal);}
 #fsBtn{border:2px solid var(--text);background:var(--paper);border-radius:6px;padding:6px 16px;font:inherit;font-weight:700;color:var(--text);cursor:pointer;}
 </style>
 </head>
 <body>
 <div id="stage">
-  <section class="slide" data-title="표지"><h2>표지</h2></section>
-  <section class="slide" data-title="게임 한눈에"><h2>게임 한눈에</h2></section>
-  <section class="slide" data-title="전체 흐름"><h2>전체 흐름</h2></section>
-  <section class="slide" data-title="입장 화면"><h2>입장 화면</h2></section>
-  <section class="slide" data-title="배역 선택"><h2>배역 선택</h2></section>
-  <section class="slide" data-title="상단바"><h2>상단바</h2></section>
-  <section class="slide" data-title="내 신원"><h2>내 신원</h2></section>
-  <section class="slide" data-title="사건 개요"><h2>사건 개요</h2></section>
-  <section class="slide" data-title="증거대 ① 가져가기"><h2>증거대 ① 가져가기</h2></section>
-  <section class="slide" data-title="증거대 ② 공개하기"><h2>증거대 ② 공개하기</h2></section>
-  <section class="slide" data-title="다음 단계로"><h2>다음 단계로</h2></section>
-  <section class="slide" data-title="교차검증 토론"><h2>교차검증 토론</h2></section>
-  <section class="slide" data-title="최종 투표"><h2>최종 투표</h2></section>
-  <section class="slide" data-title="결과 화면"><h2>결과 화면</h2></section>
-  <section class="slide" data-title="시작 전 체크"><h2>시작 전 체크</h2></section>
+  <section class="slide" data-title="표지">
+    <div class="cover">
+      <div class="kicker">사건기록보관실</div>
+      <h1>ER 미스터리</h1>
+      <div class="rule"></div>
+      <p>진행 방법 안내 · 전체 약 60분</p>
+    </div>
+  </section>
+
+  <section class="slide" data-title="게임 한눈에">
+    <div class="kicker">ABOUT</div>
+    <h2>노동위원회 재심 심문회의를 6명이 직접 연기합니다</h2>
+    <div class="sides">
+      <div class="side"><h3>사측 3명</h3>인사팀장, 경영진 등<br>“처분은 정당했다”</div>
+      <div class="side"><h3>근로자측 3명</h3>신청인, 노무사, 동료 등<br>“부당한 처분이다”</div>
+    </div>
+    <ul class="notes">
+      <li><span class="pin">1</span><span>실제 판정례를 각색한 사건 — 모두 <b>자기만 아는 비밀</b>이 있습니다</span></li>
+      <li><span class="pin">2</span><span>증거를 모으고 → 토론하고 → <b>투표로 판정</b>을 내립니다</span></li>
+      <li><span class="pin">3</span><span>진행자 없이도 단계마다 안내 팝업이 자동으로 뜹니다</span></li>
+    </ul>
+  </section>
+
+  <section class="slide" data-title="전체 흐름">
+    <div class="kicker">FLOW</div>
+    <h2>전체 흐름</h2>
+    <div class="flow">
+      <div>배역 선택<small>모두 고를 때까지</small></div>
+      <div>사건 파악<small>10분</small></div>
+      <div>자기소개<small>4분</small></div>
+      <div class="hot">증거 공개<small>5분 × 3라운드</small></div>
+      <div class="hot">교차검증 토론<small>15분</small></div>
+      <div>최종 투표<small>2분</small></div>
+      <div>결과<small>해설·결말</small></div>
+    </div>
+    <p class="flow-note">⏱ 시간이 끝나거나 <b style="color:var(--seal)">전원이 “다음 단계 준비”</b>를 누르면 다음 단계로 넘어갑니다.<br>남은 시간은 화면 위쪽 타이머에 계속 표시됩니다.</p>
+  </section>
+
+  <section class="slide" data-title="입장 화면">
+    <div class="kicker">STEP 1</div>
+    <h2>입장 — 이름과 조 코드</h2>
+    <div class="split">
+      <div class="mock">
+        <div class="m-paper" style="text-align:center;display:grid;gap:14px;justify-items:center;">
+          <b style="font-size:26px;">ER 미스터리 '가상 사건'</b>
+          <div class="m-dim">우리 조의 이름(코드)을 입력하세요</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+            <span class="m-input">당신의 이름</span><span class="pin">1</span>
+            <span class="m-input">예: 1조</span><span class="pin">2</span>
+          </div>
+          <div style="display:flex;gap:10px;"><span class="m-btn red">이 코드로 입장</span><span class="m-btn">랜덤 코드 생성</span></div>
+        </div>
+      </div>
+      <ul class="notes">
+        <li><span class="pin">1</span><span>내 <b>실제 이름</b> — 관계도에 누가 어떤 역할인지 표시됩니다</span></li>
+        <li><span class="pin">2</span><span><b>조 코드</b> — 같은 코드를 넣은 사람끼리만 한 판으로 연결됩니다 (17자 이내)</span></li>
+        <li><span class="pin">!</span><span>사건 목록에서 <b>같은 사건</b>을 골랐는지 먼저 확인하세요</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide" data-title="배역 선택">
+    <div class="kicker">STEP 2</div>
+    <h2>배역 선택 — 선착순</h2>
+    <div class="split">
+      <div class="mock">
+        <div class="m-box"><b>배역 확정 현황: 6 / 6</b></div>
+        <div class="m-paper"><span class="m-label">사측</span> 홍길동 · 인사팀장 <span class="m-btn dark" style="margin-left:8px;">✔ 배정 완료</span><span class="pin">1</span></div>
+        <div class="m-paper"><span class="m-label">근로자측</span> 김영희 · 신청인 <span class="m-btn" style="margin-left:8px;">🤖 NPC로 진행</span><span class="pin">2</span></div>
+        <div style="text-align:center;"><span class="m-btn red" style="font-size:22px;">🎬 사건 시작하기</span><span class="pin">3</span></div>
+      </div>
+      <ul class="notes">
+        <li><span class="pin">1</span><span>6개 배역(사측 3·근로자측 3) 중 <b>먼저 누른 사람</b>이 가져갑니다. 시작 전엔 바꿀 수 있어요</span></li>
+        <li><span class="pin">2</span><span>6명이 안 되면 빈 배역은 <b>NPC로 진행</b>을 눌러 채웁니다</span></li>
+        <li><span class="pin">3</span><span>6/6이 되면 아무나 <b>사건 시작하기</b> — 이때부터 타이머가 돕니다</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide" data-title="상단바">
+    <div class="kicker">SCREEN</div>
+    <h2>상단바 — 항상 위에 고정</h2>
+    <div class="split">
+      <div class="mock">
+        <div class="m-box">
+          <span class="m-chip on">1라운드 · 증거 공개</span><span class="pin">1</span>
+          <span class="m-time">04:40</span><span class="m-btn">🎫 토큰 2/2</span><span class="pin">2</span>
+        </div>
+        <div class="m-box">
+          <span class="m-btn">❓ 지금 할 일</span><span class="pin">3</span>
+          <span class="m-btn">🗺 관계도 보기</span>
+          <span class="m-btn red">📁 내 증거함 (2)</span>
+          <span class="m-btn">🙋 다음 단계 준비 (3/6)</span><span class="pin">4</span>
+          <span class="m-btn">세션 나가기</span>
+        </div>
+        <div style="display:flex;gap:8px;"><span class="m-btn">내 신원</span><span class="m-btn">사건 개요</span><span class="m-btn dark">증거대</span></div>
+      </div>
+      <ul class="notes">
+        <li><span class="pin">1</span><span>지금 단계와 <b>남은 시간</b></span></li>
+        <li><span class="pin">2</span><span>이번 라운드에 남은 <b>토큰</b></span></li>
+        <li><span class="pin">3</span><span>뭘 해야 할지 모르겠으면 <b>지금 할 일</b> — 언제든 다시 열 수 있습니다</span></li>
+        <li><span class="pin">4</span><span>준비가 끝나면 <b>다음 단계 준비</b> (몇 명 눌렀는지 보임)</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide" data-title="내 신원">
+    <div class="kicker">TAB 1</div>
+    <h2>내 신원 — 나는 누구인가</h2>
+    <div class="split">
+      <div class="mock">
+        <div class="m-paper"><span class="m-label">사측 · 인사팀장</span><br><b style="font-size:26px;">홍길동</b><br><span class="m-dim">겉으로 내세우는 입장 · 배경 · 관계 · 목표 · 예상 질문</span><span class="pin">1</span></div>
+        <div class="m-paper"><span class="m-label">🔒 나만 아는 것</span><span class="pin">2</span><br><span class="m-blur">사실은 평가 서류를 다시 쓰라는 지시를 받았다…</span></div>
+        <div class="m-paper"><span class="m-label">나의 타임라인</span><br><span class="m-dim">2024.07 … / 2024.12 … / 2025.01 …</span></div>
+      </div>
+      <ul class="notes">
+        <li><span class="pin">1</span><span>내 배역의 <b>입장·배경·관계·목표</b>를 먼저 읽으세요 (사건 파악 10분)</span></li>
+        <li><span class="pin">2</span><span><b>비밀</b>은 흐리게 가려져 있고 누르고 있으면 보입니다 — 옆 사람 화면 조심!</span></li>
+        <li><span class="pin">!</span><span>자기소개 땐 <b>겉으로 내세우는 입장만</b> 말합니다. 비밀은 아직 말하지 마세요</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide" data-title="사건 개요">
+    <div class="kicker">TAB 2</div>
+    <h2>사건 개요 — 모두가 아는 사실</h2>
+    <div class="split">
+      <div class="mock">
+        <div class="m-paper"><span class="m-label">💡 쉬운 법리 가이드</span><span class="pin">1</span><br><span class="m-dim">이 사건에서 따져볼 체크포인트 · 관련 판례 자세히 보기 ▸</span></div>
+        <div class="m-paper"><span class="m-label">초심 판정서</span><span class="pin">2</span><br><b>근로자 패 — 구제신청 기각</b><br><span class="m-dim">판정 이유 전문 펼치기 ▸</span></div>
+        <div class="m-paper"><span class="m-label">사건 타임라인</span><span class="pin">3</span><br><span class="m-dim">입사 → 갈등 → 처분 → 구제신청 → 초심 → 재심</span></div>
+      </div>
+      <ul class="notes">
+        <li><span class="pin">1</span><span>어려운 법 개념을 <b>쉬운 말</b>로 정리한 가이드</span></li>
+        <li><span class="pin">2</span><span>오늘은 <b>재심</b>입니다 — 초심이 어떻게 판단했는지부터 확인</span></li>
+        <li><span class="pin">3</span><span>누가 언제 무엇을 했는지 <b>흐름</b>을 맞춰보세요</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide" data-title="증거대 ① 가져가기">
+    <div class="kicker">TAB 3 · 증거 라운드</div>
+    <h2>증거대 ① — 가져가기</h2>
+    <div class="split">
+      <div class="mock">
+        <div class="m-box"><span class="m-chip on">1라운드 · 증거 공개</span><span class="m-time">04:40</span><span class="m-btn">🎫 토큰 1/2</span></div>
+        <div class="m-cards">
+          <div class="m-card">⚖<b>증거 제3호</b><span class="m-dim">홍길동 (사측)</span><span class="m-btn red" style="font-size:16px;">🔒 가져가기(🎫1)</span><span class="pin">1</span></div>
+          <div class="m-card">⚖<b>증거 제8호</b><span class="m-dim">김영희 (근로자측)</span><span class="m-dim">📌 내가 확보</span><span class="pin">2</span></div>
+          <div class="m-card locked">🔒<b>증거 제12호</b><span>박철수(사측)님이<br>확보함</span><span class="pin">3</span></div>
+        </div>
+      </div>
+      <ul class="notes">
+        <li><span class="pin">1</span><span>증거는 <b>36장</b>. 1장 가져갈 때 <b>토큰 1개</b> — 라운드마다 2개씩 새로 받습니다</span></li>
+        <li><span class="pin">2</span><span>내가 가져간 카드는 <b>나만</b> 볼 수 있습니다</span></li>
+        <li><span class="pin">3</span><span>한 장은 <b>한 명만</b> 가져갑니다 — 남이 먼저 가져가면 공개 전까진 못 봐요</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide" data-title="증거대 ② 공개하기">
+    <div class="kicker">TAB 3 · 증거 라운드</div>
+    <h2>증거대 ② — 공개하기</h2>
+    <div class="split">
+      <div class="mock">
+        <div class="m-paper" style="text-align:center;">🗣 <b>김영희님이 증거 제8호를 공개했습니다</b><span class="pin">1</span></div>
+        <div class="m-cards">
+          <div class="m-card">⚖<b>증거 제8호</b><span class="m-dim">김영희 (근로자측) · 🗣 공개</span><span class="m-dim">탭하여 확인</span><span class="pin">2</span></div>
+          <div class="m-card">⚖<b>증거 제5호</b><span class="m-dim">📌 내가 확보</span><span class="m-btn" style="font-size:16px;">🗣 이 증거 공개하기</span><span class="pin">3</span></div>
+          <div class="m-card">📁<b>내 증거함</b><span class="m-dim">내가 확보한 카드<br>+ 공개된 카드</span><span class="pin">4</span></div>
+        </div>
+      </div>
+      <ul class="notes">
+        <li><span class="pin">1</span><span>공개하면 <b>전원에게 알림</b>이 갑니다</span></li>
+        <li><span class="pin">2</span><span>공개된 카드는 누구나 <b>토큰 없이</b> 열어볼 수 있습니다</span></li>
+        <li><span class="pin">3</span><span>공개할지, 끝까지 숨길지는 <b>내 선택</b> — 결과 화면의 내 결말이 달라집니다</span></li>
+        <li><span class="pin">4</span><span>내 것과 공개된 것은 <b>내 증거함</b>에 모입니다</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide" data-title="다음 단계로">
+    <div class="kicker">RULE</div>
+    <h2>다음 단계로 넘어가는 법</h2>
+    <div class="split">
+      <div class="mock">
+        <div class="m-box" style="justify-content:center;"><span class="m-btn red" style="font-size:24px;">🙋 다음 단계 준비 (5/6)</span><span class="pin">1</span></div>
+        <div class="m-box" style="justify-content:center;"><span class="m-time" style="border:none;font-size:40px;">00:00</span><span class="pin">2</span></div>
+        <div class="m-paper" style="text-align:center;"><b>3라운드 → 교차검증 토론</b><br><span class="m-dim">새 단계 안내 팝업이 자동으로 뜹니다</span><span class="pin">3</span></div>
+      </div>
+      <ul class="notes">
+        <li><span class="pin">1</span><span><b>전원</b>이 “다음 단계 준비”를 누르면 바로 넘어갑니다 (다시 누르면 취소)</span></li>
+        <li><span class="pin">2</span><span>아니면 <b>시간이 끝날 때</b> 자동으로 넘어갑니다</span></li>
+        <li><span class="pin">3</span><span>토큰을 다 써도 자동으로 넘어가지 않아요 — 다 같이 준비되면 넘어갑니다</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide" data-title="교차검증 토론">
+    <div class="kicker">DISCUSSION · 15분</div>
+    <h2>교차검증 토론</h2>
+    <div class="split">
+      <div class="mock">
+        <table class="m-table">
+          <tr><th>쟁점</th><th>⚖ 법적 요건 <span class="pin">1</span></th></tr>
+          <tr><td>① 갱신기대권</td><td>계약 내용·갱신 기준·업무의 계속성 등을 종합…</td></tr>
+          <tr><th>사측 주장 <span class="pin">2</span></th><th>근로자측 반박</th></tr>
+          <tr><td>계약 만료로 끝난 것이다</td><td>반복 갱신으로 기대가 생겼다</td></tr>
+        </table>
+        <div class="m-dim">아래 탭에서 내 신원·증거대를 계속 다시 볼 수 있습니다 <span class="pin">3</span></div>
+      </div>
+      <ul class="notes">
+        <li><span class="pin">1</span><span>쟁점마다 <b>법적 요건</b>을 먼저 확인하고</span></li>
+        <li><span class="pin">2</span><span>내 증거로 <b>사실관계를 대입</b>해 주장·반박합니다</span></li>
+        <li><span class="pin">3</span><span>확보한 증거는 <b>말로 설명</b>하거나 지금이라도 공개할 수 있어요</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide" data-title="최종 투표">
+    <div class="kicker">VOTE · 2분</div>
+    <h2>최종 투표 — 두 쟁점에 각각</h2>
+    <div class="split">
+      <div class="mock">
+        <div class="m-paper"><span class="m-label">쟁점 1</span> 부당해고에 해당하는가? <span class="pin">1</span><br>
+          <span class="m-btn" style="margin-top:8px;display:inline-block;">기각</span> <span class="m-btn red">인정</span></div>
+        <div class="m-paper"><span class="m-label">쟁점 2</span> 부당노동행위가 성립하는가?<br>
+          <span class="m-btn dark" style="margin-top:8px;display:inline-block;">기각</span> <span class="m-btn">인정</span></div>
+        <div class="m-box" style="justify-content:center;"><b>투표 완료 4 / 6</b><span class="pin">2</span></div>
+      </div>
+      <ul class="notes">
+        <li><span class="pin">1</span><span>쟁점 두 개에 <b>각각 익명</b>으로 투표 — 조합에 따라 <b>결말 4가지</b></span></li>
+        <li><span class="pin">2</span><span><b>전원이 투표</b>해야 결과가 나옵니다 (시간이 지나도 기다려요)</span></li>
+        <li><span class="pin">!</span><span>내 진영이 아니라 <b>증거와 법리</b>로 판단해도 됩니다</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide" data-title="결과 화면">
+    <div class="kicker">RESULT</div>
+    <h2>결과 — 판정과 각자의 결말</h2>
+    <div class="split">
+      <div class="mock">
+        <div class="m-paper" style="text-align:center;"><span class="m-stamp">실제 재심 판정과 일치</span><span class="pin">1</span><br><b style="font-size:24px;">재심 인용 — 초심 취소</b></div>
+        <div class="m-paper">🏆 개인 점수판 <span class="pin">2</span> <span class="m-dim">· 내 결말(비밀을 공개했는지에 따라 다름)</span></div>
+        <div class="m-paper">🔎 쟁점별 해설 · 💡 HR 러닝 포인트 · 📜 사건의 전말 <span class="pin">3</span></div>
+      </div>
+      <ul class="notes">
+        <li><span class="pin">1</span><span>우리 판정이 <b>실제 판정</b>과 같았는지 확인</span></li>
+        <li><span class="pin">2</span><span>배역마다 <b>점수와 결말</b>이 다릅니다 — 비밀을 지켰는지도 반영</span></li>
+        <li><span class="pin">3</span><span>쟁점 해설과 <b>숨겨진 이야기</b>로 함께 정리합니다</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide" data-title="시작 전 체크">
+    <div class="kicker">READY</div>
+    <h2>시작 전 체크</h2>
+    <ul class="check">
+      <li>폰 화면 <b>새로고침</b> (최신 버전으로)</li>
+      <li>사건 목록에서 <b>같은 사건</b> 선택</li>
+      <li><b>조 코드</b> 정해서 공유하기 (예: 1조)</li>
+      <li>헷갈리면 언제든 <b>❓ 지금 할 일</b></li>
+      <li>비밀은 <b>내 화면에서만</b> — 옆 사람 화면은 보지 않기</li>
+    </ul>
+  </section>
   <div id="bar">
     <a href="../">← 사건 목록으로</a>
     <span>← → 키·클리커로 넘기기</span>
